@@ -18,9 +18,11 @@
     "vue-class-component": "^7.2.6",
     "vue-property-decorator": "^9.0.2",
     "vue-router": "^3.4.8",
-    "vuex": "^3.5.1"
+    "vuex": "^3.5.1",
+    "xlsx": "^0.16.8"
   },
   "devDependencies": {
+    "@types/electron-devtools-installer": "^2.2.0",
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.6.0",
     "@vue/cli-plugin-babel": "~4.5.8",
