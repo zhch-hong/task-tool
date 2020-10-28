@@ -18,11 +18,14 @@ export default class HelloWorld extends Vue {
 
   async dialog(): Promise<void> {
     const open = await dialog.showOpenDialog({ properties: ['openFile'] });
-    const read = XLSX.readFile(open.filePaths[0]);
-    const save = await dialog.showSaveDialog({});
-    if (save.filePath) {
-      XLSX.writeFile(read, save.filePath);
-    }
+    const path = open.filePaths[0];
+    const workBook = XLSX.readFile(path, { type: 'binary' });
+    console.log(workBook);
+    // ipcRenderer.invoke('file-path', path);
+    // const save = await dialog.showSaveDialog({});
+    // if (save.filePath) {
+    //   XLSX.writeFile(read, save.filePath);
+    // }
   }
 }
 </script>
