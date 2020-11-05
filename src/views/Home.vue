@@ -5,7 +5,8 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { remote } from 'electron';
-import XLSX from 'xlsx';
+import { Workbook } from 'exceljs';
+import fs from 'fs';
 
 const { dialog } = remote;
 
@@ -14,9 +15,41 @@ export default class Home extends Vue {
   async dialog(): Promise<void> {
     const open = await dialog.showOpenDialog({ properties: ['openFile'] });
     const path = open.filePaths[0];
-    const workbook = XLSX.readFile(path, { type: 'binary' });
+    fs.promises.readFile(path).then((data) => {
+      const wb = new Workbook();
+      wb.xlsx
+        .load(data.buffer)
+        .then((res) => {
+          const ws = res.getWorksheet('Sheet1');
+          ws.addRow(['xxx']);
 
-    var ws = XLSX.utils.json_to_sheet(
+          ws.eachRow((row, index) => {
+            // if (index === 1) {
+            console.log(row.values);
+            // row.eachCell((cell) => {
+            //   console.log(cell.value);
+            //   const object: Record<string, any> = cell;
+            //   for (const key in object) {
+            //     if (Object.prototype.hasOwnProperty.call(object, key)) {
+            //       const element = object[key];
+            //       console.log(key, element);
+            //     }
+            //   }
+            // });
+            // }
+          });
+
+          res.xlsx.writeBuffer().then((buf) => {
+            fs.promises.writeFile(path, new Uint8Array(buf));
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
+
+    // const workbook = XLSX.readFile(path, { type: 'binary' });
+    /* var ws = XLSX.utils.json_to_sheet(
       [
         { A: 'S', B: 'h', C: 'e', D: 'e', E: 't', F: 'J', G: 'S' },
         { A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7 },
@@ -25,7 +58,7 @@ export default class Home extends Vue {
       { header: ['A', 'B', 'C', 'D', 'E', 'F', 'G'], skipHeader: true }
     );
     XLSX.utils.book_append_sheet(workbook, ws, 'xxx--');
-    XLSX.writeFile(workbook, path, { type: 'binary' });
+    XLSX.writeFile(workbook, path, { type: 'binary' }); */
 
     /* var ws_name = 'SheetJS';
     var ws_data = [
