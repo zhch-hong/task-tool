@@ -2,13 +2,21 @@ import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
 import Home from '../views/Home.vue';
 
+import Layout from '@/components/layout/index.vue';
+
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
     path: '/',
-    name: 'Home',
-    component: Home,
+    component: Layout,
+    children: [
+      {
+        path: '',
+        name: '输入项管理',
+        component: Home,
+      },
+    ],
   },
   {
     path: '/about',
