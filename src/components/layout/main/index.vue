@@ -6,5 +6,6 @@
 <style lang="scss">
 #main {
   flex-grow: 1;
+  overflow: auto;
 }
 </style>
