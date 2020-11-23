@@ -31,12 +31,13 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Notification } from 'element-ui';
-import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
+
+import { readFile, writeFile } from '@/utils/fileStream';
 
 import CreateConfig from './components/CreateConfig.vue';
 
-const path = 'D:\\JyQipai_doc\\app_config\\input-manage.json';
+const filePath = 'D:\\JyQipai_doc\\app_config\\input-manage.json';
 
 interface Config {
   value: string;
@@ -47,21 +48,6 @@ interface Config {
 interface ConfigSelect {
   value: string;
   name: string;
-}
-
-function readConfig(): Array<Config> {
-  try {
-    const buf = fs.readFileSync(path);
-    return JSON.parse(buf.toString());
-  } catch (error) {
-    Notification({
-      title: '读取配置文件失败',
-      message: error.message,
-      type: 'error',
-      position: 'bottom-right',
-    });
-    return [];
-  }
 }
 
 @Component({
@@ -77,7 +63,7 @@ export default class InputManage extends Vue {
   createConfig = false;
 
   created(): void {
-    this.sourceData = readConfig();
+    this.sourceData = readFile(filePath);
     this.parseSelect();
   }
 
@@ -113,9 +99,7 @@ export default class InputManage extends Vue {
   }
 
   writeFile(): void {
-    const string = JSON.stringify(this.sourceData);
-    const buf = Buffer.from(string);
-    fs.writeFileSync(path, buf);
+    writeFile(filePath, this.sourceData);
   }
 }
 </script>
