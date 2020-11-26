@@ -1,17 +1,24 @@
 <template>
-  <h1>文件管理</h1>
+  <div>
+    <ConfigTable :config-path="configPath" />
+    <FileTree :config-path="configPath" />
+  </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { readdirSync } from 'fs';
 
-const dirPath = 'D:\\JyQipai_doc';
+import ConfigTable from './components/ConfigTable.vue';
+import FileTree from './components/FileTree.vue';
 
-@Component
+const configPath = 'D:\\JyQipai_doc\\app_config\\file-manage.json';
+
+@Component({
+  components: {
+    ConfigTable,
+    FileTree,
+  },
+})
 export default class FileManage extends Vue {
-  created(): void {
-    const dir = readdirSync(dirPath);
-    console.log(dir);
-  }
+  configPath = configPath;
 }
 </script>

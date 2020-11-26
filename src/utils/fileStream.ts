@@ -3,7 +3,6 @@ import { Notification } from 'element-ui';
 
 export function writeFile(path: string, data: any) {
   const string = JSON.stringify(data);
-  console.log(string);
   const buf = Buffer.from(string);
   fs.writeFileSync(path, buf);
 }
