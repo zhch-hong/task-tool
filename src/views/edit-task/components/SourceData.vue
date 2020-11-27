@@ -1,9 +1,11 @@
 <template>
-  <div></div>
+  <fieldset>
+    <legend>来源配置</legend>
+  </fieldset>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 
 @Component
-export default class EditFile extends Vue {}
+export default class SourceData extends Vue {}
 </script>
