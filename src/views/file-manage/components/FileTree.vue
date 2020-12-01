@@ -73,6 +73,7 @@ export default class FileTree extends Vue {
     if (!this.folderPath) return;
     const fileList = this.getFileList();
     const data = this.getTreeData(this.folderPath, fileList);
+    localStorage.setItem('filtedFileTree', JSON.stringify(data));
     this.treeData = data;
   }
 
@@ -163,7 +164,7 @@ export default class FileTree extends Vue {
           name: nameList[index]?.toString(),
           desc: descList[index]?.toString(),
         };
-        debugger;
+
         array.push(o);
         index++;
       }

@@ -26,10 +26,20 @@
         <el-input v-model="form.get_weight"></el-input>
       </el-form-item>
       <el-form-item label="广播">
-        <el-switch v-model="form.broadcast_content"> </el-switch>
+        <el-switch
+          v-model="form.broadcast_content"
+          :active-value="1"
+          :inactive-value="0"
+        >
+        </el-switch>
       </el-form-item>
       <el-form-item label="邮件">
-        <el-switch v-model="form.is_send_email"> </el-switch>
+        <el-switch
+          v-model="form.is_send_email"
+          :active-value="1"
+          :inactive-value="0"
+        >
+        </el-switch>
       </el-form-item>
     </el-form>
     <template #footer>
