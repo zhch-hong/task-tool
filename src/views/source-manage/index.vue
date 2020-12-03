@@ -110,15 +110,15 @@ export default class SourceManage extends Vue {
     const { value, label } = node;
     if (this.model === 'append') {
       const node = {
-        id: `${value}$___$${label}`,
-        label: `${label}（${value}）`,
+        id: value,
+        label: label,
         children: [],
       };
       this.updateTreeData?.children?.push(node);
     } else {
       const node: TreeData = {
-        id: `${value}$___$${label}`,
-        label: `${label}（${value}）`,
+        id: value,
+        label: label,
         children: this.updateTreeData?.children,
       };
       if (this.updateTreeNode) {

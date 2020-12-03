@@ -3,7 +3,7 @@
     <legend>进度配置</legend>
     <el-form label-width="100px">
       <el-form-item label="奖励方式">
-        <el-radio v-model="rewardType" label="normal">普通</el-radio>
+        <el-radio v-model="rewardType" label="nor">普通</el-radio>
         <el-radio v-model="rewardType" label="random">随机</el-radio>
       </el-form-item>
       <el-form-item label="循环最后阶段">
@@ -17,7 +17,7 @@
   </fieldset>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 
 import store from '@/store';
 import { sheetToJson } from '@/utils/sheetToJson';
@@ -48,7 +48,7 @@ function getProgress(): Record<string, any> | undefined {
         const lastProcess = processList.pop();
         return {
           rewardJson,
-          rewardType: process.get_award_type || 'normal',
+          rewardType: process.get_award_type || 'nor',
           lastLoop: process.process.split(',').pop() === '-1',
           preProcess: process.pre_add_process || '',
           process: lastProcess === '-1' ? processList : process.process,
@@ -70,9 +70,16 @@ export default class ProgressData extends Vue {
   };
 
   lastLoop = false;
-  rewardType = 'normal';
+  rewardType = 'nor';
   preProcess = '';
   progress: Record<string, any> | null = null;
+
+  @Watch('rewardType', { immediate: true })
+  rewardTypeWatch(v: string): void {
+    if (this.progress) {
+      this.progress.rewardType = v;
+    }
+  }
 
   created(): void {
     const progress = getProgress();
@@ -85,7 +92,7 @@ export default class ProgressData extends Vue {
     }
   }
 
-  submit(): Record<string, any> {
+  submit(): void {
     const lineData: Record<string, any>[] = this.$refs.progressLine.submit();
     const obj = {
       lastLoop: this.lastLoop,
@@ -93,9 +100,7 @@ export default class ProgressData extends Vue {
       preProcess: this.preProcess,
       lineData,
     };
-    // console.log(JSON.parse(JSON.stringify(obj))
-    console.log('progressData', JSON.parse(JSON.stringify(obj)));
-    return obj;
+    this.$emit('submit', obj);
   }
 }
 </script>

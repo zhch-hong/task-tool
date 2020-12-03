@@ -78,7 +78,7 @@ export default class ProgressLine extends Vue {
 
   activities: Record<string, any>[] = [];
 
-  @Watch('progress', { immediate: true })
+  @Watch('progress', { deep: true, immediate: true })
   progressChange(progress: Record<string, any>): void {
     const { process, awards, rewardJson, rewardType } = progress;
     const array: Record<string, any>[] = [];

@@ -18,7 +18,7 @@ export function sheetToJson(worksheet: Worksheet) {
 
 function cellValueToDict(keys: string[], row: Row) {
   const data: Record<string, any> = {};
-  row.eachCell(function (cell, colNumber) {
+  row.eachCell((cell, colNumber) => {
     const value = cell.toString();
     const _key = keys[colNumber].split('|');
     const k = _key[0] || _key[1];

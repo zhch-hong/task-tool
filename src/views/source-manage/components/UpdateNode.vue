@@ -66,9 +66,8 @@ export default class UpdateNode extends Vue {
   refreshForm(): void {
     const value = this.model;
     if (value === 'update') {
-      const string = this.node.id.split('$___$');
-      this.form.value = string[0];
-      this.form.label = string[1];
+      this.form.value = this.node.id;
+      this.form.label = this.node.label;
     } else {
       this.form.value = '';
       this.form.label = '';

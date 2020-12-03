@@ -64,6 +64,8 @@ export default class OpenFile extends Vue {
     const buffer = readFileSync(path);
     const workbook = await wb.xlsx.load(buffer);
 
+    this.setColumnKey(workbook);
+
     store.commit('workbook', workbook);
 
     const worksheet = workbook.getWorksheet('task');
@@ -81,6 +83,20 @@ export default class OpenFile extends Vue {
 
     this.$emit('task-worksheet', worksheet, this.filePath);
     this.visible = false;
+  }
+
+  setColumnKey(wb: Workbook): void {
+    wb.eachSheet((ws) => {
+      ws.getRow(1).eachCell((cell, index) => {
+        const head = cell.toString();
+        const key = head.split('|')[0];
+        const name = head.split('|')[1];
+        if (key || name) {
+          const column = ws.getColumn(index);
+          column.key = key || name;
+        }
+      });
+    });
   }
 }
 </script>
