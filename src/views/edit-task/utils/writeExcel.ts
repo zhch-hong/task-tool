@@ -17,6 +17,7 @@ export function writeExcel(data: Record<string, any>) {
 
   writeBase(base);
   writeProgress(progress);
+  writeSource(source);
 
   workbook.xlsx.writeBuffer().then((buffer) => {
     writeFileSync(path, new Uint8Array(buffer));
@@ -45,14 +46,10 @@ function writeBase(data: Record<string, any>) {
 }
 
 function writeProgress(data: Record<string, any>) {
-  console.log(data);
   const taskSheet = workbook.getWorksheet('task');
   const taskRowData = getRowByColumnValue(taskSheet, 'id', taskid);
   const taskRow = taskRowData.row as Record<string, CellValue>;
 
-  /**
-   * process_data表
-   */
   const processid = taskRow.process_id as number;
   const processSheet = workbook.getWorksheet('process_data');
   const processRowData = getRowByColumnValue(
@@ -60,29 +57,44 @@ function writeProgress(data: Record<string, any>) {
     'process_id',
     processid.toString()
   );
+
   const processRow = processRowData.row;
   const processRowNumber = processRowData.rowNumber;
+
+  /**
+   * process_data表
+   */
 
   // 新的数据行
   const processInsertRow: Record<string, any> = {};
 
   processInsertRow.process_id = processid;
-  processInsertRow.condition_type = processRow.condition_type as string;
-  processInsertRow.source_id = processRow.source_id as number;
-  processInsertRow.condition_id = processRow.condition_id as number;
-  processInsertRow.pre_add_process = parseFloat(data.preProcess as string);
-  processInsertRow.get_award_type = data.rewardType as string;
-  processInsertRow.is_auto_get_award = processRow.is_auto_get_award;
+  processInsertRow.condition_type = processRow.condition_type
+    ? (processRow.condition_type as string)
+    : null;
+  processInsertRow.source_id = processRow.source_id
+    ? (processRow.source_id as number)
+    : null;
+  processInsertRow.condition_id = processRow.condition_id
+    ? (processRow.condition_id as number)
+    : null;
+  processInsertRow.pre_add_process = data.preProcess
+    ? parseFloat(data.preProcess as string)
+    : null;
+  processInsertRow.get_award_type = data.rewardType
+    ? (data.rewardType as string)
+    : null;
+  processInsertRow.is_auto_get_award = processRow.is_auto_get_award || null;
 
   // 进度间隔表
   const processArray = data.lineData.map((line: Record<string, any>) => {
     return parseInt(line.process);
   });
-  if (data.lastLoop) processArray.push(-1);
-  processInsertRow.process = processArray.join(',');
+  if (processArray.length > 0 && data.lastLoop) processArray.push(-1);
+  processInsertRow.process = processArray.join(',') || null;
 
   // 奖励表
-  processInsertRow.awards = data.lineData
+  const newAwards: string[] = data.lineData
     .map((line: Record<string, any>) => {
       if (line.awardId) {
         return parseInt(line.awardId);
@@ -91,7 +103,8 @@ function writeProgress(data: Record<string, any>) {
         return '';
       }
     })
-    .join(',');
+    .filter((item: string) => item !== '');
+  processInsertRow.awards = newAwards.join(',') || null;
 
   processSheet.spliceRows(processRowNumber, 1);
   processSheet.insertRow(processRowNumber, processInsertRow);
@@ -101,20 +114,9 @@ function writeProgress(data: Record<string, any>) {
    */
   const awardSheet = workbook.getWorksheet('award_data');
   data.lineData.forEach((line: Record<string, any>) => {
-    // 删除现有的奖励行数据方法，递归删除
-    const deleteExisting = (id: number) => {
-      const index = getRowByColumnValue(awardSheet, 'award_id', id.toString())
-        .rowNumber;
-      console.log('删除工作表行', index);
-      if (index !== -1) {
-        awardSheet.spliceRows(index, 1);
-        deleteExisting(id);
-      }
-    };
-
     if (line.awards.length > 0) {
       const id: string = line.awards[0].award_id;
-      deleteExisting(parseInt(id));
+      deleteExisting(awardSheet, 'award_id', parseInt(id));
     }
 
     const insertRows: Record<
@@ -125,18 +127,80 @@ function writeProgress(data: Record<string, any>) {
     );
     if (insertRows.length > 0) {
       const awardId: number = insertRows[0].award_id;
-      const getInsertIndex = (id: number): number => {
-        const index = getRowByColumnValue(awardSheet, 'award_id', id.toString())
-          .rowNumber;
-        if (index === -1) {
-          return getInsertIndex(id - 1);
-        }
-        return index;
-      };
-
-      const insertIndex = getInsertIndex(awardId - 1) + 1;
+      const insertIndex =
+        getInsertIndex(awardSheet, 'award_id', awardId - 1) + 1;
 
       awardSheet.insertRows(insertIndex, insertRows);
+    }
+  });
+}
+
+function writeSource(data: Record<string, any>[]): void {
+  console.log(data);
+  /**
+   * 根据taskid找到数据行
+   */
+  const taskSheet = workbook.getWorksheet('task');
+  const taskRowData = getRowByColumnValue(taskSheet, 'id', taskid);
+  const taskRow = taskRowData.row as Record<string, CellValue>;
+
+  /**
+   * 找到process_id，再去process_data表中找到对应数据行
+   */
+  const processid = taskRow.process_id as number;
+  const processSheet = workbook.getWorksheet('process_data');
+  const processRowData = getRowByColumnValue(
+    processSheet,
+    'process_id',
+    processid.toString()
+  );
+  const processRow = processRowData.row;
+
+  /**
+   * source表
+   */
+  const sourceId = processRow.source_id as number;
+  const sourceSheet = workbook.getWorksheet('source');
+  deleteExisting(sourceSheet, 'source_id', sourceId);
+
+  if (data.length > 0) {
+    const sourceId = parseInt(data[0].source_id);
+    const insertIndex =
+      sourceId === 1
+        ? 2
+        : getInsertIndex(sourceSheet, 'source_id', sourceId - 1);
+    const insertRows = data.map((item) => strValToNumber(item));
+    sourceSheet.insertRows(insertIndex, insertRows);
+  }
+
+  /**
+   * condition表
+   */
+  const conditionSheet = workbook.getWorksheet('condition');
+  data.forEach((source) => {
+    if (source.condition_id) {
+      deleteExisting(
+        conditionSheet,
+        'condition_id',
+        parseInt(source.condition_id)
+      );
+    }
+  });
+  data.forEach((source) => {
+    const insertRows: Record<
+      string,
+      any
+    >[] = source.conditionList.map((cond: Record<string, any>) =>
+      strValToNumber(cond)
+    );
+    if (insertRows.length > 0) {
+      const id = insertRows[0].condition_id as number;
+      const insertIndex = getInsertIndex(
+        conditionSheet,
+        'condition_id',
+        id - 1
+      );
+      conditionSheet.insertRows(insertIndex, insertRows);
     }
   });
 }
@@ -147,7 +211,9 @@ function getRowByColumnValue(ws: Worksheet, col: string, value: string) {
     row: rowData,
     rowNumber: -1,
   };
+  console.log('getRowByColumnValue');
   ws.eachRow((row, index) => {
+    console.log('eachRow');
     const cell = row.getCell(col);
     if (cell.text === value) {
       object.rowNumber = index;
@@ -161,4 +227,32 @@ function getRowByColumnValue(ws: Worksheet, col: string, value: string) {
     }
   });
   return object;
+}
+
+/**
+ * 删除现有的奖励行数据方法，递归删除
+ * @param sheet
+ * @param col
+ * @param id
+ */
+function deleteExisting(sheet: Worksheet, col: string, id: number) {
+  const index = getRowByColumnValue(sheet, col, id.toString()).rowNumber;
+  if (index !== -1) {
+    sheet.spliceRows(index, 1);
+    deleteExisting(sheet, col, id);
+  }
+}
+
+/**
+ *
+ * @param sheet
+ * @param col
+ * @param id
+ */
+function getInsertIndex(sheet: Worksheet, col: string, id: number): number {
+  const index = getRowByColumnValue(sheet, col, id.toString()).rowNumber;
+  if (index === -1) {
+    return getInsertIndex(sheet, col, id - 1);
+  }
+  return index + 1;
 }

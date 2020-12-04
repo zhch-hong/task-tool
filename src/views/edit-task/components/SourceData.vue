@@ -24,6 +24,7 @@ import { v4 as uuid } from 'uuid';
 import store from '@/store';
 import { readFile } from '@/utils/fileStream';
 import { sheetToJson } from '@/utils/sheetToJson';
+import { lostIdArray } from '../utils/lostIdArray';
 
 import SourceItem from './source-data/SourceItem.vue';
 
@@ -42,9 +43,10 @@ function getSource():
   );
   if (task) {
     const wsProcess = wb.getWorksheet('process_data');
-    const process = sheetToJson(wsProcess).find(
-      (v) => v.process_id.toString() === task.process_id.toString()
-    );
+    const process = sheetToJson(wsProcess).find((v) => {
+      if (typeof v.process_id === 'undefined') return false;
+      return v.process_id.toString() === task.process_id.toString();
+    });
     if (process) {
       const sourceId = process.source_id;
       const sourceSheet = wb.getWorksheet('source');
@@ -70,55 +72,6 @@ function getSource():
   }
 }
 
-/**
- * 每一条奖励条件的condition_id，一个condition_id可能对应多个条件数据，并且这些来源的condition_id都是相同的，只是condition_name不同
- * 这里算出从1开始，连续顺序中，缺失的数字，组成数组
- * 每调用一次方法，返回数组中首个数字作为condition_id
- */
-function getLostConditionidArray(): () => number {
-  const wb = store.state.workbook;
-  if (!wb) {
-    throw new Error('vuex中不存在workbook');
-  }
-
-  const rewardSheet = wb.getWorksheet('condition');
-  const lostIdArray: number[] = [];
-  rewardSheet.eachRow((row, index) => {
-    if (index === 1) {
-      const rowValues = row.values;
-      if (Array.isArray(rowValues)) {
-        const index = rowValues.findIndex((v) => {
-          if (typeof v === 'string') {
-            return v.split('|')[0] === 'condition_id';
-          }
-        });
-        if (index !== -1) {
-          const awardIdColumn = rewardSheet.getColumn(index);
-          const cellValues = awardIdColumn.values;
-          const values = cellValues.filter((cell) => {
-            return typeof cell === 'number';
-          });
-          const unrepeatSortedIdArray = [
-            ...new Set<number>(values as number[]),
-          ].sort((a, b) => a - b);
-          unrepeatSortedIdArray.push(3000);
-          let length = lostIdArray.length;
-          unrepeatSortedIdArray.forEach((v, i) => {
-            length = lostIdArray.length;
-            while (v - (i + length) > 1) {
-              length = lostIdArray.push(i + length + 1);
-            }
-          });
-        }
-      }
-    }
-  });
-
-  return () => {
-    return lostIdArray.shift() as number;
-  };
-}
-
 @Component({
   components: {
     SourceItem,
@@ -133,7 +86,7 @@ export default class SourceData extends Vue {
 
   sourceList: Record<string, string | Record<string, string>[]>[] = [];
   selectSourcetype: Record<string, any> = selectSourcetype[0].children;
-  lostConditionidArray = getLostConditionidArray();
+  lostConditionidArray = lostIdArray('condition', 'condition_id');
   sourceId = this.lostSourceid.toString();
 
   /** 告诉SourceItem组件，是否需要提交数据 */
@@ -172,6 +125,9 @@ export default class SourceData extends Vue {
     this.isEmit = true;
     await this.$nextTick();
     this.$emit('submit', this.emitSourceList);
+    await this.$nextTick();
+    this.isEmit = false;
+    this.emitSourceList = [];
   }
 }
 </script>

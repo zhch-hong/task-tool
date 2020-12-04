@@ -29,16 +29,14 @@ import LineItem from './LineItem.vue';
   },
 })
 export default class ProgressLine extends Vue {
-  @Prop({ type: Object, required: true }) progress!: Record<string, any> | null;
+  @Prop({ required: true }) progress!: Record<string, any> | null;
 
   activities: Record<string, any>[] = [];
   lostIdArray = lostIdArray('award_data', 'award_id');
 
   @Watch('progress', { deep: true, immediate: true })
-  progressChange(progress: Record<string, any>): void {
-    // if (!progress) return;
-    // console.log(progress.process);
-    // debugger;
+  progressChange(progress: Record<string, any> | null): void {
+    if (!progress) return;
     const { process, awards, rewardJson, rewardType } = progress;
     const array: Record<string, any>[] = [];
     const processSplit: string[] = process.split(',');

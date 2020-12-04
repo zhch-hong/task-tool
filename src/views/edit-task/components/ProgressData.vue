@@ -34,9 +34,10 @@ function getProgress(): Record<string, any> | undefined {
   );
   if (task) {
     const wsProcess = wb.getWorksheet('process_data');
-    const process = sheetToJson(wsProcess).find(
-      (v) => v.process_id.toString() === task.process_id.toString()
-    );
+    const process = sheetToJson(wsProcess).find((v) => {
+      if (typeof v.process_id === 'undefined') return false;
+      v.process_id.toString() === task.process_id.toString();
+    });
     if (process) {
       const rewardIdList = process.awards.split(',');
       const rewardSheet = wb.getWorksheet('award_data');

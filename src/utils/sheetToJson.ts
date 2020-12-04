@@ -20,9 +20,11 @@ function cellValueToDict(keys: string[], row: Row) {
   const data: Record<string, any> = {};
   row.eachCell((cell, colNumber) => {
     const value = cell.toString();
-    const _key = keys[colNumber].split('|');
-    const k = _key[0] || _key[1];
-    data[k] = value;
+    if (typeof keys[colNumber] === 'string') {
+      const _key = keys[colNumber].split('|');
+      const k = _key[0] || _key[1];
+      data[k] = value;
+    }
   });
   return data;
 }
