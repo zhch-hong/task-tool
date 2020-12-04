@@ -51,7 +51,8 @@ function getProgress(): Record<string, any> | undefined {
           rewardType: process.get_award_type || 'nor',
           lastLoop: process.process.split(',').pop() === '-1',
           preProcess: process.pre_add_process || '',
-          process: lastProcess === '-1' ? processList : process.process,
+          process:
+            lastProcess === '-1' ? processList.join(',') : process.process,
           awards: process.awards,
         };
       }

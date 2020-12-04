@@ -2,7 +2,11 @@
   <div>
     <input type="text" v-model="progressValue" placeholder="请输入进度" />
     <el-card>
-      <RewardTable :reward-list="rewardList" :rewardType="rewardType" />
+      <RewardTable
+        :reward-list="rewardList"
+        :award-id="awardId"
+        :rewardType="rewardType"
+      />
     </el-card>
     <el-button size="mini" style="margin-top: 10px" @click="insertProgress"
       >插入进度</el-button
@@ -27,6 +31,7 @@ export default class LineItem extends Vue {
     string,
     string | Record<string, string>[]
   >;
+  @Prop({ type: Number, required: true }) awardId!: number;
 
   progressValue = this.progressItem.process;
   rewardList = this.progressItem.awards;

@@ -15,7 +15,7 @@ import store from '@/store';
 import { Component, Vue } from 'vue-property-decorator';
 import { NavigationGuardNext, Route } from 'vue-router';
 
-import { writeExcel } from './writeExcel';
+import { writeExcel } from './utils/writeExcel';
 
 import BaseData from './components/BaseData.vue';
 import ProgressData from './components/ProgressData.vue';
