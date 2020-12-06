@@ -7,7 +7,7 @@
         :default-expand-all="true"
         :data="treeData"
         :props="defaultProps"
-        @node-click="(d) => (nodePath = d.path)"
+        @node-click="nodeClick"
         style="width: 400px"
       ></el-tree>
       <template #footer
@@ -20,7 +20,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { readFileSync, statSync } from 'fs';
 import { Notification } from 'element-ui';
-import { TreeData } from 'element-ui/types/tree';
+import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { Workbook } from 'exceljs';
 
 import DialogFooter from '@/components/DialogFooter.vue';
@@ -97,6 +97,11 @@ export default class OpenFile extends Vue {
         }
       });
     });
+  }
+
+  nodeClick(d: TreeMeta): void {
+    this.nodePath = d.path;
+    this.submit();
   }
 }
 </script>

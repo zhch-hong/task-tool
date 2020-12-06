@@ -5,10 +5,23 @@ import { CellValue, Workbook, Worksheet } from 'exceljs';
 import { sheetToJson } from '@/utils/sheetToJson';
 import { writeFile } from '@/utils/fileStream';
 import { strValToNumber } from './parseNumberValue';
+import { lostIdArray } from './lostIdArray';
+
+const lostTaskid = lostIdArray('task', 'id')();
+const lostProcessid = lostIdArray('process_data', 'process_id')();
+const lostSourceid = lostIdArray('source', 'source_id')();
+const lostConditionid = lostIdArray('condition', 'condition_id')();
+const lostAwardid = lostIdArray('award_data', 'award_id')();
 
 const path = store.state.taskFilePath;
 const workbook = store.state.workbook as Workbook;
-const taskid = store.state.updateTaskId;
+let taskid = store.state.updateTaskId;
+let activeModel: 'update' | 'create' = 'update';
+
+if (taskid === '') {
+  taskid = lostTaskid.toString();
+  activeModel = 'create';
+}
 
 export function writeExcel(data: Record<string, any>) {
   const base: Record<string, any> = data.base;
@@ -16,38 +29,48 @@ export function writeExcel(data: Record<string, any>) {
   const source: Record<string, any>[] = data.source;
 
   writeBase(base);
-  writeProgress(progress);
-  writeSource(source);
+  // writeProgress(progress);
+  // writeSource(source);
 
-  workbook.xlsx.writeBuffer().then((buffer) => {
-    writeFileSync(path, new Uint8Array(buffer));
-  });
+  // workbook.xlsx.writeBuffer().then((buffer) => {
+  //   writeFileSync(path, new Uint8Array(buffer));
+  // });
 }
 
 function writeBase(data: Record<string, any>) {
+  console.group('写入基础数据');
+  console.log('原始数据', JSON.parse(JSON.stringify(data)));
   const ws = workbook.getWorksheet('task');
-  const rowData = getRowByColumnValue(ws, 'id', taskid);
-  const row = rowData.row as Record<string, CellValue>;
-  const rowNumber = rowData.rowNumber as number;
-  row['任务内容说明'] = data.desc;
-  delete data.desc;
-  Object.assign(row, data);
 
-  if (
-    typeof row.start_valid_time === 'string' &&
-    typeof row.end_valid_time === 'string'
-  ) {
-    row.start_valid_time = parseInt(row.start_valid_time);
-    row.end_valid_time = parseInt(row.end_valid_time);
+  const insertRow = data;
+
+  insertRow.id = taskid;
+  insertRow.enable = 1;
+  insertRow.process_id = lostProcessid;
+  insertRow['任务内容说明'] = insertRow.desc;
+  delete insertRow.desc;
+
+  if (activeModel === 'update') {
+    const rowData = getRowByColumnValue(ws, 'id', taskid.toString());
+    const row = rowData.row as Record<string, CellValue>;
+    const rowNumber = rowData.rowNumber as number;
+
+    insertRow.enable = row.enable;
+    insertRow.process_id = row.process_id;
+
+    ws.spliceRows(rowNumber, 1);
   }
 
-  ws.spliceRows(rowNumber, 1);
-  ws.insertRow(rowNumber, row);
+  const insertIndex = getInsertIndex(ws, 'id', parseInt(taskid));
+  console.log('插入数据', JSON.parse(JSON.stringify(insertRow)));
+  console.groupEnd();
+  ws.insertRow(insertIndex, insertRow);
 }
 
 function writeProgress(data: Record<string, any>) {
+  console.log('progress', data);
   const taskSheet = workbook.getWorksheet('task');
-  const taskRowData = getRowByColumnValue(taskSheet, 'id', taskid);
+  const taskRowData = getRowByColumnValue(taskSheet, 'id', taskid.toString());
   const taskRow = taskRowData.row as Record<string, CellValue>;
 
   const processid = taskRow.process_id as number;
@@ -136,12 +159,12 @@ function writeProgress(data: Record<string, any>) {
 }
 
 function writeSource(data: Record<string, any>[]): void {
-  console.log(data);
+  console.log('source', JSON.parse(JSON.stringify(data)));
   /**
    * 根据taskid找到数据行
    */
   const taskSheet = workbook.getWorksheet('task');
-  const taskRowData = getRowByColumnValue(taskSheet, 'id', taskid);
+  const taskRowData = getRowByColumnValue(taskSheet, 'id', taskid.toString());
   const taskRow = taskRowData.row as Record<string, CellValue>;
 
   /**
@@ -221,7 +244,7 @@ function getRowByColumnValue(ws: Worksheet, col: string, value: string) {
       row.eachCell((cell, colNumber) => {
         const key = cell.worksheet.getColumn(colNumber).key;
         if (key) {
-          rowData[key] = cell.value;
+          rowData[key] = cell.text;
         }
       });
     }
