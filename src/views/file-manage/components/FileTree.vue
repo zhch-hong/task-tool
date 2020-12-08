@@ -27,15 +27,16 @@ import { TreeData } from 'element-ui/types/tree';
 import { Workbook } from 'exceljs';
 import { Notification } from 'element-ui';
 
+import store from '@/store';
+
 import { readFile } from '@/utils/fileStream';
+import { getUserconfig } from '@/asserts/userconfig';
 
 import OpenFolder from './OpenFolder.vue';
 
 interface TreeMeta extends TreeData {
   path: string;
 }
-
-const configPath = 'D:\\JyQipai_doc\\app_config\\file-manage.json';
 
 @Component({
   components: {
@@ -59,9 +60,28 @@ export default class FileTree extends Vue {
     this.refresh();
   }
 
+  setTreeFromStorage(): void {
+    const config = getUserconfig();
+    if (config.workDir) {
+    }
+  }
+
   getFileList(): string[] {
-    const array: Record<string, string>[] = readFile(configPath);
-    return array.map((item) => item.file);
+    const storage = readFile(store.state.userStoragePath);
+    if (storage.workDir) {
+      const path = resolve(storage.workDir, 'app_config', 'file-manage.json');
+
+      const array: Record<string, string>[] = readFile(path);
+      return array.map((item) => item.file);
+    } else {
+      Notification({
+        title: '读取失败',
+        message: '请先设置工作目录',
+        type: 'error',
+        position: 'bottom-right',
+      });
+      return [];
+    }
   }
 
   filderPath(path: string): void {

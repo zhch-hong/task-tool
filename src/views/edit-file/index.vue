@@ -3,7 +3,7 @@
     <OpenFile @task-worksheet="taskWorksheet" @show-loading="loading = true" />
     <el-button @click="onclickRefresh">刷新</el-button>
     <el-button @click="createTask">添加任务</el-button>
-    <el-table v-loading.fullscreen="loading" :data="tableData">
+    <el-table v-loading="loading" :data="tableData" height="80vh">
       <el-table-column type="selection" width="60"></el-table-column>
       <el-table-column type="index" width="60"></el-table-column>
       <el-table-column label="任务ID" prop="id" width="60"></el-table-column>
@@ -27,8 +27,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { CellValue, Worksheet } from 'exceljs';
-import { Notification } from 'element-ui';
+import { Worksheet } from 'exceljs';
 
 import store from '@/store';
 

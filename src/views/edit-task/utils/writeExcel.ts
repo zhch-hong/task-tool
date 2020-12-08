@@ -2,8 +2,6 @@ import store from '@/store';
 import { writeFileSync } from 'fs';
 import { CellValue, Workbook, Worksheet } from 'exceljs';
 
-import { sheetToJson } from '@/utils/sheetToJson';
-import { writeFile } from '@/utils/fileStream';
 import { strValToNumber } from './parseNumberValue';
 import { lostIdArray } from './lostIdArray';
 

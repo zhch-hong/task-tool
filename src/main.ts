@@ -6,6 +6,8 @@ import './plugins/element.ts';
 
 import './styles/index.scss';
 
+import '@/utils/initAppConfigFile';
+
 Vue.config.productionTip = false;
 
 new Vue({

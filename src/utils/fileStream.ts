@@ -13,7 +13,7 @@ export function readFile(path: string): any {
     return JSON.parse(buf.toString());
   } catch (error) {
     Notification({
-      title: '读取配置文件失败',
+      title: '读取文件失败',
       message: error.message,
       type: 'error',
       position: 'bottom-right',
