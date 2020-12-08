@@ -1,7 +1,7 @@
 <template>
   <div>
     <AddConfig @add-config="addConfig" />
-    <el-table :data="tableData">
+    <el-table :data="tableData" height="40vh">
       <el-table-column label="文件">
         <template #default="{ row, $index }">
           <TableInlineInput

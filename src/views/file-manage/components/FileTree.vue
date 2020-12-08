@@ -2,15 +2,22 @@
   <div>
     <OpenFolder @filder-path="filderPath" @refresh="refresh" />
     <div style="display: flex">
-      <el-tree
-        :default-expand-all="true"
-        :data="treeData"
-        :props="defaultProps"
-        @node-click="handleNodeClick"
-        style="width: 400px"
-      ></el-tree>
+      <el-scrollbar style="height: 40vh" wrapStyle="overflow-x: hidden;">
+        <el-tree
+          :default-expand-all="true"
+          :data="treeData"
+          :props="defaultProps"
+          @node-click="handleNodeClick"
+          style="width: 400px"
+        ></el-tree>
+      </el-scrollbar>
 
-      <el-table :data="tableData" v-loading="loading" style="flex: 1">
+      <el-table
+        :data="tableData"
+        v-loading="loading"
+        style="flex: 1"
+        height="40vh"
+      >
         <el-table-column type="index"></el-table-column>
         <el-table-column label="ID" prop="id" width="100"></el-table-column>
         <el-table-column label="名称" prop="name"></el-table-column>
@@ -20,7 +27,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import { readdirSync, readFileSync, statSync } from 'fs';
 import { resolve } from 'path';
 import { TreeData } from 'element-ui/types/tree';
@@ -42,6 +49,8 @@ interface TreeMeta extends TreeData {
   },
 })
 export default class FileTree extends Vue {
+  @Prop({ type: String, required: true }) configPath!: string;
+
   /** 文件夹路径 */
   folderPath = '';
   /** 标题和子级使用的字段名 */
@@ -68,21 +77,8 @@ export default class FileTree extends Vue {
   }
 
   getFileList(): string[] {
-    const config = getUserconfig();
-    if (config.workDir) {
-      const path = resolve(config.workDir, 'app_config', 'file-manage.json');
-
-      const array: Record<string, string>[] = readFile(path);
-      return array.map((item) => item.file);
-    } else {
-      Notification({
-        title: '读取失败',
-        message: '请先设置工作目录',
-        type: 'error',
-        position: 'bottom-right',
-      });
-      return [];
-    }
+    const array: Record<string, string>[] = readFile(this.configPath);
+    return array.map((item) => item.file);
   }
 
   filderPath(path: string): void {
@@ -166,9 +162,18 @@ export default class FileTree extends Vue {
       });
     }
 
-    const idList = worksheet.getColumn(fieldIndex.id).values;
-    const nameList = worksheet.getColumn(fieldIndex.name).values;
-    const descList = worksheet.getColumn(fieldIndex.desc).values;
+    const idList: string[] = [];
+    worksheet
+      .getColumn(fieldIndex.id)
+      .eachCell((cell) => idList.push(cell.text));
+    const nameList: string[] = [];
+    worksheet
+      .getColumn(fieldIndex.name)
+      .eachCell((cell) => nameList.push(cell.text));
+    const descList: string[] = [];
+    worksheet
+      .getColumn(fieldIndex.desc)
+      .eachCell((cell) => descList.push(cell.text));
 
     if (
       Array.isArray(idList) &&
@@ -181,9 +186,9 @@ export default class FileTree extends Vue {
       let index = 2;
       while (index < max) {
         const o = {
-          id: idList[index]?.toString(),
-          name: nameList[index]?.toString(),
-          desc: descList[index]?.toString(),
+          id: idList[index],
+          name: nameList[index],
+          desc: descList[index],
         };
 
         array.push(o);
