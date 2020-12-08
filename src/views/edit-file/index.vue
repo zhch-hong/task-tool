@@ -1,8 +1,9 @@
 <template>
   <div>
-    <OpenFile @task-worksheet="taskWorksheet" />
+    <OpenFile @task-worksheet="taskWorksheet" @show-loading="loading = true" />
+    <el-button @click="onclickRefresh">刷新</el-button>
     <el-button @click="createTask">添加任务</el-button>
-    <el-table :data="tableData">
+    <el-table v-loading.fullscreen="loading" :data="tableData">
       <el-table-column type="selection" width="60"></el-table-column>
       <el-table-column type="index" width="60"></el-table-column>
       <el-table-column label="任务ID" prop="id" width="60"></el-table-column>
@@ -26,7 +27,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Worksheet } from 'exceljs';
+import { CellValue, Worksheet } from 'exceljs';
 import { Notification } from 'element-ui';
 
 import store from '@/store';
@@ -40,12 +41,24 @@ import OpenFile from './components/OpenFile.vue';
 })
 export default class EditFile extends Vue {
   tableData: Record<string, string>[] = [];
+  loading = false;
 
   createTask(): void {
     this.$router.push('/edit-task');
   }
 
-  taskWorksheet(worksheet: Worksheet, filePath: string): void {
+  onclickRefresh(): void {
+    const workbook = store.state.workbook;
+    if (workbook) {
+      this.loading = true;
+      this.taskWorksheet(
+        workbook.getWorksheet('task'),
+        store.state.taskFilePath
+      );
+    }
+  }
+
+  async taskWorksheet(worksheet: Worksheet, filePath: string): Promise<void> {
     store.commit('editFilePath', filePath);
 
     const rowValues = worksheet.getRow(1).values;
@@ -75,13 +88,40 @@ export default class EditFile extends Vue {
       });
     }
 
-    const idList = worksheet.getColumn(fieldIndex.id).values;
-    const nameList = worksheet.getColumn(fieldIndex.name).values;
-    const enableList = worksheet.getColumn(fieldIndex.enable).values;
-    const is_resetList = worksheet.getColumn(fieldIndex.is_reset).values;
-    const own_typeList = worksheet.getColumn(fieldIndex.own_type).values;
-    const task_enumList = worksheet.getColumn(fieldIndex.task_enum).values;
-    const descList = worksheet.getColumn(fieldIndex.desc).values;
+    const idList: string[] = [];
+    worksheet
+      .getColumn(fieldIndex.id)
+      .eachCell((cell) => idList.push(cell.text));
+
+    const nameList: string[] = [];
+    worksheet
+      .getColumn(fieldIndex.name)
+      .eachCell((cell) => nameList.push(cell.text));
+
+    const enableList: string[] = [];
+    worksheet
+      .getColumn(fieldIndex.enable)
+      .eachCell((cell) => enableList.push(cell.text));
+
+    const is_resetList: string[] = [];
+    worksheet
+      .getColumn(fieldIndex.is_reset)
+      .eachCell((cell) => is_resetList.push(cell.text));
+
+    const own_typeList: string[] = [];
+    worksheet
+      .getColumn(fieldIndex.own_type)
+      .eachCell((cell) => own_typeList.push(cell.text));
+
+    const task_enumList: string[] = [];
+    worksheet
+      .getColumn(fieldIndex.task_enum)
+      .eachCell((cell) => task_enumList.push(cell.text));
+
+    const descList: string[] = [];
+    worksheet
+      .getColumn(fieldIndex.desc)
+      .eachCell((cell) => descList.push(cell.text));
 
     if (
       Array.isArray(idList) &&
@@ -94,22 +134,25 @@ export default class EditFile extends Vue {
     ) {
       const array: Record<string, any>[] = [];
       const max = idList.length;
-      let index = 2;
+      let index = 1;
       while (index < max) {
         const o = {
-          id: idList[index]?.toString(),
-          name: nameList[index]?.toString(),
-          enable: enableList[index]?.toString(),
-          is_reset: is_resetList[index]?.toString(),
-          own_type: own_typeList[index]?.toString(),
-          task_enum: task_enumList[index]?.toString(),
-          desc: descList[index]?.toString(),
+          id: idList[index],
+          name: nameList[index],
+          enable: enableList[index],
+          is_reset: is_resetList[index],
+          own_type: own_typeList[index],
+          task_enum: task_enumList[index],
+          desc: descList[index],
         };
         array.push(o);
         index++;
       }
 
       this.tableData = array;
+
+      await this.$nextTick();
+      this.loading = false;
     }
   }
 

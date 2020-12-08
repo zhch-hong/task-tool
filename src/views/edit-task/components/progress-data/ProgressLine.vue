@@ -7,11 +7,15 @@
       <LineItem
         :progress-item="activity"
         :award-id="propAwardid(activity)"
+        :reward-type="rewardType"
         @insert-progress="insertProgress(index)"
         @delete-progress="deleteProgress(index)"
         @process-change="updateProcess(index, $event)"
       />
     </el-timeline-item>
+    <el-button v-if="activities.length === 0" @click="insertProgress(0)"
+      >添加进度</el-button
+    >
   </el-timeline>
 </template>
 <script lang="ts">
@@ -22,6 +26,7 @@ import store from '@/store';
 import { lostIdArray } from '../../utils/lostIdArray';
 
 import LineItem from './LineItem.vue';
+import { cloneDeep } from 'lodash';
 
 @Component({
   components: {
@@ -30,6 +35,7 @@ import LineItem from './LineItem.vue';
 })
 export default class ProgressLine extends Vue {
   @Prop({ required: true }) progress!: Record<string, any> | null;
+  @Prop({ type: String, required: true }) rewardType!: 'nor' | 'random';
 
   activities: Record<string, any>[] = [];
   lostIdArray = lostIdArray('award_data', 'award_id');
@@ -37,7 +43,7 @@ export default class ProgressLine extends Vue {
   @Watch('progress', { deep: true, immediate: true })
   progressChange(progress: Record<string, any> | null): void {
     if (!progress) return;
-    const { process, awards, rewardJson, rewardType } = progress;
+    const { process, awards, rewardJson } = progress;
     const array: Record<string, any>[] = [];
     const processSplit: string[] = process.split(',');
     const awardsSplit: string[] = awards.split(',');
@@ -46,7 +52,7 @@ export default class ProgressLine extends Vue {
         uuid: uuid(),
         awardId: awardsSplit[i],
         process: p,
-        rewardType: rewardType,
+        rewardType: this.rewardType,
         awards: rewardJson.filter(
           (v: Record<string, string>) => v.award_id === awardsSplit[i]
         ),
@@ -59,7 +65,7 @@ export default class ProgressLine extends Vue {
     this.activities.splice(index + 1, 0, {
       uuid: uuid(),
       process: '',
-      rewardType: this.progress ? this.progress.rewardType : 'normal',
+      rewardType: this.progress ? this.rewardType : 'normal',
       awards: [],
     });
   }

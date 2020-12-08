@@ -26,8 +26,8 @@
     <!-- Components -->
     <UpdateReward
       :visible="updateReward"
-      :propRow="selectedRow"
-      :rewardType="rewardType"
+      :prop-row="selectedRow"
+      :reward-type="rewardType"
       @update:visible="updateReward = false"
       @submit="updateOrInsertRow"
     />

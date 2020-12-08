@@ -13,7 +13,11 @@
         <el-input v-model.trim="preProcess"> </el-input>
       </el-form-item>
     </el-form>
-    <ProgressLine ref="progressLine" :progress="progress" />
+    <ProgressLine
+      ref="progressLine"
+      :progress="progress"
+      :reward-type="rewardType"
+    />
   </fieldset>
 </template>
 <script lang="ts">
@@ -36,7 +40,7 @@ function getProgress(): Record<string, any> | undefined {
     const wsProcess = wb.getWorksheet('process_data');
     const process = sheetToJson(wsProcess).find((v) => {
       if (typeof v.process_id === 'undefined') return false;
-      v.process_id.toString() === task.process_id.toString();
+      return v.process_id.toString() === task.process_id.toString();
     });
     if (process) {
       const rewardIdList = process.awards.split(',');
@@ -75,13 +79,6 @@ export default class ProgressData extends Vue {
   rewardType = 'nor';
   preProcess = '';
   progress: Record<string, any> | null = null;
-
-  @Watch('rewardType', { immediate: true })
-  rewardTypeWatch(v: string): void {
-    if (this.progress) {
-      this.progress.rewardType = v;
-    }
-  }
 
   created(): void {
     const progress = getProgress();

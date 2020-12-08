@@ -2,9 +2,9 @@
   <fieldset>
     <legend>基础信息</legend>
     <el-form ref="ruleForm" :model="form" :rules="rules" label-width="100px">
-      <el-form-item label="任务ID" prop="id">
+      <!-- <el-form-item label="任务ID" prop="id">
         <el-input v-model="form.id"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="任务名称" prop="name">
         <el-input v-model="form.name"></el-input>
       </el-form-item>

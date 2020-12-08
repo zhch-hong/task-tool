@@ -17,6 +17,7 @@
     "element-ui": "^2.14.1",
     "exceljs": "^4.2.0",
     "lodash": "^4.17.20",
+    "nprogress": "^0.2.0",
     "uuid": "^8.3.1",
     "vue": "^2.6.12",
     "vue-class-component": "^7.2.6",
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@types/electron-devtools-installer": "^2.2.0",
     "@types/lodash": "^4.14.165",
+    "@types/nprogress": "^0.2.0",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.8.2",
     "@typescript-eslint/parser": "^4.8.2",

@@ -5,7 +5,7 @@
       <RewardTable
         :reward-list="rewardList"
         :award-id="awardId"
-        :rewardType="rewardType"
+        :reward-type="rewardType"
       />
     </el-card>
     <el-button size="mini" style="margin-top: 10px" @click="insertProgress"
@@ -32,10 +32,10 @@ export default class LineItem extends Vue {
     string | Record<string, string>[]
   >;
   @Prop({ type: Number, required: true }) awardId!: number;
+  @Prop({ type: String, required: true }) rewardType!: 'nor' | 'random';
 
   progressValue = this.progressItem.process;
   rewardList = this.progressItem.awards;
-  rewardType = this.progressItem.rewardType;
 
   @Watch('progressValue')
   progressValueChange(value: string): void {

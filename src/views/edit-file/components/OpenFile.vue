@@ -1,6 +1,8 @@
 <template>
   <div>
-    <el-button @click="visible = true">打开文件</el-button>
+    <el-button @click="visible = true" style="margin-right: 10px"
+      >打开文件</el-button
+    >
     <span>{{ filePath }}</span>
     <el-dialog :visible.sync="visible" :close-on-click-modal="false">
       <el-tree
@@ -10,9 +12,6 @@
         @node-click="nodeClick"
         style="width: 400px"
       ></el-tree>
-      <template #footer
-        ><DialogFooter @resolve="submit" @reject="visible = false"
-      /></template>
     </el-dialog>
   </div>
 </template>
@@ -20,7 +19,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { readFileSync, statSync } from 'fs';
 import { Notification } from 'element-ui';
-import { TreeData, TreeNode } from 'element-ui/types/tree';
+import { TreeData } from 'element-ui/types/tree';
 import { Workbook } from 'exceljs';
 
 import DialogFooter from '@/components/DialogFooter.vue';
@@ -58,6 +57,9 @@ export default class OpenFile extends Vue {
       return;
     }
 
+    this.visible = false;
+    this.$emit('show-loading');
+    await this.$nextTick();
     this.filePath = this.nodePath;
 
     const wb = new Workbook();
@@ -82,7 +84,6 @@ export default class OpenFile extends Vue {
     }
 
     this.$emit('task-worksheet', worksheet, this.filePath);
-    this.visible = false;
   }
 
   setColumnKey(wb: Workbook): void {

@@ -7,7 +7,9 @@
       :lost-sourceid="lostSourceidArray()"
       @submit="sourceData"
     />
-    <el-button @click="handleSave">保存</el-button>
+    <el-button :loading="loading" @click="handleSave" style="margin-top: 20px"
+      >保存</el-button
+    >
   </div>
 </template>
 <script lang="ts">
@@ -89,15 +91,25 @@ export default class EditTask extends Vue {
   };
 
   lostSourceidArray = getLostSourceidArray();
-
+  loading = false;
   taskData: Record<string, any> = {};
 
   async handleSave(): Promise<void> {
+    this.loading = true;
+    await this.$nextTick();
     this.$refs.baseData.submit();
     this.$refs.progressData.submit();
     this.$refs.sourceData.submit();
     await this.$nextTick();
     writeExcel(this.taskData);
+    await this.$nextTick();
+    this.loading = false;
+    this.$notify({
+      title: '提示',
+      message: '保存成功',
+      type: 'success',
+      position: 'bottom-right',
+    });
   }
 
   baseData(object: Record<string, any>): void {
