@@ -3,10 +3,9 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import './plugins/element.ts';
-
 import './styles/index.scss';
 
-import '@/utils/initAppConfigFile';
+import '@/asserts/initAppConfigFile';
 
 Vue.config.productionTip = false;
 

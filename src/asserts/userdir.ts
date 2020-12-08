@@ -7,14 +7,14 @@ if (!fs.existsSync(homedir)) {
   fs.mkdirSync(homedir);
 }
 
-const configPath = path.resolve(homedir, `${os.userInfo().username}.json`);
+const userdir = path.resolve(homedir, `${os.userInfo().username}.json`);
 try {
-  const stat = fs.statSync(configPath);
+  const stat = fs.statSync(userdir);
   if (!stat.isFile()) {
-    throw new Error(`create file ${configPath}`);
+    throw new Error(`create file ${userdir}`);
   }
 } catch (error) {
-  fs.writeFileSync(configPath, JSON.stringify({}));
+  fs.writeFileSync(userdir, JSON.stringify({}));
 }
 
-export { configPath };
+export { userdir };

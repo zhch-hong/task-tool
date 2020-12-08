@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import { Workbook } from 'exceljs';
 
-import { configPath } from '@/asserts/userenv';
+import { userdir } from '@/asserts/userdir';
 
 Vue.use(Vuex);
 
@@ -14,7 +14,7 @@ interface State {
 }
 
 const state: State = {
-  userStoragePath: configPath,
+  userStoragePath: userdir,
   taskFilePath: '',
   updateTaskId: '',
   workbook: null,

@@ -1,10 +1,10 @@
 import path from 'path';
 import fs from 'fs';
 
-import store from '@/store';
+import { userdir } from '@/asserts/setWorkdir';
 import { readFile } from '@/utils/fileStream';
 
-const config = readFile(store.state.userStoragePath);
+const config = readFile(userdir);
 const workDir: string = config.workDir;
 
 const dirPath = path.resolve(workDir, 'app_config');

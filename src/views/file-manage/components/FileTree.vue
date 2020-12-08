@@ -27,8 +27,6 @@ import { TreeData } from 'element-ui/types/tree';
 import { Workbook } from 'exceljs';
 import { Notification } from 'element-ui';
 
-import store from '@/store';
-
 import { readFile } from '@/utils/fileStream';
 import { getUserconfig } from '@/asserts/userconfig';
 
@@ -57,19 +55,22 @@ export default class FileTree extends Vue {
   tableData: Record<string, any>[] = [];
 
   created(): void {
-    this.refresh();
+    this.setTreeFromStorage();
   }
 
   setTreeFromStorage(): void {
     const config = getUserconfig();
     if (config.workDir) {
+      const fileList = this.getFileList();
+      const data = this.getTreeData(config.workDir, fileList);
+      this.treeData = data;
     }
   }
 
   getFileList(): string[] {
-    const storage = readFile(store.state.userStoragePath);
-    if (storage.workDir) {
-      const path = resolve(storage.workDir, 'app_config', 'file-manage.json');
+    const config = getUserconfig();
+    if (config.workDir) {
+      const path = resolve(config.workDir, 'app_config', 'file-manage.json');
 
       const array: Record<string, string>[] = readFile(path);
       return array.map((item) => item.file);
@@ -93,11 +94,11 @@ export default class FileTree extends Vue {
     if (!this.folderPath) return;
     const fileList = this.getFileList();
     const data = this.getTreeData(this.folderPath, fileList);
-    localStorage.setItem('filtedFileTree', JSON.stringify(data));
     this.treeData = data;
   }
 
-  getTreeData(path: string, fileList: string[]): TreeMeta[] {
+  getTreeData(workDir: string, fileList: string[]): TreeMeta[] {
+    const path = workDir;
     const array: TreeMeta[] = [];
     const dirs = readdirSync(path);
     dirs.forEach((dir) => {
