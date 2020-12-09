@@ -40,12 +40,18 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { TreeData, TreeNode } from 'element-ui/types/tree';
+import { resolve } from 'path';
 
 import { readFile, writeFile } from '@/utils/fileStream';
+import { getUserconfig } from '@/asserts/userconfig';
 
 import UpdateNode from './components/UpdateNode.vue';
 
-const filePath = 'D:\\JyQipai_doc\\app_config\\source-manage.json';
+const filePath = resolve(
+  getUserconfig().workDir,
+  'app_config',
+  'source-manage.json'
+);
 
 @Component({
   components: {
