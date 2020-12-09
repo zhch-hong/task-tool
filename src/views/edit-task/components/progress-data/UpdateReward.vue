@@ -10,9 +10,12 @@
       </el-form-item>
       <el-form-item label="财富类型" prop="asset_type">
         <el-select v-model="form.asset_type">
-          <el-option label="福卡" value="prop_web_chip_huafei"></el-option>
-          <el-option label="金币" value="jing_bi"></el-option>
-          <el-option label="鱼币" value="shop_gold_sum"></el-option>
+          <el-option
+            v-for="option in selectOptions"
+            :key="option.value"
+            :label="option.name"
+            :value="option.value"
+          ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="数量" prop="asset_count">
@@ -51,8 +54,11 @@
 import { Component, Prop, PropSync, Vue, Watch } from 'vue-property-decorator';
 import { cloneDeep } from 'lodash';
 import { Form } from 'element-ui';
+import { resolve } from 'path';
 
 import DialogFooter from '@/components/DialogFooter.vue';
+import { getUserconfig } from '@/asserts/userconfig';
+import { readFile } from '@/utils/fileStream';
 
 const form: Record<string, any> = {
   award_name: '',
@@ -62,6 +68,12 @@ const form: Record<string, any> = {
   broadcast_content: false,
   is_send_email: false,
 };
+
+const filePath = resolve(
+  getUserconfig().workDir,
+  'app_config',
+  'input-manage.json'
+);
 
 @Component({
   components: { DialogFooter },
@@ -80,6 +92,15 @@ export default class UpdateReward extends Vue {
 
   form = cloneDeep(form);
   rules = {};
+  selectOptions: Record<string, string>[] = [];
+
+  created(): void {
+    const data: Record<string, any>[] = readFile(filePath);
+    const object = data.find((item) => item.value === 'asset');
+    if (object) {
+      this.selectOptions = object.select;
+    }
+  }
 
   @Watch('propRow', { immediate: true })
   propRowChange(object: Record<string, any>): void {

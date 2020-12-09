@@ -4,12 +4,10 @@ import { RouteConfig } from 'vue-router';
 
 import Layout from '@/components/layout/index.vue';
 
-import EditFile from '@/views/edit-file/index.vue';
-
 const routes: RouteConfig[] = [
   {
     path: '/',
-    redirect: '/edit-file',
+    redirect: '/input-manage',
   },
   {
     path: '/edit-file',

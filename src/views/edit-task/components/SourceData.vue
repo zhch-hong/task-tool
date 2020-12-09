@@ -20,16 +20,22 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { v4 as uuid } from 'uuid';
+import { resolve } from 'path';
 
 import store from '@/store';
 import { readFile } from '@/utils/fileStream';
 import { sheetToJson } from '@/utils/sheetToJson';
 import { lostIdArray } from '../utils/lostIdArray';
+import { getSheet } from '@/utils/likeSheet';
+import { getUserconfig } from '@/asserts/userconfig';
 
 import SourceItem from './source-data/SourceItem.vue';
-import { getSheet } from '@/utils/likeSheet';
 
-const filePath = 'D:\\JyQipai_doc\\app_config\\source-manage.json';
+const filePath = resolve(
+  getUserconfig().workDir,
+  'app_config',
+  'source-manage.json'
+);
 const selectSourcetype: Record<string, any>[] = readFile(filePath);
 
 function getSource():

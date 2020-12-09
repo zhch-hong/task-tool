@@ -29,7 +29,26 @@ try {
     throw new Error(`create file ${inputmanage}`);
   }
 } catch (error) {
-  fs.writeFileSync(inputmanage, JSON.stringify([]));
+  fs.writeFileSync(
+    inputmanage,
+    JSON.stringify([
+      {
+        value: 'type',
+        name: '任务获得类型',
+        select: [],
+      },
+      {
+        value: 'enum',
+        name: '任务枚举类型',
+        select: [],
+      },
+      {
+        value: 'asset',
+        name: '财富类型',
+        select: [],
+      },
+    ])
+  );
 }
 
 const sourcemanage = path.resolve(dirPath, `source-manage.json`);
@@ -39,5 +58,14 @@ try {
     throw new Error(`create file ${sourcemanage}`);
   }
 } catch (error) {
-  fs.writeFileSync(sourcemanage, JSON.stringify([]));
+  fs.writeFileSync(
+    sourcemanage,
+    JSON.stringify([
+      {
+        id: 'root',
+        label: 'Root',
+        children: [],
+      },
+    ])
+  );
 }

@@ -10,10 +10,16 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import { resolve } from 'path';
 
 import { readFile } from '@/utils/fileStream';
+import { getUserconfig } from '@/asserts/userconfig';
 
-const filePath = 'D:\\JyQipai_doc\\app_config\\input-manage.json';
+const filePath = resolve(
+  getUserconfig().workDir,
+  'app_config',
+  'input-manage.json'
+);
 
 @Component
 export default class GetType extends Vue {

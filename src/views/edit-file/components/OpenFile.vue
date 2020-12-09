@@ -64,10 +64,13 @@ export default class OpenFile extends Vue {
     this.treeData = getTreeData(workDir, fileList);
 
     // 从配置文件读取最后一次打开的文件
-    this.$emit('show-loading');
-    await this.$nextTick();
     const object: Record<string, string> = readFile(userdir);
     const { lastOpenFile } = object;
+    if (!lastOpenFile) return;
+
+    this.$emit('show-loading');
+    await this.$nextTick();
+
     this.filePath = lastOpenFile;
 
     const wb = new Workbook();
