@@ -23,7 +23,6 @@ export default class OpenFolder extends Vue {
     });
     const path = res.filePaths[0];
     this.path = path;
-    this.$emit('filder-path', path);
     this.setUserFolder(path);
   }
 
@@ -31,6 +30,7 @@ export default class OpenFolder extends Vue {
     const config = getUserconfig();
     config['workDir'] = path;
     setUserconfig(config);
+    this.$emit('refresh');
   }
 }
 </script>

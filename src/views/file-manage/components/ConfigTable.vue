@@ -60,7 +60,13 @@
       </el-table-column>
       <el-table-column>
         <template #default="{ $index }">
-          <el-button type="mini" @click="deleteRow($index)">删除</el-button>
+          <el-button
+            size="mini"
+            @click="deleteRow($index)"
+            type="danger"
+            icon="el-icon-delete"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>

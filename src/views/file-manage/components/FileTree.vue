@@ -1,8 +1,12 @@
 <template>
   <div>
-    <OpenFolder @filder-path="filderPath" @refresh="refresh" />
+    <OpenFolder @refresh="setTreeFromStorage" />
     <div style="display: flex">
-      <el-scrollbar style="height: 40vh" wrapStyle="overflow-x: hidden;">
+      <el-scrollbar
+        style="height: 40vh"
+        wrapStyle="overflow-x: hidden;"
+        v-loading="treeLoading"
+      >
         <el-tree
           :default-expand-all="true"
           :data="treeData"
@@ -51,8 +55,7 @@ interface TreeMeta extends TreeData {
 export default class FileTree extends Vue {
   @Prop({ type: String, required: true }) configPath!: string;
 
-  /** 文件夹路径 */
-  folderPath = '';
+  treeLoading = false;
   /** 标题和子级使用的字段名 */
   defaultProps = {
     children: 'children',
@@ -67,13 +70,17 @@ export default class FileTree extends Vue {
     this.setTreeFromStorage();
   }
 
-  setTreeFromStorage(): void {
+  async setTreeFromStorage(): Promise<void> {
+    this.treeLoading = true;
+    await this.$nextTick();
     const config = getUserconfig();
     if (config.workDir) {
       const fileList = this.getFileList();
       const data = this.getTreeData(config.workDir, fileList);
       this.treeData = data;
     }
+    await this.$nextTick();
+    this.treeLoading = false;
   }
 
   getFileList(): string[] {
@@ -81,19 +88,8 @@ export default class FileTree extends Vue {
     return array.map((item) => item.file);
   }
 
-  filderPath(path: string): void {
-    this.folderPath = path;
-    this.refresh();
-  }
-
-  refresh(): void {
-    if (!this.folderPath) return;
-    const fileList = this.getFileList();
-    const data = this.getTreeData(this.folderPath, fileList);
-    this.treeData = data;
-  }
-
   getTreeData(workDir: string, fileList: string[]): TreeMeta[] {
+    console.log(workDir, fileList);
     const path = workDir;
     const array: TreeMeta[] = [];
     const dirs = readdirSync(path);
