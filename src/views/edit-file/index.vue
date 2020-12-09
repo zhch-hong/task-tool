@@ -30,6 +30,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import { Worksheet } from 'exceljs';
 
 import store from '@/store';
+import { getSheet } from '@/utils/likeSheet';
 
 import OpenFile from './components/OpenFile.vue';
 
@@ -46,14 +47,15 @@ export default class EditFile extends Vue {
     this.$router.push('/edit-task');
   }
 
-  onclickRefresh(): void {
+  async onclickRefresh(): Promise<void> {
     const workbook = store.state.workbook;
     if (workbook) {
-      this.loading = true;
-      this.taskWorksheet(
-        workbook.getWorksheet('task'),
-        store.state.taskFilePath
-      );
+      const worksheet = getSheet(workbook, 'task');
+      if (worksheet) {
+        this.loading = true;
+        await this.$nextTick();
+        this.taskWorksheet(worksheet, store.state.taskFilePath);
+      }
     }
   }
 

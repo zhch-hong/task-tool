@@ -27,6 +27,7 @@ import { sheetToJson } from '@/utils/sheetToJson';
 import { lostIdArray } from '../utils/lostIdArray';
 
 import SourceItem from './source-data/SourceItem.vue';
+import { getSheet } from '@/utils/likeSheet';
 
 const filePath = 'D:\\JyQipai_doc\\app_config\\source-manage.json';
 const selectSourcetype: Record<string, any>[] = readFile(filePath);
@@ -36,7 +37,9 @@ function getSource():
   | undefined {
   const wb = store.state.workbook;
   if (!wb) return;
-  const wsTask = wb.getWorksheet('task');
+  const wsTask = getSheet(wb, 'task');
+  if (!wsTask) return;
+
   const taskid = store.state.updateTaskId;
   const task = sheetToJson(wsTask).find(
     (v) => v.id.toString() === taskid.toString()

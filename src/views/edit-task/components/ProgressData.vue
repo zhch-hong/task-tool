@@ -27,11 +27,15 @@ import store from '@/store';
 import { sheetToJson } from '@/utils/sheetToJson';
 
 import ProgressLine from './progress-data/ProgressLine.vue';
+import { getSheet } from '@/utils/likeSheet';
 
 function getProgress(): Record<string, any> | undefined {
   const wb = store.state.workbook;
   if (!wb) return;
-  const wsTask = wb.getWorksheet('task');
+
+  const wsTask = getSheet(wb, 'task');
+  if (!wsTask) return;
+
   const taskid = store.state.updateTaskId;
   const task = sheetToJson(wsTask).find(
     (v) => v.id.toString() === taskid.toString()

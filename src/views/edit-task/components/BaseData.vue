@@ -52,6 +52,7 @@ import ValidTime from './base-data/ValidTime.vue';
 import LimitTime from './base-data/LimitTime.vue';
 import GetType from './base-data/GetType.vue';
 import TaskEnum from './base-data/TaskEnum.vue';
+import { getSheet } from '@/utils/likeSheet';
 
 const form = {
   id: '',
@@ -73,7 +74,7 @@ function getTask(): null | Record<string, string> {
 
     if (!workbook) return null;
 
-    const worksheet = workbook.getWorksheet('task');
+    const worksheet = getSheet(workbook, 'task');
 
     if (typeof worksheet === 'undefined') {
       Notification({

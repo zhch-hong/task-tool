@@ -28,6 +28,7 @@ import { readFile, writeFile } from '@/utils/fileStream';
 import { getTreeData } from '@/utils/filtFileTree';
 import { getUserconfig } from '@/asserts/userconfig';
 import { userdir } from '@/asserts/userdir';
+import { getSheet } from '@/utils/likeSheet';
 
 import DialogFooter from '@/components/DialogFooter.vue';
 
@@ -77,7 +78,7 @@ export default class OpenFile extends Vue {
 
     store.commit('workbook', workbook);
 
-    this.$emit('task-worksheet', workbook.getWorksheet('task'), lastOpenFile);
+    this.$emit('task-worksheet', getSheet(workbook, 'task'), lastOpenFile);
   }
 
   async submit(): Promise<void> {
@@ -101,7 +102,7 @@ export default class OpenFile extends Vue {
 
     store.commit('workbook', workbook);
 
-    const worksheet = workbook.getWorksheet('task');
+    const worksheet = getSheet(workbook, 'task');
 
     if (typeof worksheet === 'undefined') {
       Notification({

@@ -4,6 +4,7 @@ import { CellValue, Workbook, Worksheet } from 'exceljs';
 
 import { strValToNumber } from './parseNumberValue';
 import { lostIdArray } from './lostIdArray';
+import { getSheet } from '@/utils/likeSheet';
 
 // 从小到大缺失的id，供添加任务时使用
 const lostTaskid = lostIdArray('task', 'id')();
@@ -41,7 +42,8 @@ export function writeExcel(data: Record<string, any>) {
 function writeBase(data: Record<string, any>) {
   console.group('写入基础数据');
   console.log('原始数据', JSON.parse(JSON.stringify(data)));
-  const ws = workbook.getWorksheet('task');
+  const ws = getSheet(workbook, 'task');
+  if (!ws) return;
 
   const insertRow = data;
 
@@ -70,7 +72,9 @@ function writeBase(data: Record<string, any>) {
 
 function writeProgress(data: Record<string, any>) {
   console.log('progress', data);
-  const taskSheet = workbook.getWorksheet('task');
+  const taskSheet = getSheet(workbook, 'task');
+  if (!taskSheet) return;
+
   const processSheet = workbook.getWorksheet('process_data');
 
   let processid = lostProcessid;
@@ -186,7 +190,9 @@ function writeSource(data: Record<string, any>[]): void {
   /**
    * 根据taskid找到数据行
    */
-  const taskSheet = workbook.getWorksheet('task');
+  const taskSheet = getSheet(workbook, 'task');
+  if (!taskSheet) return;
+
   const taskRowData = getRowByColumnValue(taskSheet, 'id', taskid.toString());
   const taskRow = taskRowData.row;
 
