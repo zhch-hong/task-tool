@@ -14,7 +14,11 @@
       <el-table-column label="说明" prop="name"></el-table-column>
       <el-table-column>
         <template #default="{ $index }">
-          <el-button type="danger" size="mini" @click="deleteRow($index)"
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            size="mini"
+            @click="deleteRow($index)"
             >删除</el-button
           >
         </template>
@@ -30,14 +34,19 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Notification } from 'element-ui';
 import fs from 'fs';
+import { resolve } from 'path';
 
 import { readFile, writeFile } from '@/utils/fileStream';
+import { getUserconfig } from '@/asserts/userconfig';
 
 import CreateConfig from './components/CreateConfig.vue';
 
-const filePath = 'D:\\JyQipai_doc\\app_config\\input-manage.json';
+const filePath = resolve(
+  getUserconfig().workDir,
+  'app_config',
+  'input-manage.json'
+);
 
 interface Config {
   value: string;
