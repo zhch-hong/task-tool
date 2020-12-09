@@ -36,7 +36,7 @@ const filePath = resolve(
   'app_config',
   'source-manage.json'
 );
-const selectSourcetype: Record<string, any>[] = readFile(filePath);
+const selectSourcetype: Record<string, any>[] = readFile(filePath)[0].children;
 
 function getSource():
   | Record<string, string | Record<string, string>[]>[]
@@ -94,7 +94,7 @@ export default class SourceData extends Vue {
   @Prop({ type: Number, required: true }) lostSourceid!: number;
 
   sourceList: Record<string, string | Record<string, string>[]>[] = [];
-  selectSourcetype: Record<string, any> = selectSourcetype[0].children;
+  selectSourcetype: Record<string, any> = selectSourcetype;
   lostConditionidArray = lostIdArray('condition', 'condition_id');
   sourceId = this.lostSourceid.toString();
 

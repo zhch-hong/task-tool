@@ -1,6 +1,13 @@
 <template>
   <div>
-    <el-tree :data="treeData" node-key="id" draggable @node-drop="nodeDrop">
+    <el-tree
+      :data="treeData"
+      node-key="id"
+      :highlight-current="true"
+      :default-expand-all="true"
+      draggable
+      @node-drop="nodeDrop"
+    >
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span>{{ node.label }}</span>
         <span style="margin-left: 20px">

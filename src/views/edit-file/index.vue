@@ -10,7 +10,7 @@
       <el-button @click="createTask">添加任务</el-button>
     </div>
     <el-table v-loading="loading" :data="tableData" height="auto">
-      <el-table-column type="selection" width="60"></el-table-column>
+      <!-- <el-table-column type="selection" width="60"></el-table-column> -->
       <el-table-column type="index" width="60"></el-table-column>
       <el-table-column label="任务ID" prop="id" width="60"></el-table-column>
       <el-table-column label="名称" prop="name"></el-table-column>
