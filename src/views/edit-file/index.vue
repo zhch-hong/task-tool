@@ -66,7 +66,6 @@ export default class EditFile extends Vue {
   }
 
   async taskWorksheet(worksheet: Worksheet, filePath: string): Promise<void> {
-    console.time('taskWorksheet');
     store.commit('editFilePath', filePath);
 
     const rowValues = worksheet.getRow(1).values;
@@ -129,7 +128,7 @@ export default class EditFile extends Vue {
     const descList: string[] = [];
     worksheet
       .getColumn(fieldIndex.desc)
-      .eachCell((cell) => descList.push(cell.text));
+      ?.eachCell((cell) => descList.push(cell.text));
 
     if (
       Array.isArray(idList) &&
@@ -162,7 +161,6 @@ export default class EditFile extends Vue {
       await this.$nextTick();
       this.loading = false;
     }
-    console.timeEnd('taskWorksheet');
   }
 
   updateRow(index: number): void {

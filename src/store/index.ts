@@ -27,4 +27,9 @@ export default new Vuex.Store({
     updateTaskId: (state, id: string) => (state.updateTaskId = id),
     workbook: (state, wb: Workbook) => (state.workbook = wb),
   },
+  actions: {
+    workbook({ commit }, workbook: Workbook) {
+      commit('workbook', workbook);
+    },
+  },
 });

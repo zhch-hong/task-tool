@@ -7,7 +7,19 @@ import './styles/index.scss';
 
 import '@/asserts/initAppConfigFile';
 
+import { Notification } from 'element-ui';
+
 Vue.config.productionTip = false;
+// Vue.config.errorHandler = (err, vm, info) => {
+//   console.log(err, vm, info);
+//   alert(err.stack);
+//   Notification({
+//     title: '错误',
+//     message: err.name || '',
+//     type: 'error',
+//     position: 'bottom-right',
+//   });
+// };
 
 new Vue({
   router,

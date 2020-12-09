@@ -145,7 +145,7 @@ export default class FileTree extends Vue {
     const descList: string[] = [];
     worksheet
       .getColumn(fieldIndex.desc)
-      .eachCell((cell) => descList.push(cell.text));
+      ?.eachCell((cell) => descList.push(cell.text));
 
     if (
       Array.isArray(idList) &&

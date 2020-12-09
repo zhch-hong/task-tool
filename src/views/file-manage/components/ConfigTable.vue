@@ -140,7 +140,7 @@ export default class ConfigTable extends Vue {
   }
 
   addConfig(row: Record<string, any>): void {
-    this.tableData.push(row);
+    this.tableData.push(cloneDeep(row));
     writeFile(this.configPath, this.tableData);
   }
 }

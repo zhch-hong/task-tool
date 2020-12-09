@@ -20,6 +20,6 @@
 </template>
 <style lang="scss">
 #nav {
-  background-color: #f2f3f4;
+  background-color: #f5f7fa;
 }
 </style>
