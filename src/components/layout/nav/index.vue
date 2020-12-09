@@ -1,6 +1,11 @@
 <template>
   <nav id="nav">
-    <el-menu :default-active="$route.path" router>
+    <el-menu
+      :default-active="$route.path"
+      background-color="transparent"
+      active-text-color="#0099ff"
+      router
+    >
       <el-menu-item-group title="任务配置工具">
         <el-menu-item index="/edit-file">编辑文件</el-menu-item>
         <el-menu-item index="/edit-task">编辑任务</el-menu-item>
@@ -13,3 +18,8 @@
     </el-menu>
   </nav>
 </template>
+<style lang="scss">
+#nav {
+  background-color: #f2f3f4;
+}
+</style>

@@ -82,6 +82,7 @@ export default class OpenFile extends Vue {
   }
 
   async submit(): Promise<void> {
+    console.time('submit');
     const path = this.nodePath;
     const stat = statSync(path);
 
@@ -94,10 +95,11 @@ export default class OpenFile extends Vue {
     await this.$nextTick();
     this.filePath = this.nodePath;
 
+    console.time('unit');
     const wb = new Workbook();
     const buffer = readFileSync(path);
     const workbook = await wb.xlsx.load(buffer);
-
+    console.timeEnd('unit');
     this.setColumnKey(workbook);
 
     store.commit('workbook', workbook);
@@ -116,6 +118,7 @@ export default class OpenFile extends Vue {
     }
 
     this.$emit('task-worksheet', worksheet, this.filePath);
+    console.timeEnd('submit');
   }
 
   setColumnKey(wb: Workbook): void {
@@ -133,8 +136,10 @@ export default class OpenFile extends Vue {
   }
 
   nodeClick(d: TreeMeta): void {
+    console.time('nodeClick');
     this.nodePath = d.path;
     this.setLastOpenFilePath(d.path);
+    console.timeEnd('nodeClick');
     this.submit();
   }
 

@@ -1,9 +1,15 @@
 <template>
-  <div>
-    <OpenFile @task-worksheet="taskWorksheet" @show-loading="loading = true" />
-    <el-button @click="onclickRefresh">刷新</el-button>
-    <el-button @click="createTask">添加任务</el-button>
-    <el-table v-loading="loading" :data="tableData" height="80vh">
+  <div class="edit-file">
+    <div>
+      <OpenFile
+        @task-worksheet="taskWorksheet"
+        @show-loading="loading = true"
+      />
+
+      <el-button @click="onclickRefresh">刷新</el-button>
+      <el-button @click="createTask">添加任务</el-button>
+    </div>
+    <el-table v-loading="loading" :data="tableData" height="auto">
       <el-table-column type="selection" width="60"></el-table-column>
       <el-table-column type="index" width="60"></el-table-column>
       <el-table-column label="任务ID" prop="id" width="60"></el-table-column>
@@ -60,6 +66,7 @@ export default class EditFile extends Vue {
   }
 
   async taskWorksheet(worksheet: Worksheet, filePath: string): Promise<void> {
+    console.time('taskWorksheet');
     store.commit('editFilePath', filePath);
 
     const rowValues = worksheet.getRow(1).values;
@@ -155,6 +162,7 @@ export default class EditFile extends Vue {
       await this.$nextTick();
       this.loading = false;
     }
+    console.timeEnd('taskWorksheet');
   }
 
   updateRow(index: number): void {
@@ -164,3 +172,11 @@ export default class EditFile extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+.edit-file {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+</style>
