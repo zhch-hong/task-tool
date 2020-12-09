@@ -34,7 +34,6 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import fs from 'fs';
 import { resolve } from 'path';
 
 import { readFile, writeFile } from '@/utils/fileStream';

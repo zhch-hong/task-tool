@@ -16,21 +16,24 @@
   </div>
 </template>
 <script lang="ts">
+import { resolve } from 'path';
 import { Component, Vue } from 'vue-property-decorator';
 import { readFileSync, statSync } from 'fs';
 import { Notification } from 'element-ui';
 import { TreeData } from 'element-ui/types/tree';
 import { Workbook } from 'exceljs';
 
-import DialogFooter from '@/components/DialogFooter.vue';
 import store from '@/store';
+import { readFile, writeFile } from '@/utils/fileStream';
+import { getTreeData } from '@/utils/filtFileTree';
+import { getUserconfig } from '@/asserts/userconfig';
+import { userdir } from '@/asserts/userdir';
+
+import DialogFooter from '@/components/DialogFooter.vue';
 
 interface TreeMeta extends TreeData {
   path: string;
 }
-
-const treeDataStr = localStorage.getItem('filtedFileTree');
-const treeData = JSON.parse(treeDataStr || '[]');
 
 @Component({
   components: {
@@ -41,13 +44,41 @@ export default class OpenFile extends Vue {
   visible = false;
   nodePath = '';
   filePath = '';
-  treeData = treeData;
+  treeData: TreeMeta[] = [];
   /** 标题和子级使用的字段名 */
   defaultProps = {
     children: 'children',
     label: 'label',
     path: 'path',
   };
+
+  async created(): Promise<void> {
+    // 从配置文件读取过滤的文件树数据
+    const workDir = getUserconfig().workDir;
+
+    const fileManageJson: Record<string, string>[] = readFile(
+      resolve(workDir, 'app_config', 'file-manage.json')
+    );
+    const fileList = fileManageJson.map((item) => item.file);
+    this.treeData = getTreeData(workDir, fileList);
+
+    // 从配置文件读取最后一次打开的文件
+    this.$emit('show-loading');
+    await this.$nextTick();
+    const object: Record<string, string> = readFile(userdir);
+    const { lastOpenFile } = object;
+    this.filePath = lastOpenFile;
+
+    const wb = new Workbook();
+    const buffer = readFileSync(lastOpenFile);
+    const workbook = await wb.xlsx.load(buffer);
+
+    this.setColumnKey(workbook);
+
+    store.commit('workbook', workbook);
+
+    this.$emit('task-worksheet', workbook.getWorksheet('task'), lastOpenFile);
+  }
 
   async submit(): Promise<void> {
     const path = this.nodePath;
@@ -102,7 +133,14 @@ export default class OpenFile extends Vue {
 
   nodeClick(d: TreeMeta): void {
     this.nodePath = d.path;
+    this.setLastOpenFilePath(d.path);
     this.submit();
+  }
+
+  setLastOpenFilePath(path: string): void {
+    const object: Record<string, any> = readFile(userdir);
+    object['lastOpenFile'] = path;
+    writeFile(userdir, object);
   }
 }
 </script>

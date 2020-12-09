@@ -1,8 +1,6 @@
 <template>
   <main id="main">
-    <keep-alive exclude="EditTask">
-      <router-view></router-view>
-    </keep-alive>
+    <router-view></router-view>
   </main>
 </template>
 <style lang="scss">

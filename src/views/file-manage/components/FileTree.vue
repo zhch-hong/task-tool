@@ -32,14 +32,15 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { readdirSync, readFileSync, statSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync, statSync } from 'fs';
 import { TreeData } from 'element-ui/types/tree';
 import { Workbook } from 'exceljs';
 import { Notification } from 'element-ui';
 
 import { readFile } from '@/utils/fileStream';
 import { getUserconfig } from '@/asserts/userconfig';
+import { getTreeData } from '@/utils/filtFileTree';
+import { getSheet } from '@/utils/likeSheet';
 
 import OpenFolder from './OpenFolder.vue';
 
@@ -55,6 +56,7 @@ interface TreeMeta extends TreeData {
 export default class FileTree extends Vue {
   @Prop({ type: String, required: true }) configPath!: string;
 
+  getTreeData = getTreeData;
   treeLoading = false;
   /** 标题和子级使用的字段名 */
   defaultProps = {
@@ -76,7 +78,7 @@ export default class FileTree extends Vue {
     const config = getUserconfig();
     if (config.workDir) {
       const fileList = this.getFileList();
-      const data = this.getTreeData(config.workDir, fileList);
+      const data = getTreeData(config.workDir, fileList);
       this.treeData = data;
     }
     await this.$nextTick();
@@ -86,32 +88,6 @@ export default class FileTree extends Vue {
   getFileList(): string[] {
     const array: Record<string, string>[] = readFile(this.configPath);
     return array.map((item) => item.file);
-  }
-
-  getTreeData(workDir: string, fileList: string[]): TreeMeta[] {
-    console.log(workDir, fileList);
-    const path = workDir;
-    const array: TreeMeta[] = [];
-    const dirs = readdirSync(path);
-    dirs.forEach((dir) => {
-      const _path = resolve(path, dir);
-      const stats = statSync(_path);
-      if (stats.isFile()) {
-        if (fileList.includes(dir)) {
-          array.push({ label: dir, path: _path });
-        }
-      } else if (stats.isDirectory()) {
-        const list = this.getTreeData(_path, fileList);
-        if (list.length !== 0) {
-          array.push({
-            label: dir,
-            path: _path,
-            children: list,
-          });
-        }
-      }
-    });
-    return array;
   }
 
   async handleNodeClick(data: TreeMeta): Promise<void> {
@@ -129,7 +105,7 @@ export default class FileTree extends Vue {
     const wb = new Workbook();
     const buffer = readFileSync(path);
     const workbook = await wb.xlsx.load(buffer);
-    const worksheet = workbook.getWorksheet('task');
+    const worksheet = getSheet(workbook, 'task');
 
     if (typeof worksheet === 'undefined') {
       Notification({
