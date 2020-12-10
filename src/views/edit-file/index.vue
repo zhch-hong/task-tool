@@ -8,9 +8,17 @@
 
       <el-button @click="onclickRefresh">刷新</el-button>
       <el-button @click="createTask">添加任务</el-button>
+      <el-button @click="copySelection">拷贝</el-button>
+      <el-button @click="pasteTask">粘贴</el-button>
+      <el-button>复制</el-button>
     </div>
-    <el-table v-loading="loading" :data="tableData" height="auto">
-      <!-- <el-table-column type="selection" width="60"></el-table-column> -->
+    <el-table
+      v-loading="loading"
+      :data="tableData"
+      height="auto"
+      @selection-change="selectionChange"
+    >
+      <el-table-column type="selection" width="60"></el-table-column>
       <el-table-column type="index" width="60"></el-table-column>
       <el-table-column label="任务ID" prop="id" width="60"></el-table-column>
       <el-table-column label="名称" prop="name"></el-table-column>
@@ -36,7 +44,8 @@ import { Component, Vue } from 'vue-property-decorator';
 import { Worksheet } from 'exceljs';
 
 import store from '@/store';
-import { getSheet } from '@/utils/likeSheet';
+import { getSheet } from '@/utils';
+import { SheetName } from '@/shims-vue';
 
 import OpenFile from './components/OpenFile.vue';
 
@@ -48,6 +57,8 @@ import OpenFile from './components/OpenFile.vue';
 export default class EditFile extends Vue {
   tableData: Record<string, string>[] = [];
   loading = false;
+
+  tableSelection: Record<string, string>[] = [];
 
   createTask(): void {
     this.$router.push('/edit-task');
@@ -156,7 +167,7 @@ export default class EditFile extends Vue {
         index++;
       }
 
-      this.tableData = array;
+      this.tableData = array.splice(0, 20);
 
       await this.$nextTick();
       this.loading = false;
@@ -167,6 +178,115 @@ export default class EditFile extends Vue {
     const row = this.tableData[index];
     store.commit('updateTaskId', row.id);
     this.$router.push('/edit-task');
+  }
+
+  selectionChange(selection: Record<string, string>[]): void {
+    this.tableSelection = selection;
+  }
+
+  copySelection(): void {
+    const idList = this.tableSelection.map((task) => task.id);
+    if (idList.length === 0) {
+      this.$message.info('请勾选需要拷贝的任务');
+      return;
+    }
+
+    const workbookMap: Map<SheetName, Record<string, string>[]> =
+      store.getters.workbookMap;
+    const taskjson = workbookMap.get('task');
+    const processjson = workbookMap.get('process_data');
+    const sourcejson = workbookMap.get('source');
+    const conditionjson = workbookMap.get('condition');
+    const awardjson = workbookMap.get('award_data');
+
+    const copyList: Record<
+      string,
+      Record<string, string> | Record<string, string>[]
+    >[] = [];
+    if (taskjson && processjson && sourcejson && conditionjson && awardjson) {
+      idList.forEach((id) => {
+        const object: Record<
+          string,
+          Record<string, string> | Record<string, string>[]
+        > = {};
+        const task = taskjson.find((item) => item.id === id);
+        if (task) {
+          object['task'] = task;
+
+          const { process_id } = task;
+          const process = processjson.find(
+            (item) => item.process_id === process_id
+          );
+
+          if (process) {
+            object['process'] = process;
+
+            const { awards, source_id } = process;
+            const awardList = this.getAwardList(awards);
+            if (awardList) object['awards'] = awardList;
+
+            object['source'] = sourcejson.filter(
+              (item) => item.source_id === source_id
+            );
+            const conditionidList = object.source.map(
+              (item) => item.condition_id
+            );
+
+            object['condition'] = conditionjson.filter((item) =>
+              conditionidList.includes(item.condition_id)
+            );
+          }
+        }
+
+        copyList.push(object);
+      });
+    }
+
+    store.commit('copyTaskList', JSON.parse(JSON.stringify(copyList)));
+
+    this.$message.success('拷贝成功');
+  }
+
+  getAwardList(award: string): Record<string, string>[] | undefined {
+    const idList = award.split(',');
+    const workbookMap: Map<SheetName, Record<string, string>[]> =
+      store.getters.workbookMap;
+    const awardjson = workbookMap.get('award_data');
+    if (awardjson) {
+      return awardjson.filter((item) => idList.includes(item.award_id));
+    }
+  }
+
+  pasteTask(): void {
+    const copyTaskList = store.state.copyTaskList;
+    if (!copyTaskList) {
+      this.$message.info('尚未拷贝任务');
+      return;
+    }
+
+    const taskid = store.getters.taskid;
+    const processid = store.getters.processid;
+    const sourceid = store.getters.sourceid;
+    const conditionid = store.getters.conditionid;
+    const awardid = store.getters.awardid;
+    console.log(
+      copyTaskList,
+      taskid(),
+      processid(),
+      sourceid(),
+      conditionid(),
+      awardid()
+    );
+
+    copyTaskList.forEach((copyTask) => {
+      const taskjson = copyTask.task as Record<string, string>;
+      const processjson = copyTask.process_data as Record<string, string>;
+      const sourcejson = copyTask.source as Record<string, string>[];
+      const conditionjson = copyTask.condition as Record<string, string>[];
+      const awardjson = copyTask.award_data as Record<string, string>[];
+      if (taskjson && processjson && sourcejson && conditionjson && awardjson) {
+      }
+    });
   }
 }
 </script>

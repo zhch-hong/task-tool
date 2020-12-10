@@ -4,7 +4,7 @@ import { CellValue, Workbook, Worksheet } from 'exceljs';
 
 import { strValToNumber } from './parseNumberValue';
 import { lostIdArray } from './lostIdArray';
-import { getSheet } from '@/utils/likeSheet';
+import { getRowByColumnValue, getSheet } from '@/utils';
 
 // 从小到大缺失的id，供添加任务时使用
 const lostTaskid = lostIdArray('task', 'id')();
@@ -267,28 +267,6 @@ function writeSource(data: Record<string, any>[]): void {
       console.log('insert condition rows', insertRows);
     }
   });
-}
-
-function getRowByColumnValue(ws: Worksheet, col: string, value: string) {
-  const rowData: Record<string, CellValue> = {};
-  const object = {
-    row: rowData,
-    rowNumber: -1,
-  };
-  ws.eachRow((row, index) => {
-    const cell = row.getCell(col);
-    if (cell.text === value) {
-      object.rowNumber = index;
-      const row = ws.getRow(index);
-      row.eachCell((cell, colNumber) => {
-        const key = cell.worksheet.getColumn(colNumber).key;
-        if (key) {
-          rowData[key] = cell.text;
-        }
-      });
-    }
-  });
-  return object;
 }
 
 /**

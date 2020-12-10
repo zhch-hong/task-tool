@@ -7,7 +7,7 @@ import Layout from '@/components/layout/index.vue';
 const routes: RouteConfig[] = [
   {
     path: '/',
-    redirect: '/input-manage',
+    redirect: '/file-manage',
   },
   {
     path: '/edit-file',

@@ -24,11 +24,15 @@ import { TreeData } from 'element-ui/types/tree';
 import { Workbook } from 'exceljs';
 
 import store from '@/store';
-import { readFile, writeFile } from '@/utils/fileStream';
-import { getTreeData } from '@/utils/filtFileTree';
 import { getUserconfig } from '@/asserts/userconfig';
 import { userdir } from '@/asserts/userdir';
-import { getSheet } from '@/utils/likeSheet';
+import {
+  readFile,
+  writeFile,
+  getTreeData,
+  getSheet,
+  workbook2map,
+} from '@/utils';
 
 import DialogFooter from '@/components/DialogFooter.vue';
 
@@ -79,7 +83,8 @@ export default class OpenFile extends Vue {
 
     this.setColumnKey(workbook);
 
-    store.commit('workbook', workbook);
+    store.dispatch('workbook', workbook);
+    store.dispatch('workbookMap', workbook2map(workbook));
 
     this.$emit('task-worksheet', getSheet(workbook, 'task'), lastOpenFile);
   }
@@ -104,6 +109,8 @@ export default class OpenFile extends Vue {
 
     // 这里加一个延迟，否则会消耗大部分时间
     store.dispatch('workbook', workbook);
+    store.dispatch('workbookMap', workbook2map(workbook));
+
     // setTimeout(() => {
     // }, 3000);
 
