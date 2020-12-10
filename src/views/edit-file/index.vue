@@ -48,6 +48,7 @@ import { getSheet } from '@/utils';
 import { SheetName } from '@/shims-vue';
 
 import OpenFile from './components/OpenFile.vue';
+import { cloneDeep } from 'lodash';
 
 @Component({
   components: {
@@ -192,7 +193,7 @@ export default class EditFile extends Vue {
     }
 
     const workbookMap: Map<SheetName, Record<string, string>[]> =
-      store.getters.workbookMap;
+      store.state.workbookMap;
     const taskjson = workbookMap.get('task');
     const processjson = workbookMap.get('process_data');
     const sourcejson = workbookMap.get('source');
@@ -250,7 +251,7 @@ export default class EditFile extends Vue {
   getAwardList(award: string): Record<string, string>[] | undefined {
     const idList = award.split(',');
     const workbookMap: Map<SheetName, Record<string, string>[]> =
-      store.getters.workbookMap;
+      store.state.workbookMap;
     const awardjson = workbookMap.get('award_data');
     if (awardjson) {
       return awardjson.filter((item) => idList.includes(item.award_id));
@@ -258,7 +259,8 @@ export default class EditFile extends Vue {
   }
 
   pasteTask(): void {
-    const copyTaskList = store.state.copyTaskList;
+    let copyTaskList = store.state.copyTaskList;
+    copyTaskList = cloneDeep(copyTaskList);
     if (!copyTaskList) {
       this.$message.info('尚未拷贝任务');
       return;
@@ -269,22 +271,47 @@ export default class EditFile extends Vue {
     const sourceid = store.getters.sourceid;
     const conditionid = store.getters.conditionid;
     const awardid = store.getters.awardid;
-    console.log(
-      copyTaskList,
-      taskid(),
-      processid(),
-      sourceid(),
-      conditionid(),
-      awardid()
-    );
-
     copyTaskList.forEach((copyTask) => {
       const taskjson = copyTask.task as Record<string, string>;
-      const processjson = copyTask.process_data as Record<string, string>;
+      const processjson = copyTask.process as Record<string, string>;
       const sourcejson = copyTask.source as Record<string, string>[];
       const conditionjson = copyTask.condition as Record<string, string>[];
-      const awardjson = copyTask.award_data as Record<string, string>[];
+      const awardjson = copyTask.awards as Record<string, string>[];
       if (taskjson && processjson && sourcejson && conditionjson && awardjson) {
+        taskjson.id = taskid();
+
+        const newProcessid = processid();
+        const newSourceid = sourceid();
+
+        taskjson.process_id = newProcessid;
+        processjson.process_id = newProcessid;
+        processjson.source_id = newSourceid;
+
+        const newAwardid: string[] = [];
+        processjson.awards.split(',').forEach((award_id) => {
+          const _award_id = awardid();
+          newAwardid.push(_award_id);
+          awardjson.forEach((award) => {
+            if (award.award_id === award_id) award.award_id = _award_id;
+          });
+        });
+        processjson.awards = newAwardid.join(',');
+
+        sourcejson.forEach((source) => {
+          const newConditionid = conditionid();
+          source.source_id = newSourceid;
+          source.condition_id = newConditionid;
+          conditionjson.forEach((cond) => {
+            if (cond.condition_id === source.condition_id)
+              cond.condition_id = newConditionid;
+          });
+        });
+
+        console.log(JSON.parse(JSON.stringify(taskjson)));
+        console.log(JSON.parse(JSON.stringify(processjson)));
+        console.log(JSON.parse(JSON.stringify(sourcejson)));
+        console.log(JSON.parse(JSON.stringify(conditionjson)));
+        console.log(JSON.parse(JSON.stringify(awardjson)));
       }
     });
   }

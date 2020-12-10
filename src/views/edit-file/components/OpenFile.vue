@@ -84,7 +84,7 @@ export default class OpenFile extends Vue {
     this.setColumnKey(workbook);
 
     store.dispatch('workbook', workbook);
-    store.dispatch('workbookMap', workbook2map(workbook));
+    store.commit('workbookMap', workbook2map(workbook));
 
     this.$emit('task-worksheet', getSheet(workbook, 'task'), lastOpenFile);
   }
@@ -109,7 +109,7 @@ export default class OpenFile extends Vue {
 
     // 这里加一个延迟，否则会消耗大部分时间
     store.dispatch('workbook', workbook);
-    store.dispatch('workbookMap', workbook2map(workbook));
+    store.commit('workbookMap', workbook2map(workbook));
 
     // setTimeout(() => {
     // }, 3000);

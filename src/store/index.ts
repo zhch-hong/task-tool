@@ -123,9 +123,6 @@ export default new Vuex.Store({
     },
   },
   getters: {
-    workbookMap(state) {
-      return JSON.parse(JSON.stringify(state.workbookMap));
-    },
     taskid() {
       return (): string => {
         const id = lostTaskid.shift();
