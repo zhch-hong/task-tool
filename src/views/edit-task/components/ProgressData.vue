@@ -3,71 +3,46 @@
     <legend>进度配置</legend>
     <el-form label-width="100px">
       <el-form-item label="奖励方式">
-        <el-radio v-model="rewardType" label="nor">普通</el-radio>
-        <el-radio v-model="rewardType" label="random">随机</el-radio>
+        <el-radio v-model="processForm.get_award_type" label="nor"
+          >普通</el-radio
+        >
+        <el-radio v-model="processForm.get_award_type" label="random"
+          >随机</el-radio
+        >
       </el-form-item>
       <el-form-item label="循环最后阶段">
         <el-switch v-model="lastLoop"> </el-switch>
       </el-form-item>
       <el-form-item label="初始进度">
-        <el-input v-model.trim="preProcess"> </el-input>
+        <el-input v-model.trim="processForm.pre_add_process"> </el-input>
       </el-form-item>
     </el-form>
     <ProgressLine
       ref="progressLine"
-      :progress="progress"
-      :reward-type="rewardType"
+      :process="process"
+      :awards="awards"
+      :reward-type="processForm.get_award_type"
     />
   </fieldset>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
-
-import store from '@/store';
-import { sheetToJson } from '@/utils/sheetToJson';
+import { cloneDeep } from 'lodash';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 import ProgressLine from './progress-data/ProgressLine.vue';
-import { getSheet } from '@/utils/likeSheet';
 
-function getProgress(): Record<string, any> | undefined {
-  const wb = store.state.workbook;
-  if (!wb) return;
-
-  const wsTask = getSheet(wb, 'task');
-  if (!wsTask) return;
-
-  const taskid = store.state.updateTaskId;
-  const task = sheetToJson(wsTask).find(
-    (v) => v.id.toString() === taskid.toString()
-  );
-  if (task) {
-    const wsProcess = wb.getWorksheet('process_data');
-    const process = sheetToJson(wsProcess).find((v) => {
-      if (typeof v.process_id === 'undefined') return false;
-      return v.process_id.toString() === task.process_id.toString();
-    });
-    if (process) {
-      const rewardIdList = process.awards.split(',');
-      const rewardSheet = wb.getWorksheet('award_data');
-      if (rewardSheet) {
-        const rewardJson = sheetToJson(rewardSheet).filter((item) =>
-          rewardIdList.includes(item.award_id.toString())
-        );
-        const processList = process.process.split(',');
-        const lastProcess = processList.pop();
-        return {
-          rewardJson,
-          rewardType: process.get_award_type || 'nor',
-          lastLoop: process.process.split(',').pop() === '-1',
-          preProcess: process.pre_add_process || '',
-          process:
-            lastProcess === '-1' ? processList.join(',') : process.process,
-          awards: process.awards,
-        };
-      }
-    }
-  }
-}
+const process = {
+  id: '',
+  process_id: '',
+  condition_type: '',
+  source_id: '',
+  condition_id: '',
+  process: '',
+  pre_add_process: '',
+  awards: '',
+  get_award_type: 'nor',
+  is_auto_get_award: '',
+};
 
 @Component({
   components: {
@@ -79,31 +54,33 @@ export default class ProgressData extends Vue {
     progressLine: any;
   };
 
+  @Prop() processData!: Record<string, string> | null;
+  @Prop({ type: Array, required: true }) awardData!: Record<string, string>[][];
+
+  processForm = cloneDeep(process);
+
   lastLoop = false;
-  rewardType = 'nor';
-  preProcess = '';
-  progress: Record<string, any> | null = null;
+  process: string[] | null = null;
+  awards = this.awardData;
 
   created(): void {
-    const progress = getProgress();
-    if (progress) {
-      const { rewardType, lastLoop, preProcess } = progress;
-      this.lastLoop = lastLoop as boolean;
-      this.rewardType = rewardType as string;
-      this.preProcess = preProcess as string;
-      this.progress = progress;
+    if (this.processData) {
+      Object.assign(this.processForm, this.processData);
+
+      const _process = this.processData.process.split(',');
+      this.lastLoop = _process[_process.length - 1] === '-1';
+      if (this.lastLoop) this.process = _process.slice(0, _process.length - 1);
+      else this.process = _process;
     }
   }
 
   submit(): void {
     const lineData: Record<string, any>[] = this.$refs.progressLine.submit();
-    const obj = {
+    this.$emit('submit', {
+      process: this.processForm,
+      award: lineData,
       lastLoop: this.lastLoop,
-      rewardType: this.rewardType,
-      preProcess: this.preProcess,
-      lineData,
-    };
-    this.$emit('submit', obj);
+    });
   }
 }
 </script>

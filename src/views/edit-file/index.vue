@@ -1,16 +1,12 @@
 <template>
   <div class="edit-file">
     <div>
-      <OpenFile
-        @task-worksheet="taskWorksheet"
-        @show-loading="loading = true"
-      />
-
-      <el-button @click="onclickRefresh">刷新</el-button>
+      <OpenFile />
+      <el-button @click="refreshTable">刷新</el-button>
       <el-button @click="createTask">添加任务</el-button>
       <el-button @click="copySelection">拷贝</el-button>
       <el-button @click="pasteTask">粘贴</el-button>
-      <el-button>复制</el-button>
+      <el-button @click="doubleTask">复制</el-button>
     </div>
     <el-table
       v-loading="loading"
@@ -41,11 +37,9 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Worksheet } from 'exceljs';
 
 import store from '@/store';
-import { getSheet } from '@/utils';
-import { SheetName } from '@/shims-vue';
+import { SheetName, WorkbookMap } from '@/shims-vue';
 
 import OpenFile from './components/OpenFile.vue';
 import { cloneDeep } from 'lodash';
@@ -61,117 +55,24 @@ export default class EditFile extends Vue {
 
   tableSelection: Record<string, string>[] = [];
 
+  created(): void {
+    store.commit('observable', {
+      property: 'workbookMap',
+      componentName: this.$options.name,
+      method: this.refreshTable,
+    });
+  }
+
   createTask(): void {
     this.$router.push('/edit-task');
   }
 
-  async onclickRefresh(): Promise<void> {
-    const workbook = store.state.workbook;
-    if (workbook) {
-      const worksheet = getSheet(workbook, 'task');
-      if (worksheet) {
-        this.loading = true;
-        await this.$nextTick();
-        this.taskWorksheet(worksheet, store.state.taskFilePath);
-      }
-    }
-  }
-
-  async taskWorksheet(worksheet: Worksheet, filePath: string): Promise<void> {
-    store.commit('editFilePath', filePath);
-
-    const rowValues = worksheet.getRow(1).values;
-    const fieldIndex: Record<string, number> = {};
-    if (Array.isArray(rowValues)) {
-      rowValues.map((item, index) => {
-        if (item) {
-          const str = item.toString();
-          const k = str.split('|')[0];
-          if (k === 'id') {
-            fieldIndex['id'] = index;
-          } else if (k === 'name') {
-            fieldIndex['name'] = index;
-          } else if (k === 'enable') {
-            fieldIndex['enable'] = index;
-          } else if (k === 'is_reset') {
-            fieldIndex['is_reset'] = index;
-          } else if (k === 'own_type') {
-            fieldIndex['own_type'] = index;
-          } else if (k === 'task_enum') {
-            fieldIndex['task_enum'] = index;
-          }
-          if (str.split('|')[1] === '任务内容说明') {
-            fieldIndex['desc'] = index;
-          }
-        }
-      });
-    }
-
-    const idList: string[] = [];
-    worksheet
-      .getColumn(fieldIndex.id)
-      .eachCell((cell) => idList.push(cell.text));
-
-    const nameList: string[] = [];
-    worksheet
-      .getColumn(fieldIndex.name)
-      .eachCell((cell) => nameList.push(cell.text));
-
-    const enableList: string[] = [];
-    worksheet
-      .getColumn(fieldIndex.enable)
-      .eachCell((cell) => enableList.push(cell.text));
-
-    const is_resetList: string[] = [];
-    worksheet
-      .getColumn(fieldIndex.is_reset)
-      .eachCell((cell) => is_resetList.push(cell.text));
-
-    const own_typeList: string[] = [];
-    worksheet
-      .getColumn(fieldIndex.own_type)
-      .eachCell((cell) => own_typeList.push(cell.text));
-
-    const task_enumList: string[] = [];
-    worksheet
-      .getColumn(fieldIndex.task_enum)
-      .eachCell((cell) => task_enumList.push(cell.text));
-
-    const descList: string[] = [];
-    worksheet
-      .getColumn(fieldIndex.desc)
-      ?.eachCell((cell) => descList.push(cell.text));
-
-    if (
-      Array.isArray(idList) &&
-      Array.isArray(nameList) &&
-      Array.isArray(enableList) &&
-      Array.isArray(is_resetList) &&
-      Array.isArray(own_typeList) &&
-      Array.isArray(task_enumList) &&
-      Array.isArray(descList)
-    ) {
-      const array: Record<string, any>[] = [];
-      const max = idList.length;
-      let index = 1;
-      while (index < max) {
-        const o = {
-          id: idList[index],
-          name: nameList[index],
-          enable: enableList[index],
-          is_reset: is_resetList[index],
-          own_type: own_typeList[index],
-          task_enum: task_enumList[index],
-          desc: descList[index],
-        };
-        array.push(o);
-        index++;
-      }
-
-      this.tableData = array.splice(0, 20);
-
-      await this.$nextTick();
-      this.loading = false;
+  refreshTable(): void {
+    console.log('refreshTable');
+    const workbookMap: WorkbookMap = store.getters.workbookMap();
+    const taskList = workbookMap.get('task');
+    if (taskList) {
+      this.tableData = cloneDeep(taskList);
     }
   }
 
@@ -183,6 +84,11 @@ export default class EditFile extends Vue {
 
   selectionChange(selection: Record<string, string>[]): void {
     this.tableSelection = selection;
+  }
+
+  doubleTask(): void {
+    this.copySelection();
+    this.pasteTask();
   }
 
   copySelection(): void {
@@ -266,6 +172,8 @@ export default class EditFile extends Vue {
       return;
     }
 
+    const workbookMap: WorkbookMap = store.getters.workbookMap();
+
     const taskid = store.getters.taskid;
     const processid = store.getters.processid;
     const sourceid = store.getters.sourceid;
@@ -312,8 +220,21 @@ export default class EditFile extends Vue {
         console.log(JSON.parse(JSON.stringify(sourcejson)));
         console.log(JSON.parse(JSON.stringify(conditionjson)));
         console.log(JSON.parse(JSON.stringify(awardjson)));
+        console.log('===========================================>>>');
+
+        const taskList = workbookMap.get('task');
+        if (taskList) taskList.push(taskjson);
+        const processList = workbookMap.get('process_data');
+        if (processList) processList.push(processjson);
+        const sourceList = workbookMap.get('source');
+        if (sourceList) sourceList.push(...sourcejson);
+        const conditionList = workbookMap.get('condition');
+        if (conditionList) conditionList.push(...conditionjson);
+        const awardList = workbookMap.get('award_data');
+        if (awardList) awardList.push(...awardjson);
       }
     });
+    store.commit('workbookMap', workbookMap);
   }
 }
 </script>

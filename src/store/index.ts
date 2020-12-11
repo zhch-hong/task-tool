@@ -1,26 +1,29 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { Workbook } from 'exceljs';
-
-import { userdir } from '@/asserts/userdir';
-import { SheetName } from '@/shims-vue';
+import { cloneDeep } from 'lodash';
 
 import { Notification } from 'element-ui';
+
+import { userdir } from '@/asserts/userdir';
+import { SheetName, WorkbookMap } from '@/shims-vue';
 
 Vue.use(Vuex);
 
 interface State {
+  observable: Map<string, Map<string, () => void>>;
   userStoragePath: string;
   taskFilePath: string;
   updateTaskId: string;
   workbook: Workbook | null;
-  workbookMap: Map<SheetName, Record<string, string>[]>;
+  workbookMap: WorkbookMap;
   copyTaskList:
     | Record<string, Record<string, string> | Record<string, string>[]>[]
     | null;
 }
 
 const state: State = {
+  observable: new Map(),
   userStoragePath: userdir,
   taskFilePath: '',
   updateTaskId: '',
@@ -87,42 +90,77 @@ function getLostid(
 
   const maxId = existing[existing.length - 1];
 
-  const lostIdArray: number[] = [];
-  let length = lostIdArray.length;
-  existing.forEach((v, i) => {
-    length = lostIdArray.length;
-    while (v - (i + length) > 1) {
-      length = lostIdArray.push(i + length + 1);
-    }
-  });
+  // const lostIdArray: number[] = [];
+  // let length = lostIdArray.length;
+  // existing.forEach((v, i) => {
+  //   length = lostIdArray.length;
+  //   while (v - (i + length) > 1) {
+  //     length = lostIdArray.push(i + length + 1);
+  //   }
+  // });
 
   return {
-    array: lostIdArray.map((v) => v.toString()),
+    // array: lostIdArray.map((v) => v.toString()),
+    array: [],
     max: maxId,
   };
+}
+
+function runListener(
+  observable: Map<string, Map<string, () => void>>,
+  name: string
+) {
+  const methodMap = observable.get(name);
+  if (methodMap) {
+    methodMap.forEach((method) => method());
+  }
 }
 
 export default new Vuex.Store({
   state: state,
   mutations: {
-    editFilePath: (state, path) => (state.taskFilePath = path),
-    updateTaskId: (state, id) => (state.updateTaskId = id),
-    workbook: (state, wb) => (state.workbook = wb),
-    workbookMap: (state, map) => {
+    observable: (state, payload: Record<string, string | (() => void)>) => {
+      const property = payload.property as string;
+      const componentName = payload.componentName as string;
+      const method = payload.method as () => void;
+      const value = state.observable.get(property);
+      if (value) {
+        const componentMethod = value.get(componentName);
+        if (!componentMethod) {
+          value.set(componentName, method);
+        }
+      } else {
+        state.observable.set(property, new Map().set(componentName, method));
+      }
+    },
+    taskFilePath: (state, path) => {
+      state.taskFilePath = path;
+      runListener(state.observable, 'editFilePath');
+    },
+    updateTaskId: (state, id) => {
+      state.updateTaskId = id;
+      runListener(state.observable, 'updateTaskId');
+    },
+    workbook: (state, wb) => {
+      state.workbook = wb;
+      runListener(state.observable, 'workbook');
+    },
+    workbookMap: (state, map: WorkbookMap) => {
       state.workbookMap = map;
       setLostid(map);
+      runListener(state.observable, 'workbookMap');
     },
-    copyTaskList: (state, list) => (state.copyTaskList = list),
-  },
-  actions: {
-    workbook({ commit }, workbook) {
-      commit('workbook', workbook);
-    },
-    workbookMap({ commit }, map) {
-      commit('workbookMap', map);
+    copyTaskList: (state, list) => {
+      state.copyTaskList = list;
+      runListener(state.observable, 'copyTaskList');
     },
   },
   getters: {
+    workbookMap(state) {
+      return () => {
+        return cloneDeep(state.workbookMap);
+      };
+    },
     taskid() {
       return (): string => {
         const id = lostTaskid.shift();

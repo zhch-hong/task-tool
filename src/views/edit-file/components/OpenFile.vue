@@ -6,7 +6,6 @@
     <span>{{ filePath }}</span>
     <el-dialog :visible.sync="visible" :close-on-click-modal="false">
       <el-tree
-        :default-expand-all="true"
         :data="treeData"
         :props="defaultProps"
         @node-click="nodeClick"
@@ -19,19 +18,19 @@
 import { resolve } from 'path';
 import { Component, Vue } from 'vue-property-decorator';
 import { readFileSync, statSync } from 'fs';
-import { Notification } from 'element-ui';
 import { TreeData } from 'element-ui/types/tree';
 import { Workbook } from 'exceljs';
 
 import store from '@/store';
 import { getUserconfig } from '@/asserts/userconfig';
 import { userdir } from '@/asserts/userdir';
+import { setLastFile } from '@/asserts/setOpenFile';
 import {
   readFile,
   writeFile,
   getTreeData,
-  getSheet,
   workbook2map,
+  setColumnKey,
 } from '@/utils';
 
 import DialogFooter from '@/components/DialogFooter.vue';
@@ -67,26 +66,7 @@ export default class OpenFile extends Vue {
     const fileList = fileManageJson.map((item) => item.file);
     this.treeData = getTreeData(workDir, fileList);
 
-    // 从配置文件读取最后一次打开的文件
-    const object: Record<string, string> = readFile(userdir);
-    const { lastOpenFile } = object;
-    if (!lastOpenFile) return;
-
-    this.$emit('show-loading');
-    await this.$nextTick();
-
-    this.filePath = lastOpenFile;
-
-    const wb = new Workbook();
-    const buffer = readFileSync(lastOpenFile);
-    const workbook = await wb.xlsx.load(buffer);
-
-    this.setColumnKey(workbook);
-
-    store.dispatch('workbook', workbook);
-    store.commit('workbookMap', workbook2map(workbook));
-
-    this.$emit('task-worksheet', getSheet(workbook, 'task'), lastOpenFile);
+    setLastFile();
   }
 
   async submit(): Promise<void> {
@@ -98,50 +78,15 @@ export default class OpenFile extends Vue {
     }
 
     this.visible = false;
-    this.$emit('show-loading');
-    await this.$nextTick();
-    this.filePath = this.nodePath;
+    this.filePath = path;
 
     const wb = new Workbook();
     const buffer = readFileSync(path);
     const workbook = await wb.xlsx.load(buffer);
-    this.setColumnKey(workbook);
+    setColumnKey(workbook);
 
-    // 这里加一个延迟，否则会消耗大部分时间
-    store.dispatch('workbook', workbook);
+    store.commit('taskFilePath', path);
     store.commit('workbookMap', workbook2map(workbook));
-
-    // setTimeout(() => {
-    // }, 3000);
-
-    const worksheet = getSheet(workbook, 'task');
-
-    if (typeof worksheet === 'undefined') {
-      Notification({
-        title: '读取文件错误',
-        message: '未获取到工作表【task】',
-        type: 'error',
-        duration: 0,
-        position: 'bottom-right',
-      });
-      return;
-    }
-
-    this.$emit('task-worksheet', worksheet, this.filePath);
-  }
-
-  setColumnKey(wb: Workbook): void {
-    wb.eachSheet((ws) => {
-      ws.getRow(1).eachCell((cell, index) => {
-        const head = cell.toString();
-        const key = head.split('|')[0];
-        const name = head.split('|')[1];
-        if (key || name) {
-          const column = ws.getColumn(index);
-          column.key = key || name;
-        }
-      });
-    });
   }
 
   nodeClick(d: TreeMeta): void {

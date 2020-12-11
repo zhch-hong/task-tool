@@ -6,7 +6,6 @@
     >
       <LineItem
         :progress-item="activity"
-        :award-id="propAwardid(activity)"
         :reward-type="rewardType"
         @insert-progress="insertProgress(index)"
         @delete-progress="deleteProgress(index)"
@@ -22,11 +21,7 @@
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import { v4 as uuid } from 'uuid';
 
-import store from '@/store';
-import { lostIdArray } from '../../utils/lostIdArray';
-
 import LineItem from './LineItem.vue';
-import { cloneDeep } from 'lodash';
 
 @Component({
   components: {
@@ -34,30 +29,26 @@ import { cloneDeep } from 'lodash';
   },
 })
 export default class ProgressLine extends Vue {
-  @Prop({ required: true }) progress!: Record<string, any> | null;
-  @Prop({ type: String, required: true }) rewardType!: 'nor' | 'random';
+  @Prop() process!: string[] | null;
+  @Prop() awards!: Record<string, string>[][];
+  @Prop() rewardType!: 'nor' | 'random';
 
   activities: Record<string, any>[] = [];
-  lostIdArray = lostIdArray('award_data', 'award_id');
 
-  @Watch('progress', { deep: true, immediate: true })
-  progressChange(progress: Record<string, any> | null): void {
-    if (!progress) return;
-    const { process, awards, rewardJson } = progress;
+  @Watch('process', { deep: true, immediate: true })
+  processWatch(process: string[] | null): void {
+    if (!process) return;
+
     const array: Record<string, any>[] = [];
-    const processSplit: string[] = process.split(',');
-    const awardsSplit: string[] = awards.split(',');
-    processSplit.forEach((p, i) => {
+    process.forEach((p, i) => {
       array.push({
         uuid: uuid(),
-        awardId: awardsSplit[i],
         process: p,
         rewardType: this.rewardType,
-        awards: rewardJson.filter(
-          (v: Record<string, string>) => v.award_id === awardsSplit[i]
-        ),
+        awards: this.awards[i] || [],
       });
     });
+
     this.activities = array;
   }
 
@@ -65,14 +56,9 @@ export default class ProgressLine extends Vue {
     this.activities.splice(index + 1, 0, {
       uuid: uuid(),
       process: '',
-      rewardType: this.progress ? this.rewardType : 'normal',
+      rewardType: this.rewardType,
       awards: [],
     });
-  }
-
-  propAwardid(item: Record<string, any>): number {
-    if (item.awards.length > 0) return parseInt(item.awards[0].award_id);
-    return this.lostIdArray();
   }
 
   deleteProgress(index: number): void {

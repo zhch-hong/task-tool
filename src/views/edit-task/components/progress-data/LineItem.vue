@@ -2,16 +2,18 @@
   <div>
     <input type="text" v-model="progressValue" placeholder="请输入进度" />
     <el-card>
-      <RewardTable
-        :reward-list="rewardList"
-        :award-id="awardId"
-        :reward-type="rewardType"
-      />
+      <RewardTable :reward-list="rewardList" :reward-type="rewardType" />
     </el-card>
-    <el-button size="mini" style="margin-top: 10px" @click="insertProgress"
+    <el-button
+      size="mini"
+      style="margin-top: 10px"
+      @click="$emit('insert-progress')"
       >插入进度</el-button
     >
-    <el-button size="mini" style="margin-top: 10px" @click="deleteProgress"
+    <el-button
+      size="mini"
+      style="margin-top: 10px"
+      @click="$emit('delete-progress')"
       >删除进度</el-button
     >
   </div>
@@ -27,27 +29,15 @@ import RewardTable from './RewardTable.vue';
   },
 })
 export default class LineItem extends Vue {
-  @Prop({ type: Object, required: true }) progressItem!: Record<
-    string,
-    string | Record<string, string>[]
-  >;
-  @Prop({ type: Number, required: true }) awardId!: number;
-  @Prop({ type: String, required: true }) rewardType!: 'nor' | 'random';
+  @Prop() progressItem!: Record<string, string | Record<string, string>[]>;
+  @Prop() rewardType!: 'nor' | 'random';
 
   progressValue = this.progressItem.process;
   rewardList = this.progressItem.awards;
 
   @Watch('progressValue')
-  progressValueChange(value: string): void {
+  processWatch(value: string): void {
     this.$emit('process-change', value);
-  }
-
-  insertProgress(): void {
-    this.$emit('insert-progress');
-  }
-
-  deleteProgress(): void {
-    this.$emit('delete-progress');
   }
 }
 </script>

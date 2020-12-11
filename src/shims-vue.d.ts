@@ -9,3 +9,5 @@ export type SheetName =
   | 'source'
   | 'condition'
   | 'award_data';
+
+export type WorkbookMap = Map<SheetName, Record<string, string>[]>;

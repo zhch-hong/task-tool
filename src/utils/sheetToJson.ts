@@ -35,14 +35,23 @@ export function sheet2json(sheet: Worksheet): Record<string, string>[] {
   if (!column.key) sheet = setColumnKey(sheet);
 
   const array: Record<string, string>[] = [];
-  const keys = sheet.columns.map((column) => column.key);
+  const keys = sheet.columns
+    .map((column) => column.key)
+    .filter((v) => typeof v === 'string');
+
   sheet.eachRow((row, rowIndex) => {
     if (rowIndex > 1) {
       const object: Record<string, string> = {};
       row.eachCell((cell, colIndex) => {
         // 这里的colIndex是从1开始的，所以数组取值需要减1
         const k = keys[colIndex - 1];
-        if (k) object[k] = cell.text;
+        if (k) object[k] = cell.text || '';
+      });
+      keys.forEach((property) => {
+        if (property) {
+          if (!Object.prototype.hasOwnProperty.call(object, property))
+            object[property] = '';
+        }
       });
       array.push(object);
     }
@@ -51,7 +60,6 @@ export function sheet2json(sheet: Worksheet): Record<string, string>[] {
 }
 
 function setColumnKey(sheet: Worksheet): Worksheet {
-  console.log('setColumnKey');
   const headRow = sheet.getRow(1);
   headRow.eachCell((cell, colNumber) => {
     if (cell.text) {

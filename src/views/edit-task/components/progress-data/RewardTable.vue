@@ -35,10 +35,6 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { Notification } from 'element-ui';
-
-import store from '@/store';
-import { sheetToJson } from '@/utils/sheetToJson';
 
 import UpdateReward from './UpdateReward.vue';
 
@@ -48,22 +44,16 @@ import UpdateReward from './UpdateReward.vue';
   },
 })
 export default class RewardTable extends Vue {
-  @Prop({ type: Array, required: true }) rewardList!: Record<string, string>[];
-  @Prop({ type: String, required: true }) rewardType!: 'normal' | 'random';
-  @Prop({ type: Number, required: true }) awardId!: number;
+  @Prop() rewardList!: Record<string, string>[];
+  @Prop() rewardType!: 'nor' | 'random';
 
   updateReward = false;
-  selectedRow: null | Record<string, any> = null;
+  selectedRow: null | Record<string, string> = null;
   selectedIndex = -1;
   tableData: Record<string, string>[] = [];
-  useAwardId = this.awardId.toString();
 
   created(): void {
     this.tableData = this.rewardList;
-
-    if (this.tableData.length > 0) {
-      this.useAwardId = this.tableData[0].award_id;
-    }
   }
 
   appendRow(): void {
@@ -78,9 +68,8 @@ export default class RewardTable extends Vue {
     this.updateReward = true;
   }
 
-  updateOrInsertRow(row: Record<string, any>): void {
+  updateOrInsertRow(row: Record<string, string>): void {
     if (this.selectedRow === null) {
-      row['award_id'] = this.useAwardId;
       this.tableData.push(row);
     } else {
       this.tableData.splice(this.selectedIndex, 1, row);

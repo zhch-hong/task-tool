@@ -2,14 +2,14 @@
   <fieldset>
     <legend>基础信息</legend>
     <el-form ref="ruleForm" :model="form" :rules="rules" label-width="100px">
-      <!-- <el-form-item label="任务ID" prop="id">
-        <el-input v-model="form.id"></el-input>
-      </el-form-item> -->
-      <el-form-item label="任务名称" prop="name">
-        <el-input v-model="form.name"></el-input>
+      <el-form-item label="任务ID" prop="id">
+        <el-input v-model.trim="form.id"></el-input>
       </el-form-item>
-      <el-form-item label="任务说明" prop="desc">
-        <el-input type="textarea" v-model="form.desc"></el-input>
+      <el-form-item label="任务名称" prop="name">
+        <el-input v-model.trim="form.name"></el-input>
+      </el-form-item>
+      <el-form-item label="任务说明" prop="任务内容说明">
+        <el-input type="textarea" v-model.trim="form.任务内容说明"></el-input>
       </el-form-item>
       <el-form-item label="任务重置">
         <TaskReset
@@ -39,25 +39,22 @@
   </fieldset>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import { cloneDeep } from 'lodash';
-import { Notification } from 'element-ui';
 
-import store from '@/store';
 import { propertySlice } from '@/utils/propertySlice';
-import { sheetToJson } from '@/utils/sheetToJson';
 
 import TaskReset from './base-data/TaskReset.vue';
 import ValidTime from './base-data/ValidTime.vue';
 import LimitTime from './base-data/LimitTime.vue';
 import GetType from './base-data/GetType.vue';
 import TaskEnum from './base-data/TaskEnum.vue';
-import { getSheet } from '@/utils/likeSheet';
 
 const form = {
   id: '',
+  enable: '',
   name: '',
-  desc: '',
+  任务内容说明: '',
   is_reset: false,
   reset_delay: 0,
   start_valid_time: 0,
@@ -65,33 +62,9 @@ const form = {
   time_limit: -1,
   own_type: '',
   task_enum: '',
+  process_id: '',
+  获得类型: '',
 };
-
-function getTask(): null | Record<string, string> {
-  const id = store.state.updateTaskId;
-  if (id !== '') {
-    const workbook = store.state.workbook;
-
-    if (!workbook) return null;
-
-    const worksheet = getSheet(workbook, 'task');
-
-    if (typeof worksheet === 'undefined') {
-      Notification({
-        title: '读取文件错误',
-        message: '未获取到工作表【task】',
-        type: 'error',
-        duration: 0,
-        position: 'bottom-right',
-      });
-      return null;
-    }
-
-    const res = sheetToJson(worksheet).find((item) => item.id === id);
-    return res || null;
-  }
-  return null;
-}
 
 @Component({
   components: {
@@ -103,14 +76,14 @@ function getTask(): null | Record<string, string> {
   },
 })
 export default class BaseData extends Vue {
+  @Prop() baseData!: Record<string, string> | null;
+
   form: Record<string, any> = cloneDeep(form);
   rules = {};
 
   created(): void {
-    const object = getTask();
-    if (object) {
-      this.form = propertySlice(form, object);
-      this.form.desc = object['任务内容说明'];
+    if (this.baseData) {
+      this.form = propertySlice(form, this.baseData);
     }
   }
 

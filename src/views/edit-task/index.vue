@@ -1,15 +1,23 @@
 <template>
   <div>
-    <BaseData ref="baseData" @submit="baseData" />
-    <ProgressData ref="progressData" @submit="progressData" />
-    <SourceData
-      ref="sourceData"
-      :lost-sourceid="lostSourceidArray()"
-      @submit="sourceData"
+    <BaseData
+      ref="baseDataRef"
+      :base-data="baseData"
+      @submit="baseDataSubmit"
     />
-    <el-button :loading="loading" @click="handleSave" style="margin-top: 20px"
-      >保存</el-button
-    >
+    <ProgressData
+      ref="progressDataRef"
+      :process-data="processData"
+      :award-data="awardData"
+      @submit="progressDataSubmit"
+    />
+    <SourceData
+      ref="sourceDataRef"
+      :source-data="sourceData"
+      :condition-data="conditionData"
+      @submit="sourceDataSubmit"
+    />
+    <el-button @click="handleSave" style="margin-top: 20px">保存</el-button>
   </div>
 </template>
 <script lang="ts">
@@ -18,59 +26,12 @@ import { Component, Vue } from 'vue-property-decorator';
 import { NavigationGuardNext, Route } from 'vue-router';
 
 import { writeExcel } from './utils/writeExcel';
+import { WorkbookMap } from '@/shims-vue';
 
 import BaseData from './components/BaseData.vue';
 import ProgressData from './components/ProgressData.vue';
 import SourceData from './components/SourceData.vue';
-
-/**
- * 每一条任务的来源id，一个任务id可能对应多条来源数据，并且这些来源的source_id都是相同的，只是source_type不同
- * 这里算出从1开始，连续顺序中，缺失的数字，组成数组
- * 每调用一次方法，返回数组中首个数字作为source_id
- */
-function getLostSourceidArray(): () => number {
-  const wb = store.state.workbook;
-  if (!wb) {
-    throw new Error('vuex中不存在workbook');
-  }
-
-  const rewardSheet = wb.getWorksheet('source');
-  const lostIdArray: number[] = [];
-  rewardSheet.eachRow((row, index) => {
-    if (index === 1) {
-      const rowValues = row.values;
-      if (Array.isArray(rowValues)) {
-        const index = rowValues.findIndex((v) => {
-          if (typeof v === 'string') {
-            return v.split('|')[0] === 'source_id';
-          }
-        });
-        if (index !== -1) {
-          const awardIdColumn = rewardSheet.getColumn(index);
-          const cellValues = awardIdColumn.values;
-          const values = cellValues.filter((cell) => {
-            return typeof cell === 'number';
-          });
-          const unrepeatSortedIdArray = [
-            ...new Set<number>(values as number[]),
-          ].sort((a, b) => a - b);
-          unrepeatSortedIdArray.push(3000);
-          let length = lostIdArray.length;
-          unrepeatSortedIdArray.forEach((v, i) => {
-            length = lostIdArray.length;
-            while (v - (i + length) > 1) {
-              length = lostIdArray.push(i + length + 1);
-            }
-          });
-        }
-      }
-    }
-  });
-
-  return () => {
-    return lostIdArray.shift() as number;
-  };
-}
+import { cloneDeep } from 'lodash';
 
 @Component({
   components: {
@@ -85,25 +46,80 @@ function getLostSourceidArray(): () => number {
 })
 export default class EditTask extends Vue {
   $refs!: {
-    baseData: any;
-    progressData: any;
-    sourceData: any;
+    baseDataRef: any;
+    progressDataRef: any;
+    sourceDataRef: any;
   };
 
-  lostSourceidArray = getLostSourceidArray();
-  loading = false;
+  baseData: any = null;
+  processData: any = null;
+  awardData: Record<string, string>[][] = [];
+  sourceData: Record<string, string>[] = [];
+  conditionData: Record<string, string>[][] = [];
+
   taskData: Record<string, any> = {};
 
+  created(): void {
+    this.getUpdateTaskData();
+  }
+
+  getUpdateTaskData(): void {
+    const id = store.state.updateTaskId;
+    if (id !== '') {
+      const workbookMap: WorkbookMap = store.getters.workbookMap();
+
+      const taskList = workbookMap.get('task') as Record<string, string>[];
+      const taskJson = taskList.find((item) => item.id === id) as Record<
+        string,
+        string
+      >;
+      this.baseData = taskJson;
+
+      const { process_id } = taskJson;
+      const processList = workbookMap.get('process_data') as Record<
+        string,
+        string
+      >[];
+      const processJson = processList.find(
+        (item) => item.process_id === process_id
+      ) as Record<string, string>;
+      this.processData = processJson;
+
+      const { source_id, awards } = processJson;
+
+      const awardList = workbookMap.get('award_data') as Record<
+        string,
+        string
+      >[];
+      this.awardData = awards.split(',').map((award_id) => {
+        return awardList.filter((award) => award.award_id === award_id);
+      });
+
+      const sourceList = workbookMap.get('source') as Record<string, string>[];
+      this.sourceData = sourceList.filter(
+        (source) => source.source_id === source_id
+      );
+
+      const conditionList = workbookMap.get('condition') as Record<
+        string,
+        string
+      >[];
+      this.conditionData = this.sourceData.map(
+        (source: Record<string, string>) => {
+          return conditionList.filter(
+            (condition) => condition.condition_id === source.condition_id
+          );
+        }
+      );
+    }
+  }
+
   async handleSave(): Promise<void> {
-    this.loading = true;
-    await this.$nextTick();
-    this.$refs.baseData.submit();
-    this.$refs.progressData.submit();
-    this.$refs.sourceData.submit();
+    this.$refs.baseDataRef.submit();
+    this.$refs.progressDataRef.submit();
+    this.$refs.sourceDataRef.submit();
     await this.$nextTick();
     writeExcel(this.taskData);
-    await this.$nextTick();
-    this.loading = false;
     this.$notify({
       title: '提示',
       message: '保存成功',
@@ -112,16 +128,16 @@ export default class EditTask extends Vue {
     });
   }
 
-  baseData(object: Record<string, any>): void {
-    this.taskData.base = object;
+  baseDataSubmit(object: Record<string, any>): void {
+    this.taskData.base = cloneDeep(object);
   }
 
-  progressData(object: Record<string, any>): void {
-    this.taskData.progress = object;
+  progressDataSubmit(object: Record<string, any>): void {
+    this.taskData.process = cloneDeep(object);
   }
 
-  sourceData(object: Record<string, any>[]): void {
-    this.taskData.source = object;
+  sourceDataSubmit(object: Record<string, any>[]): void {
+    this.taskData.source = cloneDeep(object);
   }
 }
 </script>
