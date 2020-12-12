@@ -1,11 +1,9 @@
 import store from '@/store';
-import { CellValue, Worksheet } from 'exceljs';
+import { Worksheet } from 'exceljs';
 
-import { strValToNumber } from './parseNumberValue';
-import { getRowByColumnValue, getSheet } from '@/utils';
-import { setLastFile } from '@/asserts/setOpenFile';
+import { getRowByColumnValue } from '@/utils';
+import { readLastFile } from '@/asserts/readLastFile';
 import { WorkbookMap } from '@/shims-vue';
-import { values } from 'lodash';
 
 // 从小到大缺失的id，供添加任务时使用
 const lostTaskid: string = store.getters.taskid();
@@ -14,7 +12,7 @@ const lostSourceid: string = store.getters.sourceid();
 const lostAwardid: () => string = store.getters.awardid;
 const lostConditionid: () => string = store.getters.conditionid;
 
-const path = store.state.taskFilePath;
+let path = store.state.taskFilePath;
 const updateTaskid = store.state.updateTaskId;
 /** 操作模式，是修改任务，还是添加任务 */
 let activeModel: 'update' | 'create' = 'update';
@@ -24,7 +22,9 @@ if (updateTaskid === '') {
   activeModel = 'create';
 }
 if (store.state.taskFilePath === '') {
-  setLastFile();
+  readLastFile().then((_path) => {
+    if (_path) path = _path;
+  });
 }
 
 export function writeExcel(data: Record<string, any>) {
@@ -36,6 +36,8 @@ export function writeExcel(data: Record<string, any>) {
   writeBase(workbookMap, base);
   writeProgress(workbookMap, process);
   writeSource(workbookMap, source);
+
+  store.commit('workbookMap', workbookMap);
 
   // workbook.xlsx.writeBuffer().then((buffer) => {
   //   writeFileSync(path, new Uint8Array(buffer));
@@ -113,91 +115,39 @@ function writeProgress(workbookMap: WorkbookMap, data: Record<string, any>) {
 
 function writeSource(
   workbookMap: WorkbookMap,
-  data: Record<string, any>
+  data: Record<string, any>[]
 ): void {
   console.log('source', JSON.parse(JSON.stringify(data)));
-  // const sourceSheet = workbook.getWorksheet('source');
 
-  // /**
-  //  * 根据taskid找到数据行
-  //  */
-  // const taskSheet = getSheet(workbook, 'task');
-  // if (!taskSheet) return;
+  let source_id = lostSourceid;
+  data.find((sourceItem) => {
+    const source: Record<string, string> = sourceItem.source;
+    if (source.source_id) {
+      source_id = source.source_id;
+      return true;
+    }
+    return false;
+  });
 
-  // const taskRowData = getRowByColumnValue(taskSheet, 'id', taskid.toString());
-  // const taskRow = taskRowData.row;
+  const sourceList = workbookMap.get('source') as Record<string, string>[];
+  const conditionList = workbookMap.get('condition') as Record<
+    string,
+    string
+  >[];
 
-  // if (activeModel === 'update') {
-  //   /**
-  //    * 找到process_id，再去process_data表中找到对应数据行
-  //    */
-  //   const processid = taskRow.process_id as number;
-  //   const processSheet = workbook.getWorksheet('process_data');
-  //   const processRowData = getRowByColumnValue(
-  //     processSheet,
-  //     'process_id',
-  //     processid.toString()
-  //   );
-  //   const processRow = processRowData.row;
+  data.forEach((sourceItem: Record<string, any>) => {
+    const source: Record<string, string> = sourceItem.source;
+    source.source_id = source_id;
+    deleteExisting(sourceList, 'source_id', source_id);
+    sourceList.push(source);
 
-  //   /**
-  //    * source表
-  //    */
-  //   const sourceId = processRow.source_id as number;
-  //   deleteExisting(sourceSheet, 'source_id', sourceId);
-  // }
+    const condition_id = source.condition_id || lostConditionid();
+    deleteExisting(conditionList, 'condition_id', condition_id);
 
-  // if (data.length > 0) {
-  //   let sourceId = parseInt(data[0].source_id);
-  //   if (activeModel === 'create') {
-  //     sourceId = lostSourceid;
-  //   }
-  //   const insertIndex = getInsertIndex(sourceSheet, 'source_id', sourceId);
-  //   const insertRows = data.map((item) => {
-  //     const object = strValToNumber(item);
-  //     if (activeModel === 'create') {
-  //       object.source_id = parseInt(sourceId.toString());
-  //       object.condition_id =
-  //         item.conditionList.length === 0
-  //           ? null
-  //           : parseInt(item.conditionList[0].condition_id);
-  //     }
-  //     return object;
-  //   });
-  //   console.log('insert source rows', insertRows);
-  //   sourceSheet.insertRows(insertIndex, insertRows);
-  // }
-
-  // /**
-  //  * condition表
-  //  */
-  // const conditionSheet = workbook.getWorksheet('condition');
-  // data.forEach((source) => {
-  //   if (source.condition_id) {
-  //     deleteExisting(
-  //       conditionSheet,
-  //       'condition_id',
-  //       parseInt(source.condition_id)
-  //     );
-  //   }
-  // });
-  // data.forEach((source) => {
-  //   const insertRows: Record<string, any>[] = source.conditionList.map(
-  //     (cond: Record<string, any>) => {
-  //       const object = strValToNumber(cond);
-  //       if (activeModel === 'create') {
-  //         object.condition_id = parseInt(source.condition_id.toString());
-  //       }
-  //       return object;
-  //     }
-  //   );
-  //   if (insertRows.length > 0) {
-  //     const id = insertRows[0].condition_id as number;
-  //     const insertIndex = getInsertIndex(conditionSheet, 'condition_id', id);
-  //     conditionSheet.insertRows(insertIndex, insertRows);
-  //     console.log('insert condition rows', insertRows);
-  //   }
-  // });
+    const conditionArray: Record<string, string>[] = sourceItem.condition;
+    conditionArray.forEach((cond) => (cond.condition_id = condition_id));
+    conditionList.push(...conditionList);
+  });
 }
 
 /**

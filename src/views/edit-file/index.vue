@@ -26,7 +26,10 @@
       ></el-table-column>
       <el-table-column label="获得类型" prop="own_type"></el-table-column>
       <el-table-column label="任务枚举" prop="task_enum"></el-table-column>
-      <el-table-column label="任务内容说明" prop="desc"></el-table-column>
+      <el-table-column
+        label="任务内容说明"
+        prop="任务内容说明"
+      ></el-table-column>
       <el-table-column width="80">
         <template #default="{ $index }">
           <el-button size="mini" @click="updateRow($index)">修改</el-button>

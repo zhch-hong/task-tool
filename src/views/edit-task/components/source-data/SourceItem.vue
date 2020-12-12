@@ -25,6 +25,7 @@
             :condition-item="c"
             :conditionname-list="conditionnameList"
             @delete-condition="() => conditionList.splice(i, 1)"
+            @update-condition="updateCondition(i, $event)"
           />
           <el-button @click="appendCondition">添加条件</el-button>
         </div>
@@ -63,12 +64,13 @@ export default class SourceItem extends Vue {
     string,
     string
   >;
-  @Prop({ type: Array, required: true }) conditionList!: Record<
+  @Prop({ type: Array, default: () => [] }) propConditionList!: Record<
     string,
     string
   >[];
   @Prop({ type: Boolean, required: true }) isEmit!: boolean;
 
+  conditionList = cloneDeep(this.propConditionList);
   sourceForm = cloneDeep(source);
   conditionnameList: Record<string, any>[] = [];
 
@@ -88,14 +90,12 @@ export default class SourceItem extends Vue {
   }
 
   created(): void {
-    console.log(this.sourceitemConfig);
-    if (this.sourceitemConfig) {
-      Object.assign(this.sourceForm, this.sourceitemConfig);
-    }
+    Object.assign(this.sourceForm, this.sourceitemConfig);
   }
 
   sourceTypeChange(): void {
-    this.conditionList = [];
+    const l = this.conditionList.length;
+    this.conditionList.splice(0, l);
     this.sourceForm.process_discount = '';
   }
 
@@ -106,6 +106,10 @@ export default class SourceItem extends Vue {
       condition_value: '',
       judge_type: '',
     });
+  }
+
+  updateCondition(index: number, payload: Record<string, string>): void {
+    this.conditionList.splice(index, 1, payload);
   }
 
   submit(): void {

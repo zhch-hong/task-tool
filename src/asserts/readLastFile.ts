@@ -4,7 +4,7 @@ import { Workbook } from 'exceljs';
 import { userdir } from './userdir';
 import { readFileSync } from 'fs';
 
-export async function setLastFile(): Promise<string | undefined> {
+export async function readLastFile(): Promise<string | undefined> {
   // 从配置文件读取最后一次打开的文件
   const object: Record<string, string> = readFile(userdir);
   const { lastOpenFile } = object;

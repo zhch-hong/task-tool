@@ -24,7 +24,7 @@ import { Workbook } from 'exceljs';
 import store from '@/store';
 import { getUserconfig } from '@/asserts/userconfig';
 import { userdir } from '@/asserts/userdir';
-import { setLastFile } from '@/asserts/setOpenFile';
+import { readLastFile } from '@/asserts/readLastFile';
 import {
   readFile,
   writeFile,
@@ -66,7 +66,7 @@ export default class OpenFile extends Vue {
     const fileList = fileManageJson.map((item) => item.file);
     this.treeData = getTreeData(workDir, fileList);
 
-    setLastFile();
+    readLastFile();
   }
 
   async submit(): Promise<void> {

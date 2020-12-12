@@ -6,7 +6,7 @@
       :key="s.uuid"
       :sourceitem-config="s"
       :sourcetype-list="sourcetypeList"
-      :condition-list="conditionData[index] || []"
+      :prop-condition-list="conditionData[index]"
       :is-emit="isEmit"
       @delete-sourceitem="deleteSourceitem(index)"
       @submit-itemdata="(o) => emitSourceList.push(o)"

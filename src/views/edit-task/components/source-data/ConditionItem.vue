@@ -1,9 +1,6 @@
 <template>
   <div style="margin-bottom: 10px">
-    <el-select
-      v-model="conditionItem.condition_name"
-      @change="parseConditionValueMode"
-    >
+    <el-select v-model="conditionForm.condition_name" @change="emitCondition">
       <el-option
         v-for="name in conditionnameList"
         :key="name.id"
@@ -11,7 +8,11 @@
         :label="name.label"
       ></el-option>
     </el-select>
-    <el-select v-model="conditionItem.judge_type" style="margin: 0 10px">
+    <el-select
+      v-model="conditionForm.judge_type"
+      style="margin: 0 10px"
+      @change="emitCondition"
+    >
       <el-option label="=" value="2"></el-option>
       <el-option label=">=" value="3"></el-option>
       <el-option label="<=" value="4"></el-option>
@@ -19,7 +20,8 @@
     </el-select>
     <el-select
       v-if="conditionValueMode === 'select'"
-      v-model="conditionItem.condition_value"
+      v-model="conditionForm.condition_value"
+      @change="emitCondition"
     >
       <el-option
         v-for="value in selectConditionValues"
@@ -30,7 +32,8 @@
     </el-select>
     <el-input
       v-if="conditionValueMode === 'input'"
-      v-model="conditionItem.condition_value"
+      v-model="conditionForm.condition_value"
+      @change="emitCondition"
       style="width: 215px"
     ></el-input>
     <el-button style="margin-left: 10px" @click="$emit('delete-condition')"
@@ -39,7 +42,16 @@
   </div>
 </template>
 <script lang="ts">
+import { cloneDeep } from 'lodash';
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+
+const condition = {
+  condition_id: '',
+  condition_name: '',
+  condition_value: '',
+  judge_type: '',
+  备注: '',
+};
 
 @Component
 export default class ConditionItem extends Vue {
@@ -54,29 +66,24 @@ export default class ConditionItem extends Vue {
     string
   >;
 
+  conditionForm = cloneDeep(condition);
   /** 如果条件名称下面配置了条件值，则进行下拉选择 */
   selectConditionValues: string[] = [];
   /** 条件值是输入还是下拉框选择 */
-  conditionValueMode: 'input' | 'select' = 'select';
+  conditionValueMode: 'input' | 'select' = 'input';
 
   /**
    * 当条件名称下拉框数据重置时，需要清空选择的值
    */
   @Watch('conditionnameList')
-  conditionnameListChange(): void {
+  conditionWatch(): void {
     this.conditionItem.condition_name = '';
     this.conditionItem.judge_type = '';
     this.conditionItem.condition_value = '';
   }
 
-  created(): void {
-    this.parseConditionValueMode();
-  }
-
-  /**
-   * 当前条件值是选择方式还是输入方式
-   */
-  parseConditionValueMode(value?: string): void {
+  @Watch('conditionForm.condition_name', { immediate: true })
+  nameWatch(value: string): void {
     value = value || this.conditionItem.condition_name;
     const res = this.conditionnameList.find((item) => item.id === value);
     if (res) {
@@ -87,6 +94,14 @@ export default class ConditionItem extends Vue {
         this.selectConditionValues = res.children;
       }
     }
+  }
+
+  created(): void {
+    Object.assign(this.conditionForm, this.conditionItem);
+  }
+
+  emitCondition(): void {
+    this.$emit('update-condition', cloneDeep(this.conditionForm));
   }
 }
 </script>
