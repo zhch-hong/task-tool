@@ -2,7 +2,7 @@ import store from '@/store';
 import { Worksheet } from 'exceljs';
 
 import { getRowByColumnValue } from '@/utils';
-import { readLastFile } from '@/asserts/readLastFile';
+import { readLastFile, writeWorkbookMapToExcel } from '@/asserts/lastOpenFile';
 import { WorkbookMap } from '@/shims-vue';
 
 // 从小到大缺失的id，供添加任务时使用
@@ -38,11 +38,7 @@ export function writeExcel(data: Record<string, any>) {
   writeSource(workbookMap, source);
 
   store.commit('workbookMap', workbookMap);
-
-  // workbook.xlsx.writeBuffer().then((buffer) => {
-  //   writeFileSync(path, new Uint8Array(buffer));
-  //   router.push('/edit-file');
-  // });
+  writeWorkbookMapToExcel(workbookMap);
 }
 
 function writeBase(workbookMap: WorkbookMap, data: Record<string, any>) {

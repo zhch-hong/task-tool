@@ -24,7 +24,7 @@ import { Workbook } from 'exceljs';
 import store from '@/store';
 import { getUserconfig } from '@/asserts/userconfig';
 import { userdir } from '@/asserts/userdir';
-import { readLastFile } from '@/asserts/readLastFile';
+import { readLastFile } from '@/asserts/lastOpenFile';
 import {
   readFile,
   writeFile,

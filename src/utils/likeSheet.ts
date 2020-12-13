@@ -1,9 +1,10 @@
 import { Workbook, Worksheet } from 'exceljs';
 import { Notification } from 'element-ui';
+import { SheetName } from '@/shims-vue';
 
 export function getSheet(
   workbook: Workbook,
-  sheetName: string
+  sheetName: SheetName
 ): Worksheet | undefined {
   let index = -1;
   workbook.eachSheet((sheet, id) => {
