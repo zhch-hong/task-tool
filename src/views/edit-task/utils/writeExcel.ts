@@ -2,7 +2,7 @@ import store from '@/store';
 import { Worksheet } from 'exceljs';
 
 import { getRowByColumnValue, stringify } from '@/utils';
-import { readLastFile, writeWorkbookMapToExcel } from '@/asserts/lastOpenFile';
+import { writeWorkbookMapToExcel } from '@/asserts/lastOpenFile';
 import { WorkbookMap } from '@/shims-vue';
 
 // 从小到大缺失的id，供添加任务时使用
@@ -97,7 +97,6 @@ function writeProgress(workbookMap: WorkbookMap, data: Record<string, any>) {
     string,
     string
   >[];
-  debugger;
   if (activeModel === 'create') {
     process.process_id = lostProcessid;
     process.source_id = lostSourceid;

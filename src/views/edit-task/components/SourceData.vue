@@ -1,6 +1,13 @@
 <template>
   <fieldset>
     <legend>来源配置</legend>
+    <TemplateOption
+      template-type="source"
+      @template-data="templateData"
+      @template-uuid="(v) => $emit('template-uuid', v)"
+      @update-template="updateTemplate"
+      @save-template="saveTemplate"
+    />
     <SourceItem
       v-for="(s, index) in sourceList"
       :key="s.uuid"
@@ -20,12 +27,13 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { v4 as uuid } from 'uuid';
 import { resolve } from 'path';
+import { cloneDeep } from 'lodash';
 
 import { readFile } from '@/utils/fileStream';
 import { getUserconfig } from '@/asserts/userconfig';
 
 import SourceItem from './source-data/SourceItem.vue';
-import { cloneDeep } from 'lodash';
+import TemplateOption from './TemplateOption.vue';
 
 const filePath = resolve(
   getUserconfig().workDir,
@@ -37,6 +45,7 @@ const sourcetypeList: Record<string, any>[] = readFile(filePath)[0].children;
 @Component({
   components: {
     SourceItem,
+    TemplateOption,
   },
 })
 export default class SourceData extends Vue {
@@ -75,6 +84,18 @@ export default class SourceData extends Vue {
     await this.$nextTick();
     this.isEmit = false;
     this.emitSourceList = [];
+  }
+
+  templateData(data: Record<string, string>): void {
+    //
+  }
+
+  updateTemplate(method: (data: Record<string, any>) => void): void {
+    //
+  }
+
+  saveTemplate(method: (data: Record<string, any>) => void): void {
+    //
   }
 }
 </script>

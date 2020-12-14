@@ -1,6 +1,13 @@
 <template>
   <fieldset>
     <legend>基础信息</legend>
+    <TemplateOption
+      template-type="base"
+      @template-data="templateData"
+      @template-uuid="(v) => $emit('template-uuid', v)"
+      @update-template="updateTemplate"
+      @save-template="saveTemplate"
+    />
     <el-form ref="ruleForm" :model="form" :rules="rules" label-width="100px">
       <el-form-item label="任务ID" prop="id">
         <el-input v-model.trim="form.id"></el-input>
@@ -43,12 +50,14 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { cloneDeep } from 'lodash';
 
 import { propertySlice } from '@/utils/propertySlice';
+import { stringify } from '@/utils';
 
 import TaskReset from './base-data/TaskReset.vue';
 import ValidTime from './base-data/ValidTime.vue';
 import LimitTime from './base-data/LimitTime.vue';
 import GetType from './base-data/GetType.vue';
 import TaskEnum from './base-data/TaskEnum.vue';
+import TemplateOption from './TemplateOption.vue';
 
 const form = {
   id: '',
@@ -73,6 +82,7 @@ const form = {
     LimitTime,
     GetType,
     TaskEnum,
+    TemplateOption,
   },
 })
 export default class BaseData extends Vue {
@@ -89,6 +99,20 @@ export default class BaseData extends Vue {
 
   submit(): void {
     this.$emit('submit', cloneDeep(this.form));
+  }
+
+  templateData(data: Record<string, string>): void {
+    Object.assign(this.form, data);
+  }
+
+  updateTemplate(method: (data: Record<string, any>) => void): void {
+    const baseData = cloneDeep(this.form);
+    method(baseData);
+  }
+
+  saveTemplate(method: (data: Record<string, any>) => void): void {
+    const baseData = cloneDeep(this.form);
+    method(baseData);
   }
 }
 </script>

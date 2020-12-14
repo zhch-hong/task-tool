@@ -69,3 +69,20 @@ try {
     ])
   );
 }
+
+const templatemanage = path.resolve(dirPath, `template-manage.json`);
+try {
+  const stat = fs.statSync(templatemanage);
+  if (!stat.isFile()) {
+    throw new Error(`create file ${templatemanage}`);
+  }
+} catch (error) {
+  fs.writeFileSync(
+    templatemanage,
+    JSON.stringify({
+      base: [],
+      process: [],
+      source: [],
+    })
+  );
+}

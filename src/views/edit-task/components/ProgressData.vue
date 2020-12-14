@@ -1,6 +1,13 @@
 <template>
   <fieldset>
     <legend>进度配置</legend>
+    <TemplateOption
+      template-type="process"
+      @template-data="templateData"
+      @template-uuid="(v) => $emit('template-uuid', v)"
+      @update-template="updateTemplate"
+      @save-template="saveTemplate"
+    />
     <el-form label-width="100px">
       <el-form-item label="奖励方式">
         <el-radio v-model="processForm.get_award_type" label="nor"
@@ -26,10 +33,12 @@
   </fieldset>
 </template>
 <script lang="ts">
+import { stringify } from '@/utils';
 import { cloneDeep } from 'lodash';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
 import ProgressLine from './progress-data/ProgressLine.vue';
+import TemplateOption from './TemplateOption.vue';
 
 const process = {
   id: '',
@@ -47,6 +56,7 @@ const process = {
 @Component({
   components: {
     ProgressLine,
+    TemplateOption,
   },
 })
 export default class ProgressData extends Vue {
@@ -81,6 +91,38 @@ export default class ProgressData extends Vue {
       award: lineData,
       lastLoop: this.lastLoop,
     });
+  }
+
+  templateData(data: Record<string, any>): void {
+    const processArray: string[] = data.process.process.split(',');
+    if (processArray[processArray.length - 1] === '-1') {
+      this.lastLoop = true;
+      processArray.pop();
+      this.process = processArray;
+    } else {
+      this.process = processArray;
+    }
+    delete data.process.process;
+    Object.assign(this.processForm, data.process);
+    this.awards = data.awards;
+  }
+
+  updateTemplate(method: (data: Record<string, any>) => void): void {
+    const object = {
+      process: this.processForm,
+      award: this.$refs.progressLine.submit(),
+      lastLoop: this.lastLoop,
+    };
+    method(cloneDeep(object));
+  }
+
+  saveTemplate(method: (data: Record<string, any>) => void): void {
+    const object = {
+      process: this.processForm,
+      award: this.$refs.progressLine.submit(),
+      lastLoop: this.lastLoop,
+    };
+    method(cloneDeep(object));
   }
 }
 </script>

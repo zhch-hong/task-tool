@@ -4,6 +4,7 @@
       ref="baseDataRef"
       :base-data="baseData"
       @submit="baseDataSubmit"
+      @template-uuid="baseTempid"
     />
     <ProgressData
       ref="progressDataRef"
@@ -21,17 +22,17 @@
   </div>
 </template>
 <script lang="ts">
-import store from '@/store';
 import { Component, Vue } from 'vue-property-decorator';
 import { NavigationGuardNext, Route } from 'vue-router';
+import { cloneDeep } from 'lodash';
 
+import store from '@/store';
 import { writeExcel } from './utils/writeExcel';
 import { WorkbookMap } from '@/shims-vue';
 
 import BaseData from './components/BaseData.vue';
 import ProgressData from './components/ProgressData.vue';
 import SourceData from './components/SourceData.vue';
-import { cloneDeep } from 'lodash';
 
 @Component({
   components: {
@@ -51,8 +52,8 @@ export default class EditTask extends Vue {
     sourceDataRef: any;
   };
 
-  baseData: any = null;
-  processData: any = null;
+  baseData: Record<string, string> | null = {};
+  processData: Record<string, string> | null = null;
   awardData: Record<string, string>[][] = [];
   sourceData: Record<string, string>[] = [];
   conditionData: Record<string, string>[][] = [];
@@ -134,12 +135,24 @@ export default class EditTask extends Vue {
     this.taskData.base = cloneDeep(object);
   }
 
+  baseTempid(uuid: string): void {
+    console.log('base uuid', uuid);
+  }
+
   progressDataSubmit(object: Record<string, any>): void {
     this.taskData.process = cloneDeep(object);
   }
 
+  processTempid(uuid: string): void {
+    console.log('process uuid', uuid);
+  }
+
   sourceDataSubmit(object: Record<string, any>[]): void {
     this.taskData.source = cloneDeep(object);
+  }
+
+  sourceTempid(uuid: string): void {
+    console.log('source uuid', uuid);
   }
 }
 </script>
