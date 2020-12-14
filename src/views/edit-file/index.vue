@@ -46,6 +46,8 @@ import { SheetName, WorkbookMap } from '@/shims-vue';
 
 import OpenFile from './components/OpenFile.vue';
 import { cloneDeep } from 'lodash';
+import { stringify } from '@/utils';
+import { writeWorkbookMapToExcel } from '@/asserts/lastOpenFile';
 
 @Component({
   components: {
@@ -71,7 +73,6 @@ export default class EditFile extends Vue {
   }
 
   refreshTable(): void {
-    console.log('refreshTable');
     const workbookMap: WorkbookMap = store.getters.workbookMap();
     const taskList = workbookMap.get('task');
     if (taskList) {
@@ -152,7 +153,7 @@ export default class EditFile extends Vue {
       });
     }
 
-    store.commit('copyTaskList', JSON.parse(JSON.stringify(copyList)));
+    store.commit('copyTaskList', stringify(copyList));
 
     this.$message.success('拷贝成功');
   }
@@ -218,13 +219,6 @@ export default class EditFile extends Vue {
           });
         });
 
-        console.log(JSON.parse(JSON.stringify(taskjson)));
-        console.log(JSON.parse(JSON.stringify(processjson)));
-        console.log(JSON.parse(JSON.stringify(sourcejson)));
-        console.log(JSON.parse(JSON.stringify(conditionjson)));
-        console.log(JSON.parse(JSON.stringify(awardjson)));
-        console.log('===========================================>>>');
-
         const taskList = workbookMap.get('task');
         if (taskList) taskList.push(taskjson);
         const processList = workbookMap.get('process_data');
@@ -238,6 +232,7 @@ export default class EditFile extends Vue {
       }
     });
     store.commit('workbookMap', workbookMap);
+    writeWorkbookMapToExcel(workbookMap);
   }
 }
 </script>

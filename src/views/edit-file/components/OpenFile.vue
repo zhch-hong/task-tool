@@ -66,7 +66,9 @@ export default class OpenFile extends Vue {
     const fileList = fileManageJson.map((item) => item.file);
     this.treeData = getTreeData(workDir, fileList);
 
-    readLastFile();
+    readLastFile().then((path) => {
+      this.filePath = path || '';
+    });
   }
 
   async submit(): Promise<void> {

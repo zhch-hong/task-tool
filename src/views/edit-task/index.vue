@@ -69,10 +69,9 @@ export default class EditTask extends Vue {
       const workbookMap: WorkbookMap = store.getters.workbookMap();
 
       const taskList = workbookMap.get('task') as Record<string, string>[];
-      const taskJson = taskList.find((item) => item.id === id) as Record<
-        string,
-        string
-      >;
+      const taskJson = taskList.find(
+        (item) => item.id.toString() === id.toString()
+      ) as Record<string, string>;
       this.baseData = taskJson;
 
       const { process_id } = taskJson;
@@ -126,6 +125,9 @@ export default class EditTask extends Vue {
       type: 'success',
       position: 'bottom-right',
     });
+    setTimeout(() => {
+      this.$router.push('/edit-file');
+    }, 2000);
   }
 
   baseDataSubmit(object: Record<string, any>): void {

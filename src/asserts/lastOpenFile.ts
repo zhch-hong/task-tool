@@ -97,7 +97,6 @@ function jsonToSheet(
     newTask.columns = columns.slice(0, firstRow.length);
     newTask.addRow(firstRow);
     json.forEach((item) => parseString2Number(item));
-    console.log(JSON.parse(JSON.stringify(json.map((item) => item.process))));
     newTask.addRows(json);
   }
 }

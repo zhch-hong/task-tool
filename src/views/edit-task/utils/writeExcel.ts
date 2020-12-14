@@ -1,7 +1,7 @@
 import store from '@/store';
 import { Worksheet } from 'exceljs';
 
-import { getRowByColumnValue } from '@/utils';
+import { getRowByColumnValue, stringify } from '@/utils';
 import { readLastFile, writeWorkbookMapToExcel } from '@/asserts/lastOpenFile';
 import { WorkbookMap } from '@/shims-vue';
 
@@ -28,6 +28,8 @@ if (store.state.taskFilePath === '') {
 }
 
 export function writeExcel(data: Record<string, any>) {
+  console.log(stringify(data));
+
   const workbookMap = store.getters.workbookMap();
   const base: Record<string, any> = data.base;
   const process: Record<string, any> = data.process;
@@ -45,7 +47,9 @@ function writeBase(workbookMap: WorkbookMap, data: Record<string, any>) {
   const taskList = workbookMap.get('task') as Record<string, string>[];
 
   if (activeModel === 'update') {
-    const index = taskList.findIndex((item) => item.id === updateTaskid);
+    const index = taskList.findIndex(
+      (item) => item.id.toString() === updateTaskid.toString()
+    );
     if (index !== -1) {
       taskList.splice(index, 1, data);
     }
@@ -101,7 +105,7 @@ function writeProgress(workbookMap: WorkbookMap, data: Record<string, any>) {
     processList.push(process);
   } else {
     const index = processList.findIndex(
-      (proc) => proc.process_id === process.process_id
+      (proc) => proc.process_id.toString() === process.process_id.toString()
     );
     if (index !== -1) {
       processList.splice(index, 1, process);
@@ -113,8 +117,6 @@ function writeSource(
   workbookMap: WorkbookMap,
   data: Record<string, any>[]
 ): void {
-  console.log('source', JSON.parse(JSON.stringify(data)));
-
   let source_id = lostSourceid;
   data.find((sourceItem) => {
     const source: Record<string, string> = sourceItem.source;
@@ -142,7 +144,7 @@ function writeSource(
 
     const conditionArray: Record<string, string>[] = sourceItem.condition;
     conditionArray.forEach((cond) => (cond.condition_id = condition_id));
-    conditionList.push(...conditionList);
+    conditionList.push(...conditionArray);
   });
 }
 

@@ -6,3 +6,4 @@ export { propertySlice } from './propertySlice';
 export { sheetToJson, sheet2json, workbook2map } from './sheetToJson';
 export { setColumnKey } from './setColumnKey';
 export { parseString2Number } from '../asserts/parseString2Number';
+export { stringify } from './stringify';
