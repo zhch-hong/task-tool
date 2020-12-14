@@ -66,6 +66,7 @@ export default class EditFile extends Vue {
       componentName: this.$options.name,
       method: this.refreshTable,
     });
+    this.refreshTable();
   }
 
   createTask(): void {

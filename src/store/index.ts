@@ -14,7 +14,7 @@ interface State {
   observable: Map<string, Map<string, () => void>>;
   userStoragePath: string;
   taskFilePath: string;
-  updateTaskId: string;
+  updateTaskId: string | number;
   workbook: Workbook | null;
   workbookMap: WorkbookMap;
   copyTaskList:

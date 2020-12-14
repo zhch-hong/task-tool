@@ -12,22 +12,17 @@ const lostSourceid: string = store.getters.sourceid();
 const lostAwardid: () => string = store.getters.awardid;
 const lostConditionid: () => string = store.getters.conditionid;
 
-let path = store.state.taskFilePath;
-const updateTaskid = store.state.updateTaskId;
+let updateTaskid: string | number = '';
 /** 操作模式，是修改任务，还是添加任务 */
 let activeModel: 'update' | 'create' = 'update';
-
 // 如果vuex中没有存taskid，说明当前是添加任务，那么taskid就取从小到大缺失的id
-if (updateTaskid === '') {
-  activeModel = 'create';
-}
-if (store.state.taskFilePath === '') {
-  readLastFile().then((_path) => {
-    if (_path) path = _path;
-  });
-}
 
 export function writeExcel(data: Record<string, any>) {
+  updateTaskid = store.state.updateTaskId;
+  if (updateTaskid === '') {
+    activeModel = 'create';
+  }
+
   console.log(stringify(data));
 
   const workbookMap = store.getters.workbookMap();
@@ -71,7 +66,9 @@ function writeProgress(workbookMap: WorkbookMap, data: Record<string, any>) {
     processArray.push(item.process);
     const awards: Record<string, string>[] = item.awards;
     if (awards.length !== 0) {
-      const old = awards.find((awa) => awa.award_id);
+      const old = awards.find(
+        (awa) => typeof awa.award_id !== 'undefined' && awa.award_id !== ''
+      );
       if (old) {
         awards.forEach((awa) => (awa.award_id = old.award_id));
         item.award_id = old.award_id;
@@ -94,11 +91,13 @@ function writeProgress(workbookMap: WorkbookMap, data: Record<string, any>) {
 
   process.process = processArray.join(',');
   process.awards = awardArray.join(',');
+  console.log(process.awards);
 
   const processList = workbookMap.get('process_data') as Record<
     string,
     string
   >[];
+  debugger;
   if (activeModel === 'create') {
     process.process_id = lostProcessid;
     process.source_id = lostSourceid;
