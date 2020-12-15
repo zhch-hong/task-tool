@@ -33,6 +33,7 @@ import { WorkbookMap } from '@/shims-vue';
 import BaseData from './components/BaseData.vue';
 import ProgressData from './components/ProgressData.vue';
 import SourceData from './components/SourceData.vue';
+import { stringify } from '@/utils';
 
 @Component({
   components: {
@@ -111,6 +112,12 @@ export default class EditTask extends Vue {
           );
         }
       );
+
+      console.log(stringify(this.baseData));
+      console.log(stringify(this.processData));
+      console.log(stringify(this.sourceData));
+      console.log(stringify(this.conditionData));
+      console.log(stringify(this.awardData));
     }
   }
 

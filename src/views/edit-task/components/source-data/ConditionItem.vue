@@ -13,10 +13,10 @@
       style="margin: 0 10px"
       @change="emitCondition"
     >
-      <el-option label="=" value="2"></el-option>
-      <el-option label=">=" value="3"></el-option>
-      <el-option label="<=" value="4"></el-option>
-      <el-option label="~=" value="5"></el-option>
+      <el-option label="=" :value="2"></el-option>
+      <el-option label=">=" :value="3"></el-option>
+      <el-option label="<=" :value="4"></el-option>
+      <el-option label="~=" :value="5"></el-option>
     </el-select>
     <el-select
       v-if="conditionValueMode === 'select'"
@@ -42,6 +42,7 @@
   </div>
 </template>
 <script lang="ts">
+import { stringify } from '@/utils';
 import { cloneDeep } from 'lodash';
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 
@@ -72,16 +73,6 @@ export default class ConditionItem extends Vue {
   /** 条件值是输入还是下拉框选择 */
   conditionValueMode: 'input' | 'select' = 'input';
 
-  /**
-   * 当条件名称下拉框数据重置时，需要清空选择的值
-   */
-  @Watch('conditionnameList')
-  conditionWatch(): void {
-    this.conditionItem.condition_name = '';
-    this.conditionItem.judge_type = '';
-    this.conditionItem.condition_value = '';
-  }
-
   @Watch('conditionForm.condition_name', { immediate: true })
   nameWatch(value: string): void {
     value = value || this.conditionItem.condition_name;
@@ -96,7 +87,7 @@ export default class ConditionItem extends Vue {
     }
   }
 
-  created(): void {
+  async created(): Promise<void> {
     Object.assign(this.conditionForm, this.conditionItem);
   }
 

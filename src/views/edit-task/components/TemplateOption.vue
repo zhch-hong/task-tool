@@ -57,11 +57,13 @@ export default class TemplateOption extends Vue {
     }
   }
 
-  writeTempBefore(data: Record<string, any>): Record<string, any> | undefined {
+  writeTempBefore(data: any): Record<string, any> | undefined {
+    let tempData: any = null;
+
     if (this.templateType === 'base') {
       delete data.id;
       delete data.process_id;
-      return data;
+      tempData = data;
     }
     if (this.templateType === 'process') {
       const process: Record<string, any> = data.process;
@@ -89,31 +91,56 @@ export default class TemplateOption extends Vue {
       if (data.lastLoop) processArray.push('-1');
       process.process = processArray.join(',');
 
-      return {
+      tempData = {
         process,
         awards,
       };
     }
+    if (this.templateType === 'source') {
+      const source: Record<string, string | number>[] = [];
+      const condition: Record<string, string | number>[][] = [];
+
+      data.forEach((item: Record<string, any>) => {
+        const sourceItem: Record<string, string | number> = item.source;
+        const conditionItem: Record<string, string | number>[] = item.condition;
+
+        delete sourceItem.id;
+        delete sourceItem.condition_id;
+        delete sourceItem.source_id;
+
+        conditionItem.forEach((cond) => delete cond.condition_id);
+
+        source.push(sourceItem);
+        condition.push(conditionItem);
+      });
+
+      tempData = { source, condition };
+    }
+
+    return {
+      uuid: uuid(),
+      name: this.templateName,
+      data: tempData,
+    };
   }
 
   onclickUpdate(): void {
     this.$emit('update-template', this.updateTemplate);
   }
 
-  updateTemplate(data: Record<string, any>): void {
-    const _data = this.writeTempBefore(data);
-
+  updateTemplate(data: any): void {
     const index = this.templateList.findIndex(
       (temp) => temp.uuid === this.templateValue
     );
     if (index !== -1) {
-      const object = {
-        uuid: this.templateList[index].uuid,
-        name: this.templateList[index].name,
-        data: _data,
-      };
-      this.templateList.splice(index, 1, object);
-      writeTemplate(this.templateType, this.templateList);
+      const object = this.writeTempBefore(data);
+      if (object) {
+        object.uuid = this.templateList[index].uuid;
+        object.name = this.templateList[index].name;
+
+        this.templateList.splice(index, 1, object);
+        writeTemplate(this.templateType, this.templateList);
+      }
     }
   }
 
@@ -129,35 +156,9 @@ export default class TemplateOption extends Vue {
     }
   }
 
-  saveTemplate(data: Record<string, any>): void {
-    if (this.templateType === 'base') this.saveBaseTemp(data);
-    if (this.templateType === 'process') this.saveProcessTemp(data);
-  }
-
-  saveBaseTemp(data: Record<string, any>): void {
-    console.log(stringify(data));
-    const _data = this.writeTempBefore(data);
-    const object = {
-      uuid: uuid(),
-      name: this.templateName,
-      data: _data,
-    };
-    this.templateList.push(object);
-    writeTemplate(this.templateType, this.templateList);
-  }
-
-  saveProcessTemp(data: Record<string, any>): void {
-    console.log(stringify(data));
-    const _data = this.writeTempBefore(data);
-    if (_data) {
-      const object = {
-        uuid: uuid(),
-        name: this.templateName,
-        data: {
-          process: _data.process,
-          awards: _data.awards,
-        },
-      };
+  saveTemplate(data: any): void {
+    const object = this.writeTempBefore(data);
+    if (object) {
       this.templateList.push(object);
       writeTemplate(this.templateType, this.templateList);
     }

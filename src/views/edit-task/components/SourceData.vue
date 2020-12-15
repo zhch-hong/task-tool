@@ -13,7 +13,7 @@
       :key="s.uuid"
       :sourceitem-config="s"
       :sourcetype-list="sourcetypeList"
-      :prop-condition-list="conditionData[index]"
+      :prop-condition-list="conditionData[index] || []"
       :is-emit="isEmit"
       @delete-sourceitem="deleteSourceitem(index)"
       @submit-itemdata="(o) => emitSourceList.push(o)"
@@ -34,6 +34,7 @@ import { getUserconfig } from '@/asserts/userconfig';
 
 import SourceItem from './source-data/SourceItem.vue';
 import TemplateOption from './TemplateOption.vue';
+import { stringify } from '@/utils';
 
 const filePath = resolve(
   getUserconfig().workDir,
@@ -75,6 +76,7 @@ export default class SourceData extends Vue {
 
   deleteSourceitem(index: number): void {
     this.sourceList.splice(index, 1);
+    this.conditionData.splice(index, 1);
   }
 
   async submit(): Promise<void> {
@@ -86,16 +88,33 @@ export default class SourceData extends Vue {
     this.emitSourceList = [];
   }
 
-  templateData(data: Record<string, string>): void {
-    //
+  templateData(data: any): void {
+    this.sourceData.splice(0, this.sourceData.length);
+    this.sourceData.push(...data.source);
+    this.conditionData.splice(0, this.conditionData.length);
+    this.conditionData.push(...data.condition);
   }
 
-  updateTemplate(method: (data: Record<string, any>) => void): void {
-    //
+  async updateTemplate(
+    method: (data: Record<string, any>) => void
+  ): Promise<void> {
+    this.isEmit = true;
+    await this.$nextTick();
+    method(cloneDeep(this.emitSourceList));
+    await this.$nextTick();
+    this.isEmit = false;
+    this.emitSourceList = [];
   }
 
-  saveTemplate(method: (data: Record<string, any>) => void): void {
-    //
+  async saveTemplate(
+    method: (data: Record<string, any>) => void
+  ): Promise<void> {
+    this.isEmit = true;
+    await this.$nextTick();
+    method(cloneDeep(this.emitSourceList));
+    await this.$nextTick();
+    this.isEmit = false;
+    this.emitSourceList = [];
   }
 }
 </script>

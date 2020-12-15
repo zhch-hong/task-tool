@@ -6,18 +6,21 @@ import { writeWorkbookMapToExcel } from '@/asserts/lastOpenFile';
 import { WorkbookMap } from '@/shims-vue';
 
 // 从小到大缺失的id，供添加任务时使用
-const lostTaskid: string = store.getters.taskid();
-const lostProcessid: string = store.getters.processid();
-const lostSourceid: string = store.getters.sourceid();
+let lostTaskid = '';
+let lostProcessid = '';
+let lostSourceid = '';
 const lostAwardid: () => string = store.getters.awardid;
 const lostConditionid: () => string = store.getters.conditionid;
 
 let updateTaskid: string | number = '';
 /** 操作模式，是修改任务，还是添加任务 */
 let activeModel: 'update' | 'create' = 'update';
-// 如果vuex中没有存taskid，说明当前是添加任务，那么taskid就取从小到大缺失的id
 
 export function writeExcel(data: Record<string, any>) {
+  lostTaskid = store.getters.taskid();
+  lostProcessid = store.getters.processid();
+  lostSourceid = store.getters.sourceid();
+
   updateTaskid = store.state.updateTaskId;
   if (updateTaskid === '') {
     activeModel = 'create';
@@ -42,6 +45,9 @@ function writeBase(workbookMap: WorkbookMap, data: Record<string, any>) {
   const taskList = workbookMap.get('task') as Record<string, string>[];
 
   if (activeModel === 'update') {
+    lostTaskid = data.id;
+    lostProcessid = data.process_id;
+
     const index = taskList.findIndex(
       (item) => item.id.toString() === updateTaskid.toString()
     );
@@ -102,6 +108,7 @@ function writeProgress(workbookMap: WorkbookMap, data: Record<string, any>) {
     process.source_id = lostSourceid;
     processList.push(process);
   } else {
+    lostSourceid = process.source_id;
     const index = processList.findIndex(
       (proc) => proc.process_id.toString() === process.process_id.toString()
     );
@@ -115,32 +122,69 @@ function writeSource(
   workbookMap: WorkbookMap,
   data: Record<string, any>[]
 ): void {
-  let source_id = lostSourceid;
-  data.find((sourceItem) => {
-    const source: Record<string, string> = sourceItem.source;
-    if (source.source_id) {
-      source_id = source.source_id;
-      return true;
-    }
-    return false;
-  });
-
   const sourceList = workbookMap.get('source') as Record<string, string>[];
   const conditionList = workbookMap.get('condition') as Record<
     string,
     string
   >[];
 
-  data.forEach((sourceItem: Record<string, any>) => {
+  deleteExisting(sourceList, 'source_id', lostSourceid);
+  // 查找需要删除的id
+  let delSourceid: string | number = '';
+  const delConditionid: string | number[] = [];
+  data.forEach((item) => {
+    if (item.source.source_id) delSourceid = item.source.source_id;
+
+    const condition = item.condition.find(
+      (cond: Record<string, string | number>) => {
+        return (
+          typeof cond.condition_id !== 'undefined' && cond.condition_id !== ''
+        );
+      }
+    );
+    if (condition) {
+      delConditionid.push(condition.condition_id);
+    }
+  });
+  if (delSourceid !== '') {
+    deleteExisting(sourceList, 'source_id', delSourceid);
+  }
+  if (delConditionid.length !== 0) {
+    delConditionid.forEach((id) => {
+      deleteExisting(conditionList, 'condition_id', id);
+    });
+  }
+
+  let source_id = lostSourceid;
+  data.find((sourceItem) => {
     const source: Record<string, string> = sourceItem.source;
+    if (typeof source.source_id !== 'undefined' && source.source_id !== '') {
+      source_id = source.source_id;
+      return true;
+    }
+    return false;
+  });
+
+  data.forEach((sourceItem: Record<string, any>) => {
+    let condition_id = '';
+    const source: Record<string, string> = sourceItem.source;
+    const conditionArray: Record<string, string>[] = sourceItem.condition;
+    conditionArray.find((condItem) => {
+      if (
+        typeof condItem.condition_id !== 'undefined' &&
+        condItem.condition_id !== ''
+      ) {
+        condition_id = condItem.condition_id;
+        return true;
+      }
+      return false;
+    });
+    if (condition_id === '') condition_id = lostConditionid();
+
     source.source_id = source_id;
-    deleteExisting(sourceList, 'source_id', source_id);
+    source.condition_id = condition_id;
     sourceList.push(source);
 
-    const condition_id = source.condition_id || lostConditionid();
-    deleteExisting(conditionList, 'condition_id', condition_id);
-
-    const conditionArray: Record<string, string>[] = sourceItem.condition;
     conditionArray.forEach((cond) => (cond.condition_id = condition_id));
     conditionList.push(...conditionArray);
   });

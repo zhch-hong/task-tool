@@ -1,34 +1,6 @@
 import { SheetName } from '@/shims-vue';
-import { Row, Workbook, Worksheet } from 'exceljs';
-
-export function sheetToJson(worksheet: Worksheet) {
-  const dataArray: Record<string, string>[] = [];
-  let keys: string[] = [];
-  worksheet.eachRow(function (row, rowNumber) {
-    if (rowNumber == 1) {
-      if (!Array.isArray(row)) {
-        keys = row.values as string[];
-      }
-    } else {
-      const rowDict = cellValueToDict(keys, row);
-      dataArray.push(rowDict);
-    }
-  });
-  return dataArray;
-}
-
-function cellValueToDict(keys: string[], row: Row) {
-  const data: Record<string, any> = {};
-  row.eachCell((cell, colNumber) => {
-    const value = cell.toString();
-    if (typeof keys[colNumber] === 'string') {
-      const _key = keys[colNumber].split('|');
-      const k = _key[0] || _key[1];
-      data[k] = value;
-    }
-  });
-  return data;
-}
+import { Workbook, Worksheet } from 'exceljs';
+import { v4 as uuid } from 'uuid';
 
 export function sheet2json(sheet: Worksheet): Record<string, string>[] {
   const column = sheet.getColumn(1);
@@ -41,7 +13,7 @@ export function sheet2json(sheet: Worksheet): Record<string, string>[] {
 
   sheet.eachRow((row, rowIndex) => {
     if (rowIndex > 1) {
-      const object: Record<string, any> = {};
+      const object: Record<string, any> = { uuid: uuid() };
       row.eachCell((cell, colIndex) => {
         // 这里的colIndex是从1开始的，所以数组取值需要减1
         const k = keys[colIndex - 1];

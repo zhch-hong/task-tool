@@ -44,6 +44,7 @@ import { v4 as uuid } from 'uuid';
 
 import ConditionItem from './ConditionItem.vue';
 import { cloneDeep } from 'lodash';
+import { stringify } from '@/utils';
 
 const source = {
   id: '',
@@ -70,7 +71,7 @@ export default class SourceItem extends Vue {
   >[];
   @Prop({ type: Boolean, required: true }) isEmit!: boolean;
 
-  conditionList = cloneDeep(this.propConditionList);
+  conditionList = this.propConditionList;
   sourceForm = cloneDeep(source);
   conditionnameList: Record<string, any>[] = [];
 
