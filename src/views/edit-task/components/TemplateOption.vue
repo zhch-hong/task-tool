@@ -71,7 +71,7 @@ export default class TemplateOption extends Vue {
       delete process.awards;
 
       const processArray: string[] = [];
-      const awardArray: Record<string, string>[][] = [];
+      const awards: Record<string, string>[][] = [];
       const award: Record<string, any>[] = data.award;
       award.forEach((awa) => {
         processArray.push(awa.process);
@@ -82,7 +82,7 @@ export default class TemplateOption extends Vue {
             delete item.id;
             return item;
           });
-          awardArray.push(_array);
+          awards.push(_array);
         }
       });
 
@@ -91,7 +91,7 @@ export default class TemplateOption extends Vue {
 
       return {
         process,
-        awardArray,
+        awards,
       };
     }
   }
@@ -155,7 +155,7 @@ export default class TemplateOption extends Vue {
         name: this.templateName,
         data: {
           process: _data.process,
-          awards: _data.awardArray,
+          awards: _data.awards,
         },
       };
       this.templateList.push(object);
