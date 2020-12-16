@@ -40,6 +40,8 @@ export async function writeWorkbookMapToExcel(workbookMap: WorkbookMap) {
   const workbook = new Workbook();
   await workbook.xlsx.load(buffer);
 
+  addTemplateCol(getSheet(workbook, 'task')!);
+
   setColumnKey(workbook);
 
   const taskList = workbookMap.get('task') as Record<string, string>[];
@@ -74,6 +76,17 @@ export async function writeWorkbookMapToExcel(workbookMap: WorkbookMap) {
   newWorkbook.xlsx.writeBuffer().then((buffer) => {
     writeFileSync(lastOpenFile, new Uint8Array(buffer));
   });
+}
+
+function addTemplateCol(sheet: Worksheet) {
+  const count = sheet.columnCount + 1;
+  sheet.spliceColumns(
+    count,
+    0,
+    ['|base_temp|任务数据'],
+    ['|process_temp|进度数据'],
+    ['|source_temp|来源数据']
+  );
 }
 
 function jsonToSheet(

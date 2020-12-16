@@ -33,16 +33,29 @@ export function writeExcel(data: Record<string, any>) {
   const process: Record<string, any> = data.process;
   const source: Record<string, any>[] = data.source;
 
-  writeBase(workbookMap, base);
+  const { baseTempid, processTempid, sourceTempid } = data;
+  const template = { baseTempid, processTempid, sourceTempid };
+
+  writeBase(workbookMap, base, template);
   writeProgress(workbookMap, process);
   writeSource(workbookMap, source);
 
   store.commit('workbookMap', workbookMap);
+
   writeWorkbookMapToExcel(workbookMap);
 }
 
-function writeBase(workbookMap: WorkbookMap, data: Record<string, any>) {
+function writeBase(
+  workbookMap: WorkbookMap,
+  data: Record<string, any>,
+  template: Record<string, string | undefined>
+) {
   const taskList = workbookMap.get('task') as Record<string, string>[];
+
+  const { baseTempid, processTempid, sourceTempid } = template;
+  data['base_temp'] = baseTempid || null;
+  data['process_temp'] = processTempid || null;
+  data['source_temp'] = sourceTempid || null;
 
   if (activeModel === 'update') {
     lostTaskid = data.id;

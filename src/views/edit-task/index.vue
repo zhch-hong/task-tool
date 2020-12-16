@@ -11,12 +11,14 @@
       :process-data="processData"
       :award-data="awardData"
       @submit="progressDataSubmit"
+      @template-uuid="processTempid"
     />
     <SourceData
       ref="sourceDataRef"
       :source-data="sourceData"
       :condition-data="conditionData"
       @submit="sourceDataSubmit"
+      @template-uuid="sourceTempid"
     />
     <el-button @click="handleSave" style="margin-top: 20px">保存</el-button>
   </div>
@@ -142,23 +144,26 @@ export default class EditTask extends Vue {
     this.taskData.base = cloneDeep(object);
   }
 
-  baseTempid(uuid: string): void {
-    console.log('base uuid', uuid);
-  }
-
   progressDataSubmit(object: Record<string, any>): void {
     this.taskData.process = cloneDeep(object);
-  }
-
-  processTempid(uuid: string): void {
-    console.log('process uuid', uuid);
   }
 
   sourceDataSubmit(object: Record<string, any>[]): void {
     this.taskData.source = cloneDeep(object);
   }
 
+  baseTempid(uuid: string): void {
+    this.taskData.baseTempid = uuid;
+    console.log('base uuid', uuid);
+  }
+
+  processTempid(uuid: string): void {
+    this.taskData.processTempid = uuid;
+    console.log('process uuid', uuid);
+  }
+
   sourceTempid(uuid: string): void {
+    this.taskData.sourceTempid = uuid;
     console.log('source uuid', uuid);
   }
 }

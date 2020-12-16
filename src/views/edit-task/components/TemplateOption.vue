@@ -51,7 +51,7 @@ export default class TemplateOption extends Vue {
     const temp = this.templateList.find((temp) => temp.uuid === value);
     if (temp) {
       this.$emit('template-data', temp.data);
-      this.$emit('template-uuid', value);
+      this.$emit('template-uuid', value + '|' + temp.name);
     } else {
       this.$emit('template-uuid', '');
     }
