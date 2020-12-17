@@ -30,13 +30,19 @@ export async function readLastFile(): Promise<string | undefined> {
   return lastOpenFile;
 }
 
-export async function writeWorkbookMapToExcel(workbookMap: WorkbookMap) {
-  const object: Record<string, string> = readFile(userdir);
-  const { lastOpenFile } = object;
+export async function writeWorkbookMapToExcel(
+  workbookMap: WorkbookMap,
+  path?: string
+) {
+  if (!path) {
+    const object: Record<string, string> = readFile(userdir);
+    const { lastOpenFile } = object;
+    path = lastOpenFile;
+  }
 
-  if (!lastOpenFile) return;
+  if (!path) return;
 
-  const buffer = readFileSync(lastOpenFile);
+  const buffer = readFileSync(path);
   const workbook = new Workbook();
   await workbook.xlsx.load(buffer);
 
@@ -74,11 +80,16 @@ export async function writeWorkbookMapToExcel(workbookMap: WorkbookMap) {
   jsonToSheet(newWorkbook, awardList, awardSheet);
 
   newWorkbook.xlsx.writeBuffer().then((buffer) => {
-    writeFileSync(lastOpenFile, new Uint8Array(buffer));
+    writeFileSync(path!, new Uint8Array(buffer));
   });
 }
 
 function addTemplateCol(sheet: Worksheet) {
+  const array: string[] = [];
+  sheet.getRow(1).eachCell((cell) => array.push(cell.text));
+
+  if (array.includes('|base_temp|任务数据')) return;
+
   const count = sheet.columnCount + 1;
   sheet.spliceColumns(
     count,

@@ -1,7 +1,6 @@
 import store from '@/store';
-import { Worksheet } from 'exceljs';
 
-import { getRowByColumnValue, stringify } from '@/utils';
+import { deleteExisting, stringify } from '@/utils';
 import { writeWorkbookMapToExcel } from '@/asserts/lastOpenFile';
 import { WorkbookMap } from '@/shims-vue';
 
@@ -51,11 +50,7 @@ function writeBase(
   template: Record<string, string | undefined>
 ) {
   const taskList = workbookMap.get('task') as Record<string, string>[];
-
   const { baseTempid, processTempid, sourceTempid } = template;
-  data['base_temp'] = baseTempid || null;
-  data['process_temp'] = processTempid || null;
-  data['source_temp'] = sourceTempid || null;
 
   if (activeModel === 'update') {
     lostTaskid = data.id;
@@ -65,9 +60,15 @@ function writeBase(
       (item) => item.id.toString() === updateTaskid.toString()
     );
     if (index !== -1) {
+      data['base_temp'] = baseTempid || taskList[index].base_temp;
+      data['process_temp'] = processTempid || taskList[index].process_temp;
+      data['source_temp'] = sourceTempid || taskList[index].source_temp;
       taskList.splice(index, 1, data);
     }
   } else {
+    data['base_temp'] = baseTempid || null;
+    data['process_temp'] = processTempid || null;
+    data['source_temp'] = sourceTempid || null;
     data.id = lostTaskid;
     data.process_id = lostProcessid;
     taskList.push(data);
@@ -201,42 +202,4 @@ function writeSource(
     conditionArray.forEach((cond) => (cond.condition_id = condition_id));
     conditionList.push(...conditionArray);
   });
-}
-
-/**
- * 删除现有的奖励行数据方法，递归删除
- * @param sheet
- * @param col
- * @param id
- */
-function deleteExisting(
-  list: Record<string, string>[],
-  col: string,
-  value: number | string
-) {
-  const index = list.findIndex(
-    (item) => item[col].toString() === value.toString()
-  );
-  if (index !== -1) {
-    list.splice(index, 1);
-    deleteExisting(list, col, value);
-  }
-}
-
-/**
- *
- * @param sheet
- * @param col
- * @param id
- */
-function getInsertIndex(sheet: Worksheet, col: string, id: number): number {
-  let index = getRowByColumnValue(sheet, col, id.toString()).rowNumber;
-  if (index === -1) {
-    if (id === 0) {
-      index = 1;
-    } else {
-      return getInsertIndex(sheet, col, id - 1);
-    }
-  }
-  return index + 1;
 }

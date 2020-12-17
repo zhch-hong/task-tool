@@ -57,6 +57,16 @@ const routes: RouteConfig[] = [
       },
     ],
   },
+  {
+    path: '/template-manage',
+    component: Layout,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/template-manage/template-manage.vue'),
+      },
+    ],
+  },
 ];
 
 export default routes;

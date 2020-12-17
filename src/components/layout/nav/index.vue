@@ -14,6 +14,7 @@
         <el-menu-item index="/file-manage">文件管理</el-menu-item>
         <el-menu-item index="/source-manage">来源管理</el-menu-item>
         <el-menu-item index="/input-manage">输入项管理</el-menu-item>
+        <el-menu-item index="/template-manage">模板管理</el-menu-item>
       </el-menu-item-group>
     </el-menu>
   </nav>

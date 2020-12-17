@@ -78,14 +78,12 @@ export default class TemplateOption extends Vue {
       award.forEach((awa) => {
         processArray.push(awa.process);
         const awardList: Record<string, string>[] = awa.awards;
-        if (awardList.length !== 0) {
-          const _array = awardList.map((item) => {
-            delete item.award_id;
-            delete item.id;
-            return item;
-          });
-          awards.push(_array);
-        }
+        const _array = awardList.map((item) => {
+          delete item.award_id;
+          delete item.id;
+          return item;
+        });
+        awards.push(_array);
       });
 
       if (data.lastLoop) processArray.push('-1');

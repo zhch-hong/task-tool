@@ -1,4 +1,4 @@
-import { SheetName } from '@/shims-vue';
+import { SheetName, WorkbookMap } from '@/shims-vue';
 import { Workbook, Worksheet } from 'exceljs';
 import { v4 as uuid } from 'uuid';
 
@@ -44,17 +44,15 @@ function setColumnKey(sheet: Worksheet): Worksheet {
   const headRow = sheet.getRow(1);
   headRow.eachCell((cell, colNumber) => {
     if (cell.text) {
-      const key = cell.text.split('|')[0];
-      sheet.getColumn(colNumber).key = key;
+      const keys = cell.text.split('|');
+      sheet.getColumn(colNumber).key = keys[0] || keys[1];
     }
   });
   return sheet;
 }
 
-export function workbook2map(
-  workbook: Workbook
-): Map<SheetName, Record<string, string>[]> {
-  const map = new Map<SheetName, Record<string, string>[]>();
+export function workbook2map(workbook: Workbook): WorkbookMap {
+  const map: WorkbookMap = new Map();
   workbook.eachSheet((sheet) => {
     const sheetKey = sheet.name.split('|')[0] as SheetName;
     if (sheetKey) map.set(sheetKey, sheet2json(sheet));
