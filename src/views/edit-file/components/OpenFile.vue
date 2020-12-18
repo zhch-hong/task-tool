@@ -26,8 +26,8 @@ import { getUserconfig } from '@/asserts/userconfig';
 import { userdir } from '@/asserts/userdir';
 import { readLastFile } from '@/asserts/lastOpenFile';
 import {
-  readFile,
-  writeFile,
+  readFileText,
+  writeFileText,
   getTreeData,
   workbook2map,
   setColumnKey,
@@ -60,7 +60,7 @@ export default class OpenFile extends Vue {
     // 从配置文件读取过滤的文件树数据
     const workDir = getUserconfig().workDir;
 
-    const fileManageJson: Record<string, string>[] = readFile(
+    const fileManageJson: Record<string, string>[] = readFileText(
       resolve(workDir, 'app_config', 'file-manage.json')
     );
     const fileList = fileManageJson.map((item) => item.file);
@@ -98,9 +98,9 @@ export default class OpenFile extends Vue {
   }
 
   setLastOpenFilePath(path: string): void {
-    const object: Record<string, any> = readFile(userdir);
+    const object: Record<string, any> = readFileText(userdir);
     object['lastOpenFile'] = path;
-    writeFile(userdir, object);
+    writeFileText(userdir, object);
   }
 }
 </script>

@@ -19,20 +19,20 @@ import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
 
 import { getUserconfig } from '@/asserts/userconfig';
-import { readFile, stringify, writeFile } from '@/utils';
+import { readFileText, stringify, writeFileText } from '@/utils';
 
 const workDir = getUserconfig().workDir;
 const path = resolve(resolve(workDir, 'app_config'), `template-manage.json`);
 
 function readTemplate(type: TemplateType): Record<string, any>[] {
-  const object = readFile(path);
+  const object = readFileText(path);
   return object[type];
 }
 
 function writeTemplate(type: TemplateType, data: Record<string, any>[]): void {
-  const object: Record<string, Record<string, any>[]> = readFile(path);
+  const object: Record<string, Record<string, any>[]> = readFileText(path);
   object[type] = data;
-  writeFile(path, object);
+  writeFileText(path, object);
 }
 
 @Component

@@ -32,7 +32,7 @@ import {
   getSheet,
   getTreeDataDefault,
   writeMapToExcel,
-  readFile,
+  readFileText,
   sheet2json,
   stringify,
   updateBase,
@@ -235,7 +235,7 @@ async function readTemplate() {
   const uuidList: string[] = [];
 
   const path = resolve(resolve(workDir, 'app_config'), `template-manage.json`);
-  const object: Record<string, Record<string, any>[]> = readFile(path);
+  const object: Record<string, Record<string, any>[]> = readFileText(path);
   for (const key in object) {
     if (Object.prototype.hasOwnProperty.call(object, key)) {
       const element = object[key];
