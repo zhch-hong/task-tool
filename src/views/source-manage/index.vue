@@ -49,7 +49,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { resolve } from 'path';
 
-import { readFile, writeFile } from '@/utils/fileStream';
+import { readFileText, writeFileText } from '@/utils/fileSystem';
 import { getUserconfig } from '@/asserts/userconfig';
 
 import UpdateNode from './components/UpdateNode.vue';
@@ -83,7 +83,7 @@ export default class SourceManage extends Vue {
   }
 
   loadTreeData(): void {
-    const array = readFile(filePath);
+    const array = readFileText(filePath);
     if (array[0] && array[0].id === 'root') this.treeData = array;
     else this.treeData[0].children = array;
   }
@@ -116,7 +116,7 @@ export default class SourceManage extends Vue {
     const index = children.findIndex((d) => d.id === data.id);
     children.splice(index, 1);
 
-    writeFile(filePath, this.treeData);
+    writeFileText(filePath, this.treeData);
   }
 
   submit(node: Record<string, string>): void {
@@ -140,7 +140,7 @@ export default class SourceManage extends Vue {
       }
     }
 
-    writeFile(filePath, this.treeData);
+    writeFileText(filePath, this.treeData);
   }
 
   nodeDrop(

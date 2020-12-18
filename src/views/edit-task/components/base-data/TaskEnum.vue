@@ -12,7 +12,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { resolve } from 'path';
 
-import { readFile } from '@/utils/fileStream';
+import { readFileText } from '@/utils/fileSystem';
 import { getUserconfig } from '@/asserts/userconfig';
 
 const filePath = resolve(
@@ -35,7 +35,7 @@ export default class TaskEnum extends Vue {
   }
 
   created(): void {
-    const data: Record<string, any>[] = readFile(filePath);
+    const data: Record<string, any>[] = readFileText(filePath);
     const object = data.find((item) => item.value === 'enum');
     if (object) {
       this.options = object.select;

@@ -58,7 +58,7 @@ import { resolve } from 'path';
 
 import DialogFooter from '@/components/DialogFooter.vue';
 import { getUserconfig } from '@/asserts/userconfig';
-import { readFile } from '@/utils/fileStream';
+import { readFileText } from '@/utils/fileSystem';
 
 const form: Record<string, any> = {
   award_name: '',
@@ -95,7 +95,7 @@ export default class UpdateReward extends Vue {
   selectOptions: Record<string, string>[] = [];
 
   created(): void {
-    const data: Record<string, any>[] = readFile(filePath);
+    const data: Record<string, any>[] = readFileText(filePath);
     const object = data.find((item) => item.value === 'asset');
     if (object) {
       this.selectOptions = object.select;

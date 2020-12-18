@@ -37,7 +37,7 @@ import { TreeData } from 'element-ui/types/tree';
 import { Workbook } from 'exceljs';
 import { Notification } from 'element-ui';
 
-import { readFile } from '@/utils/fileStream';
+import { readFileText } from '@/utils/fileSystem';
 import { getUserconfig } from '@/asserts/userconfig';
 import { getTreeData } from '@/utils/filtFileTree';
 import { getSheet } from '@/utils/likeSheet';
@@ -86,7 +86,7 @@ export default class FileTree extends Vue {
   }
 
   getFileList(): string[] {
-    const array: Record<string, string>[] = readFile(this.configPath);
+    const array: Record<string, string>[] = readFileText(this.configPath);
     return array.map((item) => item.file);
   }
 

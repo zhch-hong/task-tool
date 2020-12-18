@@ -28,10 +28,10 @@ import { Tree } from 'element-ui';
 import { TreeData, TreeNode, TreeProps } from 'element-ui/types/tree';
 import { getUserconfig } from '@/asserts/userconfig';
 import {
-  excel2map,
+  readExcelToMap,
   getSheet,
   getTreeDataDefault,
-  map2excel,
+  writeMapToExcel,
   readFile,
   sheet2json,
   stringify,
@@ -350,7 +350,7 @@ export default class TemplateManage extends Vue {
 
     array.forEach(async (item, index) => {
       const path: string = item.path;
-      const map = await excel2map(path);
+      const map = await readExcelToMap(path);
       const list: Record<string, any>[] = item.list;
       list.forEach((t) => {
         const id: string = t.id;
@@ -361,7 +361,7 @@ export default class TemplateManage extends Vue {
         if (type === 'process') updateProcess(map, id, data);
         if (type === 'source') updateSource(map, id, data);
       });
-      map2excel(map, path);
+      writeMapToExcel(map, path);
 
       if (index === array.length - 1) {
         this.$notify({

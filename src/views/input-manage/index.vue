@@ -36,7 +36,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { resolve } from 'path';
 
-import { readFile, writeFile } from '@/utils/fileStream';
+import { readFileText, writeFileText } from '@/utils/fileSystem';
 import { getUserconfig } from '@/asserts/userconfig';
 
 import CreateConfig from './components/CreateConfig.vue';
@@ -71,7 +71,7 @@ export default class InputManage extends Vue {
   createConfig = false;
 
   created(): void {
-    this.sourceData = readFile(filePath);
+    this.sourceData = readFileText(filePath);
     this.parseSelect();
   }
 
@@ -107,7 +107,7 @@ export default class InputManage extends Vue {
   }
 
   writeFile(): void {
-    writeFile(filePath, this.sourceData);
+    writeFileText(filePath, this.sourceData);
   }
 }
 </script>

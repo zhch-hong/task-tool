@@ -29,7 +29,7 @@ import { v4 as uuid } from 'uuid';
 import { resolve } from 'path';
 import { cloneDeep } from 'lodash';
 
-import { readFile } from '@/utils/fileStream';
+import { readFileText } from '@/utils/fileSystem';
 import { getUserconfig } from '@/asserts/userconfig';
 
 import SourceItem from './source-data/SourceItem.vue';
@@ -41,7 +41,8 @@ const filePath = resolve(
   'app_config',
   'source-manage.json'
 );
-const sourcetypeList: Record<string, any>[] = readFile(filePath)[0].children;
+const sourcetypeList: Record<string, any>[] = readFileText(filePath)[0]
+  .children;
 
 @Component({
   components: {

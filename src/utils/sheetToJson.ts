@@ -18,10 +18,7 @@ export function sheet2json(sheet: Worksheet): Record<string, string>[] {
         // 这里的colIndex是从1开始的，所以数组取值需要减1
         const k = keys[colIndex - 1];
         if (k) {
-          if (
-            typeof cell.value === 'boolean' ||
-            typeof cell.value === 'number'
-          ) {
+          if (typeof cell.value === 'boolean') {
             object[k] = cell.value;
           } else {
             object[k] = cell.text || '';

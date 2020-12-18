@@ -1,9 +1,9 @@
 import { userdir } from '@/asserts/userdir';
-import { readFile, writeFile } from '@/utils/fileStream';
+import { readFileText, writeFileText } from '@/utils/fileSystem';
 import { remote } from 'electron';
 
 const { dialog } = remote;
-const config = readFile(userdir);
+const config = readFileText(userdir);
 
 function getWorkdir(): string {
   const path = dialog.showOpenDialogSync({
@@ -18,6 +18,6 @@ if (!config.workDir) {
   config.workDir = getWorkdir();
 }
 
-writeFile(userdir, config);
+writeFileText(userdir, config);
 
 export { userdir };

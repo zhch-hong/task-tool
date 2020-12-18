@@ -1,7 +1,7 @@
 import store from '@/store';
 
 import { deleteExisting, stringify } from '@/utils';
-import { writeWorkbookMapToExcel } from '@/asserts/lastOpenFile';
+import { writeMapToExcel } from '@/utils/cutoverExcelMap';
 import { WorkbookMap } from '@/shims-vue';
 
 // 从小到大缺失的id，供添加任务时使用
@@ -41,7 +41,7 @@ export function writeExcel(data: Record<string, any>) {
 
   store.commit('workbookMap', workbookMap);
 
-  writeWorkbookMapToExcel(workbookMap);
+  writeMapToExcel(workbookMap);
 }
 
 function writeBase(

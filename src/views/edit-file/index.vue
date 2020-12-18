@@ -47,7 +47,7 @@ import { SheetName, WorkbookMap } from '@/shims-vue';
 import OpenFile from './components/OpenFile.vue';
 import { cloneDeep } from 'lodash';
 import { stringify } from '@/utils';
-import { writeWorkbookMapToExcel } from '@/asserts/lastOpenFile';
+import { writeMapToExcel } from '@/utils/cutoverExcelMap';
 
 @Component({
   components: {
@@ -233,7 +233,7 @@ export default class EditFile extends Vue {
       }
     });
     store.commit('workbookMap', workbookMap);
-    writeWorkbookMapToExcel(workbookMap);
+    writeMapToExcel(workbookMap);
   }
 }
 </script>

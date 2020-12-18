@@ -76,7 +76,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { cloneDeep } from 'lodash';
 
-import { readFile, writeFile } from '@/utils/fileStream';
+import { readFileText, writeFileText } from '@/utils/fileSystem';
 
 import AddConfig from './AddConfig.vue';
 import TableInlineInput from './TableInlineInput.vue';
@@ -106,12 +106,12 @@ export default class ConfigTable extends Vue {
   };
 
   created(): void {
-    this.tableData = readFile(this.configPath);
+    this.tableData = readFileText(this.configPath);
   }
 
   deleteRow(index: number): void {
     this.tableData.splice(index, 1);
-    writeFile(this.configPath, this.tableData);
+    writeFileText(this.configPath, this.tableData);
   }
 
   async editModel(index: number, ref: string): Promise<void> {
@@ -129,7 +129,7 @@ export default class ConfigTable extends Vue {
   inputEnter(index: number): void {
     delete this.editRow.edit;
     this.tableData.splice(index, 1, cloneDeep(this.editRow));
-    writeFile(this.configPath, this.tableData);
+    writeFileText(this.configPath, this.tableData);
   }
 
   inputBlur(): void {
@@ -141,7 +141,7 @@ export default class ConfigTable extends Vue {
 
   addConfig(row: Record<string, any>): void {
     this.tableData.push(cloneDeep(row));
-    writeFile(this.configPath, this.tableData);
+    writeFileText(this.configPath, this.tableData);
   }
 }
 </script>

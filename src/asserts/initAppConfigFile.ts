@@ -1,11 +1,9 @@
 import path from 'path';
 import fs from 'fs';
 
-import { userdir } from '@/asserts/setWorkdir';
-import { readFile } from '@/utils/fileStream';
+import { getUserconfig } from '@/asserts/userconfig';
 
-const config = readFile(userdir);
-const workDir: string = config.workDir;
+const workDir: string = getUserconfig().workDir;
 
 const dirPath = path.resolve(workDir, 'app_config');
 if (!fs.existsSync(dirPath)) {

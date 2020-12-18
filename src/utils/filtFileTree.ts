@@ -2,8 +2,7 @@ import { resolve } from 'path';
 import { readdirSync, statSync } from 'fs';
 import { TreeData } from 'element-ui/types/tree';
 import { getUserconfig } from '@/asserts/userconfig';
-import { readFile } from '.';
-import { stringify } from './stringify';
+import { readFileText } from './fileSystem';
 
 interface TreeMeta extends TreeData {
   path: string;
@@ -36,7 +35,7 @@ export function getTreeData(path: string, fileList: string[]): TreeMeta[] {
 export function getTreeDataDefault(): TreeMeta[] {
   const dir = getUserconfig().workDir;
   const path = resolve(dir, 'app_config', 'file-manage.json');
-  const array: Record<string, string>[] = readFile(path);
+  const array: Record<string, string>[] = readFileText(path);
   const fileList = array.map((item) => item.file);
 
   const data = getTreeData(dir, fileList);
