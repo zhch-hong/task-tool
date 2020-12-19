@@ -39,7 +39,6 @@ function updateBase(
   const taskList = workbookMap.get('task') as Record<string, string>[];
   const index = taskList.findIndex((t) => t.id.toString() === taskid);
   if (index !== -1) {
-    debugger;
     assign(taskList[index], data);
   }
 }

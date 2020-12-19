@@ -23,6 +23,8 @@ function addTemplateCol(sheet: Worksheet) {
   );
 }
 
+function descriptionColumn(sheet: Worksheet) {}
+
 function jsonToSheet(
   workbook: Workbook,
   json: Record<string, string>[],
@@ -68,7 +70,7 @@ export async function writeMapToExcel(workbookMap: WorkbookMap, path?: string) {
   const workbook = new Workbook();
   await workbook.xlsx.load(buffer);
 
-  addTemplateCol(getSheet(workbook, 'task')!);
+  const taskSheet = addTemplateCol(getSheet(workbook, 'task')!);
 
   setColumnKey(workbook);
 

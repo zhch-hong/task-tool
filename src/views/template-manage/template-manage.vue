@@ -25,7 +25,7 @@ import { v4 as uuid } from 'uuid';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
 import { Tree } from 'element-ui';
-import { TreeData, TreeNode, TreeProps } from 'element-ui/types/tree';
+import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { getUserconfig } from '@/asserts/userconfig';
 import {
   readExcelToMap,
@@ -34,12 +34,10 @@ import {
   writeMapToExcel,
   readFileText,
   sheet2json,
-  stringify,
   updateBase,
   updateProcess,
   updateSource,
 } from '@/utils';
-import { TemplateType } from '@/shims-vue';
 
 interface TreeMeta extends TreeData {
   uuid: string;
@@ -356,7 +354,7 @@ export default class TemplateManage extends Vue {
         const id: string = t.id;
         const type: string = t.type;
         const data: Record<string, any> = t.data;
-        debugger;
+
         if (type === 'base') updateBase(map, id, data);
         if (type === 'process') updateProcess(map, id, data);
         if (type === 'source') updateSource(map, id, data);
