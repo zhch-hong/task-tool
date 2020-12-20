@@ -28,21 +28,21 @@ export function writeExcel(data: Record<string, any>) {
 
   console.log(stringify(data));
 
-  // const workbookMap = store.getters.workbookMap();
-  // const base: Record<string, any> = data.base;
-  // const process: Record<string, any> = data.process;
-  // const source: Record<string, any>[] = data.source;
+  const workbookMap = store.getters.workbookMap();
+  const base: Record<string, any> = data.base;
+  const process: Record<string, any> = data.process;
+  const source: Record<string, any>[] = data.source;
 
-  // const { baseTempid, processTempid, sourceTempid } = data;
-  // const template = { baseTempid, processTempid, sourceTempid };
+  const { baseTempid, processTempid, sourceTempid } = data;
+  const template = { baseTempid, processTempid, sourceTempid };
 
-  // writeBase(workbookMap, base, template);
-  // writeProgress(workbookMap, process);
-  // writeSource(workbookMap, source);
+  writeBase(workbookMap, base, template);
+  writeProgress(workbookMap, process);
+  writeSource(workbookMap, source);
 
-  // store.commit('workbookMap', workbookMap);
+  store.commit('workbookMap', workbookMap);
 
-  // writeMapToExcel(workbookMap);
+  writeMapToExcel(workbookMap);
 }
 
 function writeBase(

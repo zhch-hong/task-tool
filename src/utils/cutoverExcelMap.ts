@@ -23,7 +23,13 @@ function addTemplateCol(sheet: Worksheet) {
   );
 }
 
-function descriptionColumn(sheet: Worksheet) {}
+function descriptionColumn(sheet: Worksheet) {
+  const headers: string[] = [];
+  sheet.getRow(1).eachCell((cell) => headers.push(cell.text));
+  if (headers.includes('|任务内容说明')) return;
+
+  sheet.getRow(1).splice(sheet.columnCount + 1, 0, '|任务内容说明');
+}
 
 function jsonToSheet(
   workbook: Workbook,
@@ -70,7 +76,11 @@ export async function writeMapToExcel(workbookMap: WorkbookMap, path?: string) {
   const workbook = new Workbook();
   await workbook.xlsx.load(buffer);
 
-  const taskSheet = addTemplateCol(getSheet(workbook, 'task')!);
+  const taskSheet = getSheet(workbook, 'task');
+  if (taskSheet) {
+    descriptionColumn(taskSheet);
+    addTemplateCol(taskSheet);
+  }
 
   setColumnKey(workbook);
 
@@ -88,7 +98,6 @@ export async function writeMapToExcel(workbookMap: WorkbookMap, path?: string) {
 
   const newWorkbook = new Workbook();
 
-  const taskSheet = getSheet(workbook, 'task');
   jsonToSheet(newWorkbook, taskList, taskSheet);
 
   const processSheet = getSheet(workbook, 'process_data');
