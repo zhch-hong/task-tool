@@ -8,34 +8,38 @@
       <el-button @click="pasteTask">粘贴</el-button>
       <el-button @click="doubleTask">复制</el-button>
     </div>
-    <el-table
-      v-loading="loading"
+    <vxe-table
       :data="tableData"
-      height="auto"
-      @selection-change="selectionChange"
+      :height="500"
+      show-overflow="title"
+      @checkbox-change="checkboxChange"
     >
-      <el-table-column type="selection" width="60"></el-table-column>
-      <el-table-column type="index" width="60"></el-table-column>
-      <el-table-column label="任务ID" prop="id" width="60"></el-table-column>
-      <el-table-column label="名称" prop="name"></el-table-column>
-      <el-table-column label="启用" prop="enable" width="60"></el-table-column>
-      <el-table-column
-        label="重置"
-        prop="is_reset"
+      <vxe-table-column type="seq" width="60"></vxe-table-column>
+      <vxe-table-column type="checkbox" width="60"></vxe-table-column>
+      <vxe-table-column field="id" title="ID" width="200"></vxe-table-column>
+      <vxe-table-column field="name" title="名称"></vxe-table-column>
+      <vxe-table-column
+        field="enable"
+        title="启用"
         width="60"
-      ></el-table-column>
-      <el-table-column label="获得类型" prop="own_type"></el-table-column>
-      <el-table-column label="任务枚举" prop="task_enum"></el-table-column>
-      <el-table-column
-        label="任务内容说明"
-        prop="任务内容说明"
-      ></el-table-column>
-      <el-table-column width="80">
-        <template #default="{ $index }">
-          <el-button size="mini" @click="updateRow($index)">修改</el-button>
+      ></vxe-table-column>
+      <vxe-table-column
+        field="is_reset"
+        title="重置"
+        width="60"
+      ></vxe-table-column>
+      <vxe-table-column field="own_type" title="类型"></vxe-table-column>
+      <vxe-table-column field="task_enum" title="枚举"></vxe-table-column>
+      <vxe-table-column
+        field="任务内容说明"
+        title="任务内容说明"
+      ></vxe-table-column>
+      <vxe-table-column width="100">
+        <template #default="{ rowIndex }">
+          <el-button size="mini" @click="updateRow(rowIndex)">修改</el-button>
         </template>
-      </el-table-column>
-    </el-table>
+      </vxe-table-column>
+    </vxe-table>
   </div>
 </template>
 <script lang="ts">
@@ -87,7 +91,8 @@ export default class EditFile extends Vue {
     this.$router.push('/edit-task');
   }
 
-  selectionChange(selection: Record<string, string>[]): void {
+  checkboxChange(data: Record<string, any>): void {
+    const selection: Record<string, string>[] = data.records;
     this.tableSelection = selection;
   }
 
@@ -238,10 +243,10 @@ export default class EditFile extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-.edit-file {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
+// .edit-file {
+//   height: 100%;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: flex-start;
+// }
 </style>

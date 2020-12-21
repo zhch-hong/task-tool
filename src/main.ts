@@ -2,7 +2,10 @@ import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
 import store from './store';
-import './plugins/element.ts';
+
+import './plugins/element-ui';
+import './plugins/vxe-table';
+
 import './styles/index.scss';
 
 import '@/asserts/initAppConfigFile';
