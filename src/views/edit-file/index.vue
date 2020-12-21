@@ -1,5 +1,5 @@
 <template>
-  <div class="edit-file">
+  <div>
     <div>
       <OpenFile />
       <el-button @click="refreshTable">刷新</el-button>
@@ -10,7 +10,7 @@
     </div>
     <vxe-table
       :data="tableData"
-      :height="500"
+      :height="tableHeight"
       show-overflow="title"
       @checkbox-change="checkboxChange"
     >
@@ -63,6 +63,10 @@ export default class EditFile extends Vue {
   loading = false;
 
   tableSelection: Record<string, string>[] = [];
+
+  get tableHeight(): number {
+    return this.$store.state.windowHeight - 64;
+  }
 
   created(): void {
     store.commit('observable', {
@@ -242,11 +246,3 @@ export default class EditFile extends Vue {
   }
 }
 </script>
-<style lang="scss" scoped>
-// .edit-file {
-//   height: 100%;
-//   display: flex;
-//   flex-direction: column;
-//   align-items: flex-start;
-// }
-</style>

@@ -15,7 +15,7 @@
         <span>{{ nameSlice(data) }}</span>
       </template>
     </el-tree>
-    <el-button @click="getCheckedNodes">getCheckedNodes</el-button>
+    <el-button type="primary" @click="getCheckedNodes">应用模板数据</el-button>
   </div>
 </template>
 <script lang="ts">

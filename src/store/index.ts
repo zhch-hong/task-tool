@@ -20,6 +20,7 @@ interface State {
   copyTaskList:
     | Record<string, Record<string, string> | Record<string, string>[]>[]
     | null;
+  windowHeight: number;
 }
 
 const state: State = {
@@ -30,6 +31,7 @@ const state: State = {
   workbook: null,
   workbookMap: new Map(),
   copyTaskList: null,
+  windowHeight: 800,
 };
 
 let lostTaskid: string[] = [];
@@ -153,6 +155,9 @@ export default new Vuex.Store({
     copyTaskList: (state, list) => {
       state.copyTaskList = list;
       runListener(state.observable, 'copyTaskList');
+    },
+    windowHeight: (state) => {
+      state.windowHeight = window.innerHeight;
     },
   },
   getters: {
