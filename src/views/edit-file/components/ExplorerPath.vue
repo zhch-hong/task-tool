@@ -4,14 +4,17 @@
   }}</span>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import store from '@/store';
+import { Component, Vue } from 'vue-property-decorator';
 import { shell } from 'electron';
 
 import { userConfig } from '@/asserts/userconfig';
 
 @Component
 export default class ExplorerPath extends Vue {
-  @Prop({ type: String, default: '' }) path!: string;
+  get path(): string {
+    return store.state.taskFilePath;
+  }
 
   get explorerpath(): string {
     return this.path.slice(userConfig.workDir.length + 1);

@@ -7,12 +7,12 @@
     />
     <div>
       <el-button @click="treeDialog = true">打开文件</el-button>
-      <el-button @click="readLastFile">刷新</el-button>
+      <el-button @click="refreshTable">刷新</el-button>
       <el-button @click="createTask">添加任务</el-button>
       <el-button @click="copySelection">拷贝</el-button>
       <el-button @click="pasteTask">粘贴</el-button>
       <el-button @click="doubleTask">复制</el-button>
-      <ExplorerPath :path="explorerPath" />
+      <ExplorerPath />
     </div>
     <vxe-table
       ref="vxeTable"
@@ -50,6 +50,7 @@
   </div>
 </template>
 <script lang="ts">
+import { watch } from 'fs';
 import { Component, Vue } from 'vue-property-decorator';
 
 import store from '@/store';
@@ -88,6 +89,7 @@ export default class EditFile extends Vue {
     readLastFile().then((path) => {
       this.explorerPath = path || '';
       this.refreshTable();
+      this.watchOpenedFile();
     });
   }
 
@@ -266,6 +268,15 @@ export default class EditFile extends Vue {
     });
     store.commit('workbookMap', workbookMap);
     writeMapToExcel(workbookMap);
+  }
+
+  watchOpenedFile(): void {
+    if (this.explorerPath) {
+      console.log('watchOpenedFile');
+      watch(this.explorerPath, (event, name) => {
+        console.log('文件被改动', event, name);
+      });
+    }
   }
 }
 </script>
