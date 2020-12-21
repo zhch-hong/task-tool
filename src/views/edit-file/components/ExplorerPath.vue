@@ -27,7 +27,7 @@ export default class ExplorerPath extends Vue {
 .explorer-path {
   margin-left: 20px;
   cursor: pointer;
-  color: #1b9de3;
+  color: #80ccff;
   &:hover {
     text-decoration-line: underline;
   }

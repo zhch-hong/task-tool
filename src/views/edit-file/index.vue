@@ -81,7 +81,7 @@ export default class EditFile extends Vue {
   tableSelection: Record<string, string>[] = [];
 
   get tableHeight(): number {
-    return this.$store.state.windowHeight - 64;
+    return this.$store.state.windowHeight - 32;
   }
 
   mounted(): void {
