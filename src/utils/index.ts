@@ -4,8 +4,8 @@ export { getTreeData, getTreeDataDefault } from './filtFileTree';
 export { propertySlice } from './propertySlice';
 export { sheet2json, workbook2map } from './sheetToJson';
 export { setColumnKey } from './setColumnKey';
-export { updateBase, updateProcess, updateSource } from './updateTask';
-export { readExcelToMap, writeMapToExcel } from './cutoverExcelMap';
+export { updateBase, updateProcess, updateSource } from './writeTask';
+export { readExcelToMap, writeMapToExcel } from './xlsxIO';
 
 /**
  * 删除现有的数据，递归删除

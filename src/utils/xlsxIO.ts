@@ -7,6 +7,10 @@ import { getUserconfig } from '@/asserts/userconfig';
 import { getSheet } from './likeSheet';
 import { setColumnKey } from './setColumnKey';
 
+/**
+ * 判断task工作表是否有模板id存储列，没有则添加
+ * @param sheet
+ */
 function addTemplateCol(sheet: Worksheet) {
   const array: string[] = [];
   sheet.getRow(1).eachCell((cell) => array.push(cell.text));
@@ -23,6 +27,10 @@ function addTemplateCol(sheet: Worksheet) {
   );
 }
 
+/**
+ * 判断task工作表是否存在任务内容说明列，没有则添加
+ * @param sheet
+ */
 function descriptionColumn(sheet: Worksheet) {
   const headers: string[] = [];
   sheet.getRow(1).eachCell((cell) => headers.push(cell.text));
@@ -31,6 +39,12 @@ function descriptionColumn(sheet: Worksheet) {
   sheet.getRow(1).splice(sheet.columnCount + 1, 0, '|任务内容说明');
 }
 
+/**
+ * 向一个工作簿中添加一个工作表，并填充指定数据
+ * @param workbook
+ * @param json
+ * @param sheet
+ */
 function jsonToSheet(
   workbook: Workbook,
   json: Record<string, string>[],

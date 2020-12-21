@@ -47,7 +47,7 @@ import { SheetName, WorkbookMap } from '@/shims-vue';
 import OpenFile from './components/OpenFile.vue';
 import { cloneDeep } from 'lodash';
 import { stringify } from '@/utils';
-import { writeMapToExcel } from '@/utils/cutoverExcelMap';
+import { writeMapToExcel } from '@/utils/xlsxIO';
 
 @Component({
   components: {
