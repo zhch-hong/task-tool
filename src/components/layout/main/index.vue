@@ -1,8 +1,8 @@
 <template>
   <main id="main">
-    <!-- <keep-alive include="EditFile"> -->
-    <router-view></router-view>
-    <!-- </keep-alive> -->
+    <keep-alive include="EditFile">
+      <router-view></router-view>
+    </keep-alive>
   </main>
 </template>
 <style lang="scss">

@@ -1,14 +1,21 @@
 <template>
   <div>
+    <FileTree
+      :visible="treeDialog"
+      @update:visible="treeDialog = false"
+      @refresh-table="refreshTable"
+    />
     <div>
-      <OpenFile />
-      <el-button @click="refreshTable">刷新</el-button>
+      <el-button @click="treeDialog = true">打开文件</el-button>
+      <el-button @click="readLastFile">刷新</el-button>
       <el-button @click="createTask">添加任务</el-button>
       <el-button @click="copySelection">拷贝</el-button>
       <el-button @click="pasteTask">粘贴</el-button>
       <el-button @click="doubleTask">复制</el-button>
+      <ExplorerPath :path="explorerPath" />
     </div>
     <vxe-table
+      ref="vxeTable"
       :data="tableData"
       :height="tableHeight"
       show-overflow="title"
@@ -48,33 +55,40 @@ import { Component, Vue } from 'vue-property-decorator';
 import store from '@/store';
 import { SheetName, WorkbookMap } from '@/shims-cust';
 
-import OpenFile from './components/OpenFile.vue';
 import { cloneDeep } from 'lodash';
 import { stringify } from '@/utils';
 import { writeMapToExcel } from '@/utils/xlsxIO';
+import { readLastFile } from '@/asserts/lastOpenFile';
+import { Table } from 'vxe-table';
+
+import ExplorerPath from './components/ExplorerPath.vue';
 
 @Component({
   components: {
-    OpenFile,
+    ExplorerPath,
+    FileTree: () => import('./components/FileTree.vue'),
   },
 })
 export default class EditFile extends Vue {
-  tableData: Record<string, string>[] = [];
-  loading = false;
+  $refs!: {
+    vxeTable: Table;
+  };
 
+  tableData: Record<string, string>[] = [];
+  treeDialog = false;
+  readLastFile = readLastFile;
+  explorerPath = '';
   tableSelection: Record<string, string>[] = [];
 
   get tableHeight(): number {
     return this.$store.state.windowHeight - 64;
   }
 
-  created(): void {
-    store.commit('observable', {
-      property: 'workbookMap',
-      componentName: this.$options.name,
-      method: this.refreshTable,
+  mounted(): void {
+    readLastFile().then((path) => {
+      this.explorerPath = path || '';
+      this.refreshTable();
     });
-    this.refreshTable();
   }
 
   createTask(): void {
@@ -85,7 +99,16 @@ export default class EditFile extends Vue {
     const workbookMap: WorkbookMap = store.getters.workbookMap();
     const taskList = workbookMap.get('task');
     if (taskList) {
-      this.tableData = cloneDeep(taskList);
+      try {
+        this.tableData = taskList;
+        this.$refs.vxeTable.syncData();
+      } catch (error) {
+        this.$notify.warning({
+          title: '刷新数据失败',
+          message: 'this.$refs.vxeTable is undefined',
+          position: 'bottom-right',
+        });
+      }
     }
   }
 

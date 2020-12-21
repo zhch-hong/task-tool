@@ -8,3 +8,5 @@ export function getUserconfig(): Record<string, any> {
 export function setUserconfig(data: Record<string, any>) {
   writeFileText(userdir, data);
 }
+
+export const userConfig = getUserconfig();
