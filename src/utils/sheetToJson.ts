@@ -1,4 +1,4 @@
-import { SheetName, WorkbookMap } from '@/shims-vue';
+import { SheetName, WorkbookMap } from '@/shims-cust';
 import { Workbook, Worksheet } from 'exceljs';
 import { v4 as uuid } from 'uuid';
 
@@ -21,7 +21,15 @@ export function sheet2json(sheet: Worksheet): Record<string, string>[] {
           if (typeof cell.value === 'boolean') {
             object[k] = cell.value;
           } else {
-            object[k] = cell.text || '';
+            if (
+              k === 'base_temp' ||
+              k === 'process_temp' ||
+              k === 'source_temp'
+            ) {
+              object[k] = cell.text.split('|')[0];
+            } else {
+              object[k] = cell.text || '';
+            }
           }
         }
       });

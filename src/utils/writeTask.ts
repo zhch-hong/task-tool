@@ -1,5 +1,5 @@
 import store from '@/store';
-import { WorkbookMap } from '@/shims-vue';
+import { WorkbookMap } from '@/shims-cust';
 import { assign } from 'lodash';
 import { deleteExisting } from '.';
 

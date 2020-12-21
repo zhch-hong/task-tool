@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { Workbook, Worksheet } from 'exceljs';
-import { WorkbookMap } from '@/shims-vue';
+import { WorkbookMap } from '@/shims-cust';
 import { workbook2map } from './sheetToJson';
 import { parseString2Number } from '@/utils';
 import { getUserconfig } from '@/asserts/userconfig';

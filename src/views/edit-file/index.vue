@@ -42,7 +42,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 
 import store from '@/store';
-import { SheetName, WorkbookMap } from '@/shims-vue';
+import { SheetName, WorkbookMap } from '@/shims-cust';
 
 import OpenFile from './components/OpenFile.vue';
 import { cloneDeep } from 'lodash';

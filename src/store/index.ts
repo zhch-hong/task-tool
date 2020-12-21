@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 import { Notification } from 'element-ui';
 
 import { userdir } from '@/asserts/userdir';
-import { SheetName, WorkbookMap } from '@/shims-vue';
+import { SheetName, WorkbookMap } from '@/shims-cust';
 
 Vue.use(Vuex);
 

@@ -2,6 +2,7 @@
   <fieldset>
     <legend>进度配置</legend>
     <TemplateOption
+      :uuid="template"
       template-type="process"
       @template-data="templateData"
       @template-uuid="(v) => $emit('template-uuid', v)"
@@ -64,6 +65,7 @@ export default class ProgressData extends Vue {
     progressLine: any;
   };
 
+  @Prop() template?: string;
   @Prop() processData!: Record<string, string> | null;
   @Prop({ type: Array, required: true }) awardData!: Record<string, string>[][];
 

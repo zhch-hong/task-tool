@@ -2,6 +2,7 @@
   <fieldset>
     <legend>基础信息</legend>
     <TemplateOption
+      :uuid="template"
       template-type="base"
       @template-data="templateData"
       @template-uuid="(v) => $emit('template-uuid', v)"
@@ -87,6 +88,7 @@ const form = {
 })
 export default class BaseData extends Vue {
   @Prop() baseData!: Record<string, string> | null;
+  @Prop() template?: string;
 
   form: Record<string, any> = cloneDeep(form);
   rules = {};

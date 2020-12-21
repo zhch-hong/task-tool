@@ -13,7 +13,7 @@
   </div>
 </template>
 <script lang="ts">
-import { TemplateType } from '@/shims-vue';
+import { TemplateType } from '@/shims-cust';
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
@@ -37,6 +37,7 @@ function writeTemplate(type: TemplateType, data: Record<string, any>[]): void {
 
 @Component
 export default class TemplateOption extends Vue {
+  @Prop() uuid?: string;
   @Prop({ type: String, required: true }) templateType!: TemplateType;
 
   templateValue = '';
@@ -45,6 +46,8 @@ export default class TemplateOption extends Vue {
 
   created(): void {
     this.templateList = readTemplate(this.templateType);
+
+    if (this.uuid) this.templateValue = this.uuid;
   }
 
   templateChange(value: string): void {

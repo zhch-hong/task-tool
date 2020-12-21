@@ -1,6 +1,6 @@
 import { Workbook, Worksheet } from 'exceljs';
 import { Notification } from 'element-ui';
-import { SheetName } from '@/shims-vue';
+import { SheetName } from '@/shims-cust';
 
 export function getSheet(
   workbook: Workbook,

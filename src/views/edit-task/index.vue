@@ -3,22 +3,25 @@
     <BaseData
       ref="baseDataRef"
       :base-data="baseData"
+      :template="propTemplate.base"
       @submit="baseDataSubmit"
-      @template-uuid="baseTempid"
+      @template-uuid="setBaseTempid"
     />
     <ProgressData
       ref="progressDataRef"
       :process-data="processData"
       :award-data="awardData"
+      :template="propTemplate.process"
       @submit="progressDataSubmit"
-      @template-uuid="processTempid"
+      @template-uuid="setProcessTempid"
     />
     <SourceData
       ref="sourceDataRef"
       :source-data="sourceData"
       :condition-data="conditionData"
+      :template="propTemplate.source"
       @submit="sourceDataSubmit"
-      @template-uuid="sourceTempid"
+      @template-uuid="setSourceTempid"
     />
     <el-button @click="handleSave" style="margin-top: 20px">保存</el-button>
   </div>
@@ -31,7 +34,7 @@ import { cloneDeep } from 'lodash';
 import store from '@/store';
 import { stringify } from '@/utils';
 import { writeExcel } from './utils/writeExcel';
-import { WorkbookMap } from '@/shims-vue';
+import { WorkbookMap } from '@/shims-cust';
 
 import BaseData from './components/BaseData.vue';
 import ProgressData from './components/ProgressData.vue';
@@ -63,6 +66,12 @@ export default class EditTask extends Vue {
 
   taskData: Record<string, any> = {};
 
+  propTemplate = {
+    base: '',
+    process: '',
+    source: '',
+  };
+
   created(): void {
     this.getUpdateTaskData();
   }
@@ -77,6 +86,8 @@ export default class EditTask extends Vue {
         (item) => item.id.toString() === id.toString()
       ) as Record<string, string>;
       this.baseData = taskJson;
+
+      this.setPropTemplate(taskJson);
 
       const { process_id } = taskJson;
       const processList = workbookMap.get('process_data') as Record<
@@ -123,6 +134,13 @@ export default class EditTask extends Vue {
     }
   }
 
+  setPropTemplate(data: Record<string, string>): void {
+    const { base_temp, process_temp, source_temp } = data;
+    if (base_temp) this.propTemplate.base = base_temp;
+    if (process_temp) this.propTemplate.process = process_temp;
+    if (source_temp) this.propTemplate.source = source_temp;
+  }
+
   async handleSave(): Promise<void> {
     this.$refs.baseDataRef.submit();
     this.$refs.progressDataRef.submit();
@@ -152,19 +170,16 @@ export default class EditTask extends Vue {
     this.taskData.source = cloneDeep(object);
   }
 
-  baseTempid(uuid: string): void {
+  setBaseTempid(uuid: string): void {
     this.taskData.baseTempid = uuid;
-    console.log('base uuid', uuid);
   }
 
-  processTempid(uuid: string): void {
+  setProcessTempid(uuid: string): void {
     this.taskData.processTempid = uuid;
-    console.log('process uuid', uuid);
   }
 
-  sourceTempid(uuid: string): void {
+  setSourceTempid(uuid: string): void {
     this.taskData.sourceTempid = uuid;
-    console.log('source uuid', uuid);
   }
 }
 </script>

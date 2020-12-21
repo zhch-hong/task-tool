@@ -2,7 +2,7 @@ import store from '@/store';
 
 import { deleteExisting, stringify } from '@/utils';
 import { writeMapToExcel } from '@/utils/xlsxIO';
-import { WorkbookMap } from '@/shims-vue';
+import { WorkbookMap } from '@/shims-cust';
 import { updateBase, updateProcess, updateSource } from '@/utils';
 
 // 从小到大缺失的id，供添加任务时使用

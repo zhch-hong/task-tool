@@ -2,6 +2,7 @@
   <fieldset>
     <legend>来源配置</legend>
     <TemplateOption
+      :uuid="template"
       template-type="source"
       @template-data="templateData"
       @template-uuid="(v) => $emit('template-uuid', v)"
@@ -51,6 +52,7 @@ const sourcetypeList: Record<string, any>[] = readFileText(filePath)[0]
   },
 })
 export default class SourceData extends Vue {
+  @Prop() template?: string;
   @Prop({ type: Array, required: true }) sourceData!: Record<string, string>[];
   @Prop({ type: Array, required: true }) conditionData!: Record<
     string,
