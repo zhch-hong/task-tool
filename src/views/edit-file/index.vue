@@ -16,7 +16,7 @@
     >
       <vxe-table-column type="seq" width="60"></vxe-table-column>
       <vxe-table-column type="checkbox" width="60"></vxe-table-column>
-      <vxe-table-column field="id" title="ID" width="200"></vxe-table-column>
+      <vxe-table-column field="id" title="ID" width="100"></vxe-table-column>
       <vxe-table-column field="name" title="名称"></vxe-table-column>
       <vxe-table-column
         field="enable"
