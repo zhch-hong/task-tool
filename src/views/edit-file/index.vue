@@ -50,8 +50,8 @@
   </div>
 </template>
 <script lang="ts">
-import { watch } from 'fs';
-import { Component, Vue } from 'vue-property-decorator';
+import { watch, FSWatcher } from 'fs';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 
 import store from '@/store';
 import { SheetName, WorkbookMap } from '@/shims-cust';
@@ -78,18 +78,32 @@ export default class EditFile extends Vue {
   tableData: Record<string, string>[] = [];
   treeDialog = false;
   readLastFile = readLastFile;
-  explorerPath = '';
   tableSelection: Record<string, string>[] = [];
+  /** 监听文件改动后的setTimeout */
+  watchFileTimer = -1;
+  /** 文件监视器 */
+  fileWatcher: FSWatcher | null = null;
+
+  get taskFilePath(): string {
+    return store.state.taskFilePath;
+  }
 
   get tableHeight(): number {
     return this.$store.state.windowHeight - 32;
   }
 
+  @Watch('taskFilePath', { immediate: true })
+  pathWatch(path: string): void {
+    this.watchOpenedFile(path);
+  }
+
   mounted(): void {
-    readLastFile().then((path) => {
-      this.explorerPath = path || '';
+    this.readLastExcel();
+  }
+
+  readLastExcel(): void {
+    readLastFile().then(() => {
       this.refreshTable();
-      this.watchOpenedFile();
     });
   }
 
@@ -102,8 +116,8 @@ export default class EditFile extends Vue {
     const taskList = workbookMap.get('task');
     if (taskList) {
       try {
-        this.tableData = taskList;
-        this.$refs.vxeTable.syncData();
+        this.tableData = cloneDeep(taskList);
+        this.$refs.vxeTable.updateData();
       } catch (error) {
         this.$notify.warning({
           title: '刷新数据失败',
@@ -270,13 +284,19 @@ export default class EditFile extends Vue {
     writeMapToExcel(workbookMap);
   }
 
-  watchOpenedFile(): void {
-    if (this.explorerPath) {
-      console.log('watchOpenedFile');
-      watch(this.explorerPath, (event, name) => {
-        console.log('文件被改动', event, name);
-      });
-    }
+  watchOpenedFile(path: string): void {
+    if (!path) return;
+
+    if (this.fileWatcher) this.fileWatcher.close();
+
+    this.fileWatcher = watch(path, () => {
+      if (this.watchFileTimer !== -1) {
+        clearTimeout(this.watchFileTimer);
+      }
+      this.watchFileTimer = window.setTimeout(() => {
+        this.readLastExcel();
+      }, 100);
+    });
   }
 }
 </script>
