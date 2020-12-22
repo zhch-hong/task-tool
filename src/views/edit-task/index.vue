@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="edit-task">
     <BaseData
       ref="baseDataRef"
       :base-data="baseData"
@@ -23,7 +23,14 @@
       @submit="sourceDataSubmit"
       @template-uuid="setSourceTempid"
     />
-    <el-button @click="handleSave" style="margin-top: 20px">保存</el-button>
+    <div style="text-align: right">
+      <el-button
+        type="primary"
+        @click="handleSave"
+        style="margin: 0 10px 20px 0"
+        >保存任务</el-button
+      >
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -183,3 +190,19 @@ export default class EditTask extends Vue {
   }
 }
 </script>
+<style lang="scss">
+#edit-task {
+  fieldset {
+    border-radius: 4px;
+    margin: 20px 10px;
+    margin-top: 0;
+    border-color: #f2f2f2;
+    legend {
+      padding: 0 6px;
+      margin-left: 5px;
+      font-weight: 600;
+      color: #404040;
+    }
+  }
+}
+</style>

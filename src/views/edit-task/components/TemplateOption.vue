@@ -1,6 +1,12 @@
 <template>
-  <div style="margin-bottom: 20px">
-    <el-select v-model="templateValue" @change="templateChange" clearable>
+  <div style="margin-bottom: 20px; margin-left: 100px">
+    <el-select
+      v-model="templateValue"
+      style="margin-right: 20px"
+      placeholder="使用模板数据"
+      @change="templateChange"
+      clearable
+    >
       <el-option
         v-for="temp in templateList"
         :key="temp.uuid"

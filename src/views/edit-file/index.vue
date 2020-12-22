@@ -43,7 +43,12 @@
       ></vxe-table-column>
       <vxe-table-column width="100">
         <template #default="{ rowIndex }">
-          <el-button size="mini" @click="updateRow(rowIndex)">修改</el-button>
+          <el-button
+            size="mini"
+            icon="el-icon-edit"
+            @click="updateRow(rowIndex)"
+            >修改</el-button
+          >
         </template>
       </vxe-table-column>
     </vxe-table>
