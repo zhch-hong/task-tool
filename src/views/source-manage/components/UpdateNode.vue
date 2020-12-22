@@ -1,10 +1,16 @@
 <template>
-  <el-dialog :visible.sync="visiblesync" @closed="closed">
-    <el-form ref="ruleForm" label-position="top" :model="form" :rules="rules">
-      <el-form-item prop="value">
+  <el-dialog
+    :visible.sync="visiblesync"
+    :close-on-click-modal="false"
+    :title="title"
+    @closed="closed"
+    width="25vw"
+  >
+    <el-form ref="ruleForm" :model="form" :rules="rules" label-width="80px">
+      <el-form-item label="字段值" prop="value">
         <el-input v-model="form.value"></el-input>
       </el-form-item>
-      <el-form-item prop="label">
+      <el-form-item label="字段说明" prop="label">
         <el-input v-model="form.label"></el-input>
       </el-form-item>
     </el-form>
@@ -33,6 +39,10 @@ export default class UpdateNode extends Vue {
   @Prop({ type: Object, required: true })
   node!: Record<string, string>;
   @PropSync('visible', { type: Boolean, required: true }) visiblesync!: boolean;
+
+  get title(): string {
+    return this.model === 'append' ? '添加字段' : '修改字段';
+  }
 
   @Watch('model')
   modelChange(): void {

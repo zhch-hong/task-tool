@@ -6,3 +6,11 @@ body {
 .el-menu {
   border-right: none;
 }
+
+/* Dialog */
+.el-dialog__title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #57585c;
+  letter-spacing: 1px;
+}

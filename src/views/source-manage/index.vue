@@ -1,39 +1,60 @@
 <template>
-  <div>
+  <div style="width: 500px; margin: 20px 0 0 20px">
+    <ul v-if="contentMenu" class="content-menu">
+      <!-- 根节点 -->
+      <template v-if="contentMenuType === 'root'">
+        <li @click.stop="appendChild">添加来源</li>
+        <li @click.stop="remove">删除所有来源</li>
+      </template>
+      <!-- 条件来源 -->
+      <template v-else-if="contentMenuType === 'source'">
+        <li @click.stop="update">编辑来源</li>
+        <li @click.stop="remove">删除来源</li>
+        <li @click.stop="appendChild">添加条件</li>
+      </template>
+      <!-- 条件名称 -->
+      <template v-else-if="contentMenuType === 'condition'">
+        <li @click.stop="update">编辑条件</li>
+        <li @click.stop="remove">删除条件</li>
+        <li @click.stop="appendChild">添加条件值</li>
+      </template>
+      <!-- 条件值 -->
+      <template v-else-if="contentMenuType === 'value'">
+        <li @click.stop="update">编辑条件值</li>
+      </template>
+    </ul>
+    <!-- <div ref="contentMenu" data-tippy-root>
+      <div class="tippy-box" data-placement="top">
+        <div class="tippy-content"></div>
+      </div>
+    </div> -->
     <el-tree
       :data="treeData"
-      node-key="id"
-      :highlight-current="true"
-      :default-expand-all="true"
-      draggable
+      :highlight-current="false"
+      :default-expand-all="false"
       @node-drop="nodeDrop"
+      @node-contextmenu="nodeContextmenu"
+      draggable
+      node-key="uuid"
     >
-      <span class="custom-tree-node" slot-scope="{ node, data }">
-        <span>{{ node.label }}</span>
-        <span style="margin-left: 20px">
-          <el-button
-            type="text"
-            size="mini"
-            @click.stop="() => appendChild(node, data)"
-          >
-            添加子级
-          </el-button>
-          <el-button
-            type="text"
-            size="mini"
-            @click.stop="() => remove(node, data)"
-          >
-            删除节点
-          </el-button>
-          <el-button
-            type="text"
-            size="mini"
-            @click.stop="() => update(node, data)"
-          >
-            编辑
-          </el-button>
-        </span>
-      </span>
+      <template #default="{ node, data }">
+        <span v-if="data.type === 'root'"
+          ><i class="el-icon-s-promotion" style="margin-right: 2px"></i
+          >{{ node.label }}</span
+        >
+        <span v-else-if="data.type === 'source'"
+          ><i class="el-icon-location" style="margin-right: 2px"></i
+          >{{ node.label }}</span
+        >
+        <span v-else-if="data.type === 'condition'"
+          ><i class="el-icon-s-operation" style="margin-right: 2px"></i
+          >{{ node.label }}</span
+        >
+        <span v-else
+          ><i class="el-icon-tickets" style="margin-right: 2px"></i
+          >{{ node.label }}</span
+        >
+      </template>
     </el-tree>
     <UpdateNode
       :model="model"
@@ -45,14 +66,23 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { resolve } from 'path';
+import { v4 as uuid } from 'uuid';
+
+import tippy, { followCursor, Instance } from 'tippy.js';
+import 'tippy.js/dist/tippy.css'; // optional for styling
 
 import { readFileText, writeFileText } from '@/utils/fileSystem';
 import { getUserconfig } from '@/asserts/userconfig';
 
 import UpdateNode from './components/UpdateNode.vue';
+
+interface TreeMeta extends TreeData {
+  uuid?: string;
+  type?: string;
+}
 
 const filePath = resolve(
   getUserconfig().workDir,
@@ -66,37 +96,71 @@ const filePath = resolve(
   },
 })
 export default class SourceManage extends Vue {
-  treeData: TreeData[] = [
-    {
-      id: 'root',
-      label: 'Root',
-      children: [],
-    },
-  ];
+  $refs!: {
+    contentMenu: HTMLUListElement;
+  };
+
+  treeData: TreeMeta[] = [];
   model: 'append' | 'update' = 'append';
   updateNode = false;
-  updateTreeNode: TreeNode<string, TreeData> | null = null;
-  updateTreeData: TreeData | null = {};
+  updateTreeNode: TreeNode<string, TreeMeta> | null = null;
+  updateTreeData: TreeMeta | null = {};
+
+  popperInstance: null | Instance = null;
+  contentMenu = false;
+  /** 当鼠标右键点击节点时，被点击的节点属于哪种类型，root source condition value */
+  contentMenuType = '';
+  contentMenuNode: TreeNode<string, TreeMeta> | null = null;
+  contentMenuData: TreeMeta | null = null;
+
+  @Watch('contentMenu')
+  async menuWatch(value: boolean): Promise<void> {
+    if (!value) {
+      if (this.popperInstance) {
+        await this.$nextTick();
+        this.popperInstance.destroy();
+        this.popperInstance = null;
+      }
+    }
+  }
 
   created(): void {
     this.loadTreeData();
   }
 
   loadTreeData(): void {
-    const array = readFileText(filePath);
-    if (array[0] && array[0].id === 'root') this.treeData = array;
-    else this.treeData[0].children = array;
+    const array: TreeMeta[] = readFileText(filePath);
+    let _data: TreeMeta[] = [
+      {
+        id: 'root',
+        label: '任务来源管理',
+        children: [],
+      },
+    ];
+    if (array[0] && array[0].id === 'root') {
+      _data = array;
+      _data[0].label = '任务来源管理';
+    } else {
+      _data[0].children = array;
+    }
+    this.validateTree(_data);
+    this.treeData = _data;
   }
 
-  appendChild(node: TreeNode<string, TreeData>, data: TreeData): void {
+  appendChild(): void {
+    const node = this.contentMenuNode;
+    const data = this.contentMenuData;
     this.model = 'append';
     this.updateTreeNode = node;
     this.updateTreeData = data;
     this.updateNode = true;
   }
 
-  update(node: TreeNode<string, TreeData>, data: TreeData): void {
-    if (data.id === 'root') return;
+  update(): void {
+    const node = this.contentMenuNode;
+    const data = this.contentMenuData;
+
+    if (data?.id === 'root') return;
 
     this.model = 'update';
     this.updateTreeNode = node;
@@ -104,17 +168,22 @@ export default class SourceManage extends Vue {
     this.updateNode = true;
   }
 
-  remove(node: TreeNode<string, TreeData>, data: TreeData): void {
-    if (data.id === 'root') return;
+  remove(): void {
+    const node = this.contentMenuNode;
+    const data = this.contentMenuData;
 
-    const parent = node.parent;
+    if (data?.id === 'root') return;
+
+    const parent = node?.parent;
     if (!parent) return;
 
     const children = parent.data.children || parent.data;
     if (!Array.isArray(children)) return;
 
-    const index = children.findIndex((d) => d.id === data.id);
+    const index = children.findIndex((d) => d.id === data?.id);
     children.splice(index, 1);
+
+    this.validateTree(this.treeData);
 
     writeFileText(filePath, this.treeData);
   }
@@ -129,7 +198,7 @@ export default class SourceManage extends Vue {
       };
       this.updateTreeData?.children?.push(node);
     } else {
-      const node: TreeData = {
+      const node: TreeMeta = {
         id: value,
         label: label,
         children: this.updateTreeData?.children,
@@ -140,16 +209,94 @@ export default class SourceManage extends Vue {
       }
     }
 
+    this.validateTree(this.treeData);
+
     writeFileText(filePath, this.treeData);
   }
 
   nodeDrop(
-    before: TreeNode<string, TreeData>,
-    after: TreeNode<string, TreeData>
+    before: TreeNode<string, TreeMeta>,
+    after: TreeNode<string, TreeMeta>
   ): void {
-    if (before.key === 'root' || after.key === 'root') {
+    if (before.level === 1 || after.level === 1) {
       this.loadTreeData();
     }
   }
+
+  validateTree(data: TreeMeta[], level = 1): void {
+    data.forEach((meta) => {
+      if (!meta.uuid) meta.uuid = uuid();
+      if (level === 1) {
+        if (!meta.type) meta.type = 'root';
+      } else if (level === 2) {
+        if (!meta.type) meta.type = 'source';
+      } else if (level === 3) {
+        if (!meta.type) meta.type = 'condition';
+      } else if (level === 4) {
+        if (!meta.type) meta.type = 'value';
+      }
+      if (meta.children && meta.children.length !== 0) {
+        this.validateTree(meta.children, level + 1);
+      }
+    });
+  }
+
+  async nodeContextmenu(
+    event: MouseEvent,
+    data: TreeMeta,
+    node: TreeNode<string, TreeMeta>
+  ): Promise<void> {
+    const target = event.target as HTMLElement;
+    this.contentMenuNode = node;
+    this.contentMenuData = data;
+
+    if (data.type) this.contentMenuType = data.type;
+
+    await this.$nextTick();
+    this.initPopper(target, event.offsetX, event.offsetY);
+    console.log(target, event.offsetX);
+  }
+
+  async initPopper(element: HTMLElement, x: number, y: number): Promise<void> {
+    this.contentMenu = true;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const vm = this;
+    this.popperInstance = tippy(element, {
+      content: this.$refs.contentMenu,
+      arrow: false,
+      followCursor: true,
+      interactive: true,
+      trigger: 'manual',
+      // theme: 'tomato',
+      placement: 'bottom-start',
+      plugins: [followCursor],
+      showOnCreate: true,
+      onHide() {
+        vm.contentMenu = false;
+      },
+    });
+  }
 }
 </script>
+<style lang="scss" scoped>
+.content-menu {
+  box-sizing: border-box;
+  min-width: 120px;
+  min-height: 150px;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.5);
+  z-index: 1;
+  background-color: #f2f2f2;
+  padding: 0;
+  list-style-type: none;
+  li {
+    padding: 2px 8px;
+    margin: 2px 0;
+    font-size: 12px;
+    cursor: default;
+    line-height: 1.8;
+    &:hover {
+      background-color: white;
+    }
+  }
+}
+</style>
