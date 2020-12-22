@@ -1,33 +1,5 @@
 <template>
   <div style="width: 500px; margin: 20px 0 0 20px">
-    <ul v-if="contentMenu" class="content-menu">
-      <!-- 根节点 -->
-      <template v-if="contentMenuType === 'root'">
-        <li @click.stop="appendChild">添加来源</li>
-        <li @click.stop="remove">删除所有来源</li>
-      </template>
-      <!-- 条件来源 -->
-      <template v-else-if="contentMenuType === 'source'">
-        <li @click.stop="update">编辑来源</li>
-        <li @click.stop="remove">删除来源</li>
-        <li @click.stop="appendChild">添加条件</li>
-      </template>
-      <!-- 条件名称 -->
-      <template v-else-if="contentMenuType === 'condition'">
-        <li @click.stop="update">编辑条件</li>
-        <li @click.stop="remove">删除条件</li>
-        <li @click.stop="appendChild">添加条件值</li>
-      </template>
-      <!-- 条件值 -->
-      <template v-else-if="contentMenuType === 'value'">
-        <li @click.stop="update">编辑条件值</li>
-      </template>
-    </ul>
-    <!-- <div ref="contentMenu" data-tippy-root>
-      <div class="tippy-box" data-placement="top">
-        <div class="tippy-content"></div>
-      </div>
-    </div> -->
     <el-tree
       :data="treeData"
       :highlight-current="false"
@@ -56,6 +28,35 @@
         >
       </template>
     </el-tree>
+    <div ref="data_tippy_root" data-tippy-root>
+      <div class="tippy-box" data-theme="tomato" data-placement="bottom">
+        <div class="tippy-content">
+          <ul class="content-menu">
+            <!-- 根节点 -->
+            <template v-if="contentMenuType === 'root'">
+              <li @click.stop="appendChild">添加来源</li>
+              <li @click.stop="remove">删除所有来源</li>
+            </template>
+            <!-- 条件来源 -->
+            <template v-else-if="contentMenuType === 'source'">
+              <li @click.stop="update">编辑来源</li>
+              <li @click.stop="remove">删除来源</li>
+              <li @click.stop="appendChild">添加条件</li>
+            </template>
+            <!-- 条件名称 -->
+            <template v-else-if="contentMenuType === 'condition'">
+              <li @click.stop="update">编辑条件</li>
+              <li @click.stop="remove">删除条件</li>
+              <li @click.stop="appendChild">添加条件值</li>
+            </template>
+            <!-- 条件值 -->
+            <template v-else-if="contentMenuType === 'value'">
+              <li @click.stop="update">编辑条件值</li>
+            </template>
+          </ul>
+        </div>
+      </div>
+    </div>
     <UpdateNode
       :model="model"
       :visible="updateNode"
@@ -97,7 +98,7 @@ const filePath = resolve(
 })
 export default class SourceManage extends Vue {
   $refs!: {
-    contentMenu: HTMLUListElement;
+    data_tippy_root: HTMLDivElement;
   };
 
   treeData: TreeMeta[] = [];
@@ -106,23 +107,10 @@ export default class SourceManage extends Vue {
   updateTreeNode: TreeNode<string, TreeMeta> | null = null;
   updateTreeData: TreeMeta | null = {};
 
-  popperInstance: null | Instance = null;
-  contentMenu = false;
   /** 当鼠标右键点击节点时，被点击的节点属于哪种类型，root source condition value */
   contentMenuType = '';
   contentMenuNode: TreeNode<string, TreeMeta> | null = null;
   contentMenuData: TreeMeta | null = null;
-
-  @Watch('contentMenu')
-  async menuWatch(value: boolean): Promise<void> {
-    if (!value) {
-      if (this.popperInstance) {
-        await this.$nextTick();
-        this.popperInstance.destroy();
-        this.popperInstance = null;
-      }
-    }
-  }
 
   created(): void {
     this.loadTreeData();
@@ -258,21 +246,19 @@ export default class SourceManage extends Vue {
   }
 
   async initPopper(element: HTMLElement, x: number, y: number): Promise<void> {
-    this.contentMenu = true;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const vm = this;
-    this.popperInstance = tippy(element, {
-      content: this.$refs.contentMenu,
+    tippy(element, {
       arrow: false,
-      followCursor: true,
+      followCursor: 'initial',
       interactive: true,
       trigger: 'manual',
-      // theme: 'tomato',
+      theme: 'tomato',
       placement: 'bottom-start',
       plugins: [followCursor],
       showOnCreate: true,
-      onHide() {
-        vm.contentMenu = false;
+      onShow(instance) {
+        instance.setContent(vm.$refs.data_tippy_root);
       },
     });
   }
@@ -281,7 +267,7 @@ export default class SourceManage extends Vue {
 <style lang="scss" scoped>
 .content-menu {
   box-sizing: border-box;
-  min-width: 120px;
+  max-width: 120px;
   min-height: 150px;
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.5);
   z-index: 1;
@@ -298,5 +284,11 @@ export default class SourceManage extends Vue {
       background-color: white;
     }
   }
+}
+</style>
+<style lang="scss">
+.tippy-box[data-theme~='tomato'] {
+  background-color: transparent;
+  color: inherit;
 }
 </style>
