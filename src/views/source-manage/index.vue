@@ -2,10 +2,11 @@
   <div style="width: 500px; margin: 20px 0 0 20px">
     <el-tree
       :data="treeData"
-      :highlight-current="false"
+      :highlight-current="true"
       :default-expand-all="false"
       @node-drop="nodeDrop"
       @node-contextmenu="nodeContextmenu"
+      ref="eltree"
       draggable
       node-key="uuid"
     >
@@ -15,7 +16,7 @@
           >{{ node.label }}</span
         >
         <span v-else-if="data.type === 'source'"
-          ><i class="el-icon-location" style="margin-right: 2px"></i
+          ><i class="el-icon-menu" style="margin-right: 2px"></i
           >{{ node.label }}</span
         >
         <span v-else-if="data.type === 'condition'"
@@ -28,35 +29,34 @@
         >
       </template>
     </el-tree>
-    <div ref="data_tippy_root" data-tippy-root>
-      <div class="tippy-box" data-theme="tomato" data-placement="bottom">
-        <div class="tippy-content">
-          <ul class="content-menu">
-            <!-- 根节点 -->
-            <template v-if="contentMenuType === 'root'">
-              <li @click.stop="appendChild">添加来源</li>
-              <li @click.stop="remove">删除所有来源</li>
-            </template>
-            <!-- 条件来源 -->
-            <template v-else-if="contentMenuType === 'source'">
-              <li @click.stop="update">编辑来源</li>
-              <li @click.stop="remove">删除来源</li>
-              <li @click.stop="appendChild">添加条件</li>
-            </template>
-            <!-- 条件名称 -->
-            <template v-else-if="contentMenuType === 'condition'">
-              <li @click.stop="update">编辑条件</li>
-              <li @click.stop="remove">删除条件</li>
-              <li @click.stop="appendChild">添加条件值</li>
-            </template>
-            <!-- 条件值 -->
-            <template v-else-if="contentMenuType === 'value'">
-              <li @click.stop="update">编辑条件值</li>
-            </template>
-          </ul>
-        </div>
+    <div data-tippy-root>
+      <div class="tippy-box" data-theme="tomato">
+        <div class="tippy-content"></div>
       </div>
     </div>
+    <ul ref="data_tippy_root" class="content-menu">
+      <!-- 根节点 -->
+      <template v-if="contentMenuType === 'root'">
+        <li @click.stop="appendChild">添加来源</li>
+        <li @click.stop="remove">删除所有来源</li>
+      </template>
+      <!-- 条件来源 -->
+      <template v-else-if="contentMenuType === 'source'">
+        <li @click.stop="update">编辑来源</li>
+        <li @click.stop="remove">删除来源</li>
+        <li @click.stop="appendChild">添加条件</li>
+      </template>
+      <!-- 条件名称 -->
+      <template v-else-if="contentMenuType === 'condition'">
+        <li @click.stop="update">编辑条件</li>
+        <li @click.stop="remove">删除条件</li>
+        <li @click.stop="appendChild">添加条件值</li>
+      </template>
+      <!-- 条件值 -->
+      <template v-else-if="contentMenuType === 'value'">
+        <li @click.stop="update">编辑条件值</li>
+      </template>
+    </ul>
     <UpdateNode
       :model="model"
       :visible="updateNode"
@@ -79,6 +79,7 @@ import { readFileText, writeFileText } from '@/utils/fileSystem';
 import { getUserconfig } from '@/asserts/userconfig';
 
 import UpdateNode from './components/UpdateNode.vue';
+import { Tree } from 'element-ui';
 
 interface TreeMeta extends TreeData {
   uuid?: string;
@@ -98,6 +99,7 @@ const filePath = resolve(
 })
 export default class SourceManage extends Vue {
   $refs!: {
+    eltree: Tree;
     data_tippy_root: HTMLDivElement;
   };
 
@@ -107,6 +109,7 @@ export default class SourceManage extends Vue {
   updateTreeNode: TreeNode<string, TreeMeta> | null = null;
   updateTreeData: TreeMeta | null = {};
 
+  tippyInstance: Instance | null = null;
   /** 当鼠标右键点击节点时，被点击的节点属于哪种类型，root source condition value */
   contentMenuType = '';
   contentMenuNode: TreeNode<string, TreeMeta> | null = null;
@@ -114,6 +117,11 @@ export default class SourceManage extends Vue {
 
   created(): void {
     this.loadTreeData();
+  }
+
+  mounted(): void {
+    // this.initPopper(document.body);
+    // this.tippyInstance?.destroy();
   }
 
   loadTreeData(): void {
@@ -142,6 +150,7 @@ export default class SourceManage extends Vue {
     this.updateTreeNode = node;
     this.updateTreeData = data;
     this.updateNode = true;
+    this.tippyInstance?.destroy();
   }
 
   update(): void {
@@ -154,6 +163,7 @@ export default class SourceManage extends Vue {
     this.updateTreeNode = node;
     this.updateTreeData = data;
     this.updateNode = true;
+    this.tippyInstance?.destroy();
   }
 
   remove(): void {
@@ -174,6 +184,7 @@ export default class SourceManage extends Vue {
     this.validateTree(this.treeData);
 
     writeFileText(filePath, this.treeData);
+    this.tippyInstance?.destroy();
   }
 
   submit(node: Record<string, string>): void {
@@ -182,6 +193,7 @@ export default class SourceManage extends Vue {
       const node = {
         id: value,
         label: label,
+        uuid: uuid(),
         children: [],
       };
       this.updateTreeData?.children?.push(node);
@@ -189,6 +201,7 @@ export default class SourceManage extends Vue {
       const node: TreeMeta = {
         id: value,
         label: label,
+        uuid: uuid(),
         children: this.updateTreeData?.children,
       };
       if (this.updateTreeNode) {
@@ -234,21 +247,24 @@ export default class SourceManage extends Vue {
     data: TreeMeta,
     node: TreeNode<string, TreeMeta>
   ): Promise<void> {
+    this.$refs.eltree.setCurrentNode(data);
+
     const target = event.target as HTMLElement;
     this.contentMenuNode = node;
     this.contentMenuData = data;
 
     if (data.type) this.contentMenuType = data.type;
+    this.$refs.data_tippy_root.style.display = 'block';
 
     await this.$nextTick();
-    this.initPopper(target, event.offsetX, event.offsetY);
-    console.log(target, event.offsetX);
+    this.initPopper(target);
   }
 
-  async initPopper(element: HTMLElement, x: number, y: number): Promise<void> {
+  async initPopper(element: HTMLElement): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const vm = this;
-    tippy(element, {
+    const _this = this;
+    this.tippyInstance = tippy(element, {
+      content: this.$refs.data_tippy_root,
       arrow: false,
       followCursor: 'initial',
       interactive: true,
@@ -257,8 +273,8 @@ export default class SourceManage extends Vue {
       placement: 'bottom-start',
       plugins: [followCursor],
       showOnCreate: true,
-      onShow(instance) {
-        instance.setContent(vm.$refs.data_tippy_root);
+      onHide() {
+        _this.$refs.data_tippy_root.style.display = 'none';
       },
     });
   }
@@ -266,9 +282,10 @@ export default class SourceManage extends Vue {
 </script>
 <style lang="scss" scoped>
 .content-menu {
+  display: none;
   box-sizing: border-box;
-  max-width: 120px;
-  min-height: 150px;
+  min-width: 150px;
+  min-height: 180px;
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.5);
   z-index: 1;
   background-color: #f2f2f2;
@@ -277,13 +294,16 @@ export default class SourceManage extends Vue {
   li {
     padding: 2px 8px;
     margin: 2px 0;
-    font-size: 12px;
+    font-size: 14px;
     cursor: default;
     line-height: 1.8;
     &:hover {
       background-color: white;
     }
   }
+}
+div[data-tippy-root] {
+  display: none;
 }
 </style>
 <style lang="scss">
