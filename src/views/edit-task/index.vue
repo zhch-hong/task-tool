@@ -200,6 +200,7 @@ export default class EditTask extends Vue {
     legend {
       padding: 0 6px;
       margin-left: 5px;
+      font-size: 17px;
       font-weight: 600;
       color: #404040;
     }
