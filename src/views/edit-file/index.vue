@@ -99,7 +99,7 @@ export default class EditFile extends Vue {
 
   @Watch('taskFilePath', { immediate: true })
   pathWatch(path: string): void {
-    this.watchOpenedFile(path);
+    // this.watchOpenedFile(path);
   }
 
   mounted(): void {

@@ -25,6 +25,7 @@
     />
     <div style="text-align: right">
       <el-button
+        :loading="loading"
         type="primary"
         @click="handleSave"
         style="margin: 0 10px 20px 0"
@@ -65,6 +66,7 @@ export default class EditTask extends Vue {
     sourceDataRef: any;
   };
 
+  loading = false;
   baseData: Record<string, string> | null = {};
   processData: Record<string, string> | null = null;
   awardData: Record<string, string>[][] = [];
@@ -149,20 +151,18 @@ export default class EditTask extends Vue {
   }
 
   async handleSave(): Promise<void> {
+    this.loading = true;
+    await this.$nextTick();
     this.$refs.baseDataRef.submit();
     this.$refs.progressDataRef.submit();
     this.$refs.sourceDataRef.submit();
     await this.$nextTick();
     writeExcel(this.taskData);
-    this.$notify({
-      title: '提示',
-      message: '保存成功',
-      type: 'success',
-      position: 'bottom-right',
-    });
-    setTimeout(() => {
+    setTimeout(async () => {
+      this.loading = false;
+      await this.$nextTick();
       this.$router.push('/edit-file');
-    }, 2000);
+    }, 500);
   }
 
   baseDataSubmit(object: Record<string, any>): void {
