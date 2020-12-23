@@ -15,16 +15,26 @@
       <ExplorerPath />
     </div>
     <vxe-table
-      ref="vxeTable"
       :data="tableData"
       :height="tableHeight"
+      :highlight-current-row="true"
+      :checkbox-config="{ range: true, reserve: true }"
+      row-id="uuid"
       show-overflow="title"
-      @checkbox-change="checkboxChange"
-      @checkbox-all="checkboxChange"
+      ref="vxeTable"
     >
       <vxe-table-column type="seq" width="60"></vxe-table-column>
-      <vxe-table-column type="checkbox" width="60"></vxe-table-column>
-      <vxe-table-column field="id" title="ID" width="100"></vxe-table-column>
+      <vxe-table-column
+        type="checkbox"
+        width="60"
+        align="center"
+      ></vxe-table-column>
+      <vxe-table-column
+        field="id"
+        title="ID"
+        width="100"
+        align="center"
+      ></vxe-table-column>
       <vxe-table-column field="name" title="名称"></vxe-table-column>
       <vxe-table-column
         field="enable"
@@ -142,17 +152,16 @@ export default class EditFile extends Vue {
     this.$router.push('/edit-task');
   }
 
-  checkboxChange(data: Record<string, never>): void {
-    const selection: Record<string, string>[] = data.records;
-    this.tableSelection = selection;
-  }
-
   doubleTask(): void {
     this.copySelection();
     this.pasteTask();
   }
 
   copySelection(): void {
+    const checkList = this.$refs.vxeTable.getCheckboxRecords();
+    // console.log(stringify(checkList));
+    // if (this.tableHeight !== 0) return;
+    this.tableSelection = checkList;
     const idList = this.tableSelection.map((task) => task.id);
     if (idList.length === 0) {
       this.$message.info('请勾选需要拷贝的任务');
