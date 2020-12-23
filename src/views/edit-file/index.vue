@@ -20,6 +20,7 @@
       :height="tableHeight"
       show-overflow="title"
       @checkbox-change="checkboxChange"
+      @checkbox-all="checkboxChange"
     >
       <vxe-table-column type="seq" width="60"></vxe-table-column>
       <vxe-table-column type="checkbox" width="60"></vxe-table-column>
@@ -99,7 +100,7 @@ export default class EditFile extends Vue {
 
   @Watch('taskFilePath', { immediate: true })
   pathWatch(path: string): void {
-    // this.watchOpenedFile(path);
+    this.watchOpenedFile(path);
   }
 
   mounted(): void {
@@ -122,7 +123,9 @@ export default class EditFile extends Vue {
     if (taskList) {
       try {
         this.tableData = cloneDeep(taskList);
-        this.$refs.vxeTable.updateData();
+        if (this.$refs.vxeTable) {
+          this.$refs.vxeTable.updateData();
+        }
       } catch (error) {
         this.$notify.warning({
           title: '刷新数据失败',
@@ -139,7 +142,7 @@ export default class EditFile extends Vue {
     this.$router.push('/edit-task');
   }
 
-  checkboxChange(data: Record<string, any>): void {
+  checkboxChange(data: Record<string, never>): void {
     const selection: Record<string, string>[] = data.records;
     this.tableSelection = selection;
   }
@@ -295,6 +298,7 @@ export default class EditFile extends Vue {
     if (this.fileWatcher) this.fileWatcher.close();
 
     this.fileWatcher = watch(path, () => {
+      if (!this.$refs.vxeTable) return;
       if (this.watchFileTimer !== -1) {
         clearTimeout(this.watchFileTimer);
       }
