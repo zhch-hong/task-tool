@@ -113,6 +113,9 @@ export default class EditFile extends Vue {
   /** 最后一次取消勾选的数据行，用于按住shift键连续取消时的开头位置 */
   lastUnChecked: Record<string, never> | null = null;
 
+  /** 表格刷新数据后需要执行的函数 */
+  afterRefreshTable: (() => void) | null = null;
+
   get taskFilePath(): string {
     return store.state.taskFilePath;
   }
@@ -156,6 +159,10 @@ export default class EditFile extends Vue {
         this.tableData = cloneDeep(taskList);
         if (this.$refs.vxeTable) {
           this.$refs.vxeTable.updateData();
+
+          if (this.afterRefreshTable) {
+            this.afterRefreshTable();
+          }
         }
       } catch (error) {
         this.$notify.warning({
@@ -241,8 +248,6 @@ export default class EditFile extends Vue {
     }
 
     store.commit('copyTaskList', stringify(copyList));
-
-    this.$message.success('拷贝成功');
   }
 
   getAwardList(award: string): Record<string, string>[] | undefined {
@@ -319,7 +324,36 @@ export default class EditFile extends Vue {
       }
     });
     store.commit('workbookMap', workbookMap);
+    this.afterRefreshTable = this.afterPasteTask;
     writeMapToExcel(workbookMap);
+  }
+
+  /**
+   * 复制粘贴任务数据后，将滚动条自动滚动到底部
+   * 并选中复制的任务
+   */
+  afterPasteTask(): void {
+    const copyTaskList = store.state.copyTaskList;
+    if (copyTaskList && copyTaskList.length !== 0) {
+      const length = copyTaskList.length;
+      const scrollIndex = this.tableData.length - length;
+
+      // 将粘贴的任务设置为勾选状态
+      const rows: RowInfo[] = [];
+      for (let index = scrollIndex; index < this.tableData.length; index++) {
+        const element = this.tableData[index];
+        rows.push(element);
+      }
+      this.$refs.vxeTable.setCheckboxRow(rows, true).then(() => {
+        // 滚动到粘贴第一个任务的位置
+        const row = this.$refs.vxeTable.getData(scrollIndex - 1);
+        setTimeout(() => {
+          this.$refs.vxeTable.scrollToRow(row).then(() => {
+            this.afterRefreshTable = null;
+          });
+        }, 500);
+      });
+    }
   }
 
   watchOpenedFile(path: string): void {
