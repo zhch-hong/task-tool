@@ -18,7 +18,16 @@
       :data="tableData"
       :height="tableHeight"
       :highlight-current-row="true"
-      :checkbox-config="{ range: true, reserve: true }"
+      :row-key="true"
+      :checkbox-config="{ range: true }"
+      :keyboard-config="{
+        isArrow: true,
+        isChecked: false,
+        isEnter: false,
+        isTab: false,
+      }"
+      @checkbox-change="checkboxChange"
+      @keydown="tableKeydown"
       row-id="uuid"
       show-overflow="title"
       ref="vxeTable"
@@ -76,7 +85,7 @@ import { cloneDeep } from 'lodash';
 import { stringify } from '@/utils';
 import { writeMapToExcel } from '@/utils/xlsxIO';
 import { readLastFile } from '@/asserts/lastOpenFile';
-import { Table } from 'vxe-table';
+import { InterceptorKeydownParams, RowInfo, Table } from 'vxe-table';
 
 import ExplorerPath from './components/ExplorerPath.vue';
 
@@ -99,6 +108,10 @@ export default class EditFile extends Vue {
   watchFileTimer = -1;
   /** 文件监视器 */
   fileWatcher: FSWatcher | null = null;
+  /** 最后一次勾选的数据行，用于按住shift键连选时的开头位置 */
+  lastChecked: Record<string, never> | null = null;
+  /** 最后一次取消勾选的数据行，用于按住shift键连续取消时的开头位置 */
+  lastUnChecked: Record<string, never> | null = null;
 
   get taskFilePath(): string {
     return store.state.taskFilePath;
@@ -315,6 +328,63 @@ export default class EditFile extends Vue {
         this.readLastExcel();
       }, 100);
     });
+  }
+
+  tableKeydown(event: InterceptorKeydownParams): void {
+    const $event: KeyboardEvent = event.$event;
+    $event.preventDefault();
+    $event.stopPropagation();
+
+    if ($event.code === 'Space') {
+      const $table = event.$table;
+      const row = $table.getCurrentRecord();
+      $table.toggleCheckboxRow(row);
+    }
+  }
+
+  checkboxChange(data: Record<string, never>): void {
+    const checked: boolean = data.checked;
+    if (checked) {
+      if (this.lastChecked) {
+        const event: MouseEvent = data.$event;
+        if (event.shiftKey) {
+          const rowIndex: number = data.rowIndex;
+          const rowIndexLast: number = this.lastChecked.rowIndex;
+          const max = Math.max(rowIndex, rowIndexLast);
+          const min = Math.min(rowIndex, rowIndexLast);
+          const rows: RowInfo[] = [];
+          for (let index = min; index <= max; index++) {
+            const row = this.$refs.vxeTable.getData(index);
+            rows.push(row);
+          }
+          this.$refs.vxeTable.setCheckboxRow(rows, true);
+        } else {
+          this.lastChecked = data;
+        }
+      } else {
+        this.lastChecked = data;
+      }
+    } else {
+      if (this.lastUnChecked) {
+        const event: MouseEvent = data.$event;
+        if (event.shiftKey && event.altKey) {
+          const rowIndex: number = data.rowIndex;
+          const rowIndexLast: number = this.lastUnChecked.rowIndex;
+          const max = Math.max(rowIndex, rowIndexLast);
+          const min = Math.min(rowIndex, rowIndexLast);
+          const rows: RowInfo[] = [];
+          for (let index = min; index <= max; index++) {
+            const row = this.$refs.vxeTable.getData(index);
+            rows.push(row);
+          }
+          this.$refs.vxeTable.setCheckboxRow(rows, false);
+        } else {
+          this.lastUnChecked = data;
+        }
+      } else {
+        this.lastUnChecked = data;
+      }
+    }
   }
 }
 </script>
