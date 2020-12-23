@@ -6,12 +6,12 @@
       @refresh-table="refreshTable"
     />
     <div>
-      <el-button @click="treeDialog = true">打开文件</el-button>
-      <el-button @click="refreshTable">刷新</el-button>
-      <el-button @click="createTask">添加任务</el-button>
-      <el-button @click="copySelection">拷贝</el-button>
-      <el-button @click="pasteTask">粘贴</el-button>
-      <el-button @click="doubleTask">复制</el-button>
+      <el-button @click="treeDialog = true" title="Ctrl+O">打开文件</el-button>
+      <el-button @click="refreshTable" title="F5">刷新</el-button>
+      <el-button @click="createTask" title="Ctrl+N">添加任务</el-button>
+      <el-button @click="copySelection" title="Ctrl+C">拷贝</el-button>
+      <el-button @click="pasteTask" title="Ctrl+V">粘贴</el-button>
+      <el-button @click="doubleTask" title="Ctrl+D">复制</el-button>
       <ExplorerPath />
     </div>
     <vxe-table
@@ -77,15 +77,15 @@
 <script lang="ts">
 import { watch, FSWatcher } from 'fs';
 import { Component, Vue, Watch } from 'vue-property-decorator';
+import { cloneDeep } from 'lodash';
+import { InterceptorKeydownParams, RowInfo, Table } from 'vxe-table';
+import { bind, unbind } from 'mousetrap';
 
 import store from '@/store';
 import { SheetName, WorkbookMap } from '@/shims-cust';
-
-import { cloneDeep } from 'lodash';
 import { stringify } from '@/utils';
 import { writeMapToExcel } from '@/utils/xlsxIO';
 import { readLastFile } from '@/asserts/lastOpenFile';
-import { InterceptorKeydownParams, RowInfo, Table } from 'vxe-table';
 
 import ExplorerPath from './components/ExplorerPath.vue';
 
@@ -126,8 +126,16 @@ export default class EditFile extends Vue {
     this.watchOpenedFile(path);
   }
 
+  created(): void {
+    this.bindKeyboard();
+  }
+
   mounted(): void {
     this.readLastExcel();
+  }
+
+  beforeDestroy(): void {
+    this.unBindKeyboard();
   }
 
   readLastExcel(): void {
@@ -385,6 +393,66 @@ export default class EditFile extends Vue {
         this.lastUnChecked = data;
       }
     }
+  }
+
+  bindKeyboard(): void {
+    bind(
+      'ctrl+o',
+      () => {
+        this.treeDialog = true;
+        return false;
+      },
+      'keydown'
+    );
+    bind(
+      'f5',
+      () => {
+        this.refreshTable();
+        return false;
+      },
+      'keydown'
+    );
+    bind(
+      'ctrl+n',
+      () => {
+        this.createTask();
+        return false;
+      },
+      'keydown'
+    );
+    bind(
+      'ctrl+c',
+      () => {
+        this.copySelection();
+        return false;
+      },
+      'keydown'
+    );
+    bind(
+      'ctrl+v',
+      () => {
+        this.pasteTask();
+        return false;
+      },
+      'keydown'
+    );
+    bind(
+      'ctrl+d',
+      () => {
+        this.doubleTask();
+        return false;
+      },
+      'keydown'
+    );
+  }
+
+  unBindKeyboard(): void {
+    unbind('ctrl+o', 'keydown');
+    unbind('f5', 'keydown');
+    unbind('ctrl+n', 'keydown');
+    unbind('ctrl+c', 'keydown');
+    unbind('ctrl+v', 'keydown');
+    unbind('ctrl+d', 'keydown');
   }
 }
 </script>
