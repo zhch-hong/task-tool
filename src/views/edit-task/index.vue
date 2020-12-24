@@ -26,8 +26,9 @@
     <div style="text-align: right">
       <el-button
         :loading="loading"
-        type="primary"
         @click="handleSave"
+        title="Ctrl+S"
+        type="primary"
         style="margin: 0 10px 20px 0"
         >保存任务</el-button
       >
@@ -38,6 +39,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { NavigationGuardNext, Route } from 'vue-router';
 import { cloneDeep } from 'lodash';
+import { bind, unbind } from 'mousetrap';
 
 import store from '@/store';
 import { stringify } from '@/utils';
@@ -83,6 +85,11 @@ export default class EditTask extends Vue {
 
   created(): void {
     this.getUpdateTaskData();
+    this.bindKeyboard();
+  }
+
+  beforeDestroy(): void {
+    this.unBindKeyboard();
   }
 
   getUpdateTaskData(): void {
@@ -160,8 +167,6 @@ export default class EditTask extends Vue {
     writeExcel(this.taskData);
     setTimeout(async () => {
       this.loading = false;
-      await this.$nextTick();
-      this.$router.push('/edit-file');
     }, 500);
   }
 
@@ -187,6 +192,21 @@ export default class EditTask extends Vue {
 
   setSourceTempid(uuid: string): void {
     this.taskData.sourceTempid = uuid;
+  }
+
+  bindKeyboard(): void {
+    bind(
+      'ctrl+s',
+      () => {
+        this.handleSave();
+        return false;
+      },
+      'keydown'
+    );
+  }
+
+  unBindKeyboard(): void {
+    unbind('ctrl+s', 'keydown');
   }
 }
 </script>
