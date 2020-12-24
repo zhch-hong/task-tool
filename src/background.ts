@@ -1,9 +1,11 @@
 'use strict';
 
-import { app, protocol, BrowserWindow } from 'electron';
+import { app, protocol, BrowserWindow, Menu } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
+// Menu.setApplicationMenu(null);
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -26,6 +28,7 @@ function createWindow() {
         .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
       enableRemoteModule: true,
     },
+    frame: false,
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {

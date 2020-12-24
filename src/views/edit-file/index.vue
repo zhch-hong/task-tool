@@ -121,7 +121,7 @@ export default class EditFile extends Vue {
   }
 
   get tableHeight(): number {
-    return this.$store.state.windowHeight - 32;
+    return this.$store.state.windowHeight - 62;
   }
 
   @Watch('taskFilePath', { immediate: true })

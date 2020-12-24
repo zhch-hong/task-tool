@@ -19,7 +19,12 @@ export default class Layout extends Vue {}
 </script>
 <style lang="scss">
 #layout {
-  height: 100vh;
+  position: absolute;
+  top: 30px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   display: flex;
+  overflow: auto;
 }
 </style>
