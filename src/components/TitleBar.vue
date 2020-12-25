@@ -1,6 +1,7 @@
 <template>
   <div style="-webkit-app-region: drag" class="title-bar">
-    <ul class="do-window">
+    <div class="app-icon"></div>
+    <ul style="-webkit-app-region: no-drag" class="do-window">
       <li class="min-size" @click.stop="minSize"></li>
       <li
         :class="[isMax ? 'nor-size' : 'max-size']"
@@ -56,7 +57,6 @@ export default class TitleBar extends Vue {
   box-shadow: #dcdfe6 0 0 1px 0;
   // background-image: linear-gradient(to bottom, #dcdfe6, #fff);
   .do-window {
-    -webkit-app-region: no-drag;
     position: absolute;
     height: 100%;
     right: 0;
@@ -103,5 +103,11 @@ export default class TitleBar extends Vue {
   &:hover {
     background-color: #ff471a !important;
   }
+}
+.app-icon {
+  display: inline-block;
+  height: 100%;
+  width: 30px;
+  background: no-repeat url('../assets/icon_32.png') center/60%;
 }
 </style>
