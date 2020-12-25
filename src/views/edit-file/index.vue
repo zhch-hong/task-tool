@@ -1,10 +1,6 @@
 <template>
   <div>
-    <FileTree
-      :visible="treeDialog"
-      @update:visible="treeDialog = false"
-      @refresh-table="refreshTable"
-    />
+    <FileTree :visible="treeDialog" @update:visible="treeDialog = false" />
     <div>
       <el-button @click="treeDialog = true" title="Ctrl+O">打开文件</el-button>
       <el-button @click="refreshTable" title="F5">刷新</el-button>
@@ -124,17 +120,14 @@ export default class EditFile extends Vue {
     return this.$store.state.windowHeight - 62;
   }
 
-  @Watch('taskFilePath', { immediate: true })
-  pathWatch(path: string): void {
-    this.watchOpenedFile(path);
-  }
-
-  created(): void {
-    this.bindKeyboard();
-  }
+  // @Watch('taskFilePath', { immediate: true })
+  // pathWatch(path: string): void {
+  //   this.watchOpenedFile(path);
+  // }
 
   mounted(): void {
-    this.readLastExcel();
+    this.refreshTable();
+    this.bindKeyboard();
   }
 
   beforeDestroy(): void {
@@ -152,13 +145,28 @@ export default class EditFile extends Vue {
   }
 
   refreshTable(): void {
+    console.log(1);
+
     const workbookMap: WorkbookMap = store.getters.workbookMap();
+    if (workbookMap.size === 0) {
+      console.log(2);
+
+      this.readLastExcel();
+      return;
+    }
+    console.log(3);
+
     const taskList = workbookMap.get('task');
+    console.log(4);
+
     if (taskList) {
       try {
         this.tableData = cloneDeep(taskList);
+        console.log(5);
+
         if (this.$refs.vxeTable) {
           this.$refs.vxeTable.updateData();
+          console.log(6);
 
           if (this.afterRefreshTable) {
             this.afterRefreshTable();
@@ -356,21 +364,21 @@ export default class EditFile extends Vue {
     }
   }
 
-  watchOpenedFile(path: string): void {
-    if (!path) return;
+  // watchOpenedFile(path: string): void {
+  //   if (!path) return;
 
-    if (this.fileWatcher) this.fileWatcher.close();
+  //   if (this.fileWatcher) this.fileWatcher.close();
 
-    this.fileWatcher = watch(path, () => {
-      if (!this.$refs.vxeTable) return;
-      if (this.watchFileTimer !== -1) {
-        clearTimeout(this.watchFileTimer);
-      }
-      this.watchFileTimer = window.setTimeout(() => {
-        this.readLastExcel();
-      }, 100);
-    });
-  }
+  //   this.fileWatcher = watch(path, () => {
+  //     if (!this.$refs.vxeTable) return;
+  //     if (this.watchFileTimer !== -1) {
+  //       clearTimeout(this.watchFileTimer);
+  //     }
+  //     this.watchFileTimer = window.setTimeout(() => {
+  //       this.readLastExcel();
+  //     }, 100);
+  //   });
+  // }
 
   tableKeydown(event: InterceptorKeydownParams): void {
     const $event: KeyboardEvent = event.$event;

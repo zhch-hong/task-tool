@@ -88,8 +88,6 @@ export default class FileTree extends Vue {
       store.commit('taskFilePath', path);
       store.commit('workbookMap', map);
 
-      this.$emit('refresh-table');
-
       this.visiblesync = false;
     });
   }
