@@ -88,7 +88,9 @@ import ExplorerPath from './components/ExplorerPath.vue';
 @Component({
   components: {
     ExplorerPath,
-    FileTree: () => import('./components/FileTree.vue'),
+    FileTree: (resolve) => {
+      require(['./components/FileTree.vue'], resolve);
+    },
   },
 })
 export default class EditFile extends Vue {
@@ -125,7 +127,8 @@ export default class EditFile extends Vue {
   //   this.watchOpenedFile(path);
   // }
 
-  mounted(): void {
+  async mounted(): Promise<void> {
+    await this.$nextTick();
     this.refreshTable();
     this.bindKeyboard();
   }
@@ -145,32 +148,24 @@ export default class EditFile extends Vue {
   }
 
   refreshTable(): void {
-    console.log(1);
-
     const workbookMap: WorkbookMap = store.getters.workbookMap();
     if (workbookMap.size === 0) {
-      console.log(2);
-
       this.readLastExcel();
       return;
     }
-    console.log(3);
 
     const taskList = workbookMap.get('task');
-    console.log(4);
 
     if (taskList) {
       try {
         this.tableData = cloneDeep(taskList);
-        console.log(5);
 
         if (this.$refs.vxeTable) {
-          this.$refs.vxeTable.updateData();
-          console.log(6);
-
-          if (this.afterRefreshTable) {
-            this.afterRefreshTable();
-          }
+          this.$refs.vxeTable.updateData().then(() => {
+            if (this.afterRefreshTable) {
+              this.afterRefreshTable();
+            }
+          });
         }
       } catch (error) {
         this.$notify.warning({
@@ -195,7 +190,6 @@ export default class EditFile extends Vue {
 
   copySelection(): void {
     const checkList = this.$refs.vxeTable.getCheckboxRecords();
-    // console.log(stringify(checkList));
     // if (this.tableHeight !== 0) return;
     this.tableSelection = checkList;
     const idList = this.tableSelection.map((task) => task.id);

@@ -43,10 +43,7 @@ export default class FileTree extends Vue {
   };
 
   mounted(): void {
-    new Promise<void>((resolve) => {
-      this.refresh();
-      resolve();
-    });
+    this.refresh();
   }
 
   refresh(): void {
@@ -60,11 +57,8 @@ export default class FileTree extends Vue {
   }
 
   setLastOpenFilePath(path: string): void {
-    new Promise<void>((resolve) => {
-      userConfig.lastOpenFile = path;
-      writeFileText(userdir, userConfig);
-      resolve();
-    });
+    userConfig.lastOpenFile = path;
+    writeFileText(userdir, userConfig);
   }
 
   nodeClick(data: TreeMeta): void {
