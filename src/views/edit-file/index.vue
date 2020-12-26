@@ -1,6 +1,10 @@
 <template>
   <div>
-    <FileTree :visible="treeDialog" @update:visible="treeDialog = false" />
+    <FileTree
+      :visible="treeDialog"
+      @update:visible="treeDialog = false"
+      @update:table="refreshTable"
+    />
     <div>
       <el-button @click="treeDialog = true" title="Ctrl+O">打开文件</el-button>
       <el-button @click="refreshTable" title="F5">刷新</el-button>
@@ -128,6 +132,7 @@ export default class EditFile extends Vue {
   // }
 
   async mounted(): Promise<void> {
+    // 这里加上$nextTick，不然路由跳转的等待时间会大大加长，表格渲染很慢，暂时不知道什么原因
     await this.$nextTick();
     this.refreshTable();
     this.bindKeyboard();

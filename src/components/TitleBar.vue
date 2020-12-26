@@ -108,6 +108,6 @@ export default class TitleBar extends Vue {
   display: inline-block;
   height: 100%;
   width: 30px;
-  background: no-repeat url('../assets/icon_32.png') center/60%;
+  background: no-repeat url('../assets/icon_32.png') center/55%;
 }
 </style>
