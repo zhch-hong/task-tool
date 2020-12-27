@@ -80,6 +80,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import { cloneDeep } from 'lodash';
 import { InterceptorKeydownParams, RowInfo, Table } from 'vxe-table';
 import { bind, unbind } from 'mousetrap';
+import { v4 as uuid } from 'uuid';
 
 import store from '@/store';
 import { SheetName, WorkbookMap } from '@/shims-cust';
@@ -125,11 +126,6 @@ export default class EditFile extends Vue {
   get tableHeight(): number {
     return this.$store.state.windowHeight - 62;
   }
-
-  // @Watch('taskFilePath', { immediate: true })
-  // pathWatch(path: string): void {
-  //   this.watchOpenedFile(path);
-  // }
 
   async mounted(): Promise<void> {
     // 这里加上$nextTick，不然路由跳转的等待时间会大大加长，表格渲染很慢，暂时不知道什么原因
@@ -195,6 +191,8 @@ export default class EditFile extends Vue {
 
   copySelection(): void {
     const checkList = this.$refs.vxeTable.getCheckboxRecords();
+    console.log('拷贝任务数量', checkList.length);
+
     // if (this.tableHeight !== 0) return;
     this.tableSelection = checkList;
     const idList = this.tableSelection.map((task) => task.id);
@@ -255,6 +253,7 @@ export default class EditFile extends Vue {
     }
 
     store.commit('copyTaskList', stringify(copyList));
+    console.log('拷贝完成，提交vuex');
   }
 
   getAwardList(award: string): Record<string, string>[] | undefined {
@@ -269,6 +268,8 @@ export default class EditFile extends Vue {
 
   pasteTask(): void {
     let copyTaskList = store.state.copyTaskList;
+    console.log('粘贴任务数量', copyTaskList?.length);
+
     copyTaskList = cloneDeep(copyTaskList);
     if (!copyTaskList) {
       this.$message.info('尚未拷贝任务');
@@ -318,6 +319,13 @@ export default class EditFile extends Vue {
           });
         });
 
+        // 复制的任务数据需要为每一条赋新的uuid
+        taskjson.uuid = uuid();
+        processjson.uuid = uuid();
+        sourcejson.forEach((s) => (s.uuid = uuid()));
+        conditionjson.forEach((c) => (c.uuid = uuid()));
+        awardjson.forEach((a) => (a.uuid = uuid()));
+
         const taskList = workbookMap.get('task');
         if (taskList) taskList.push(taskjson);
         const processList = workbookMap.get('process_data');
@@ -331,8 +339,12 @@ export default class EditFile extends Vue {
       }
     });
     store.commit('workbookMap', workbookMap);
+    console.log('粘贴完成，刷新表格数据');
+
+    this.refreshTable();
     this.afterRefreshTable = this.afterPasteTask;
-    writeMapToExcel(workbookMap);
+    // 延迟写入，不影响表格重绘
+    setTimeout(writeMapToExcel, 1000, workbookMap);
   }
 
   /**
@@ -362,22 +374,6 @@ export default class EditFile extends Vue {
       });
     }
   }
-
-  // watchOpenedFile(path: string): void {
-  //   if (!path) return;
-
-  //   if (this.fileWatcher) this.fileWatcher.close();
-
-  //   this.fileWatcher = watch(path, () => {
-  //     if (!this.$refs.vxeTable) return;
-  //     if (this.watchFileTimer !== -1) {
-  //       clearTimeout(this.watchFileTimer);
-  //     }
-  //     this.watchFileTimer = window.setTimeout(() => {
-  //       this.readLastExcel();
-  //     }, 100);
-  //   });
-  // }
 
   tableKeydown(event: InterceptorKeydownParams): void {
     const $event: KeyboardEvent = event.$event;
