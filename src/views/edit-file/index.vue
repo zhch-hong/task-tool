@@ -138,6 +138,7 @@ export default Vue.extend({
     this.refreshTable();
     this.bindKeyboard();
     this.setTableScroll();
+    (this.$refs.vxeTable as Table).focus();
   },
 
   beforeRouteLeave(to, from, next): void {
