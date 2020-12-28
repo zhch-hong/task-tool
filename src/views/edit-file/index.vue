@@ -7,7 +7,7 @@
     />
     <div>
       <el-button @click="treeDialog = true" title="Ctrl+O">打开文件</el-button>
-      <el-button @click="refreshTable" title="F5">刷新</el-button>
+      <el-button @click="readLastExcel" title="F5">刷新</el-button>
       <el-button @click="createTask" title="Ctrl+N">添加任务</el-button>
       <el-button @click="copySelection" title="Ctrl+C">拷贝</el-button>
       <el-button @click="pasteTask" title="Ctrl+V">粘贴</el-button>
@@ -191,7 +191,6 @@ export default class EditFile extends Vue {
 
   copySelection(): void {
     const checkList = this.$refs.vxeTable.getCheckboxRecords();
-    console.log('拷贝任务数量', checkList.length);
 
     // if (this.tableHeight !== 0) return;
     this.tableSelection = checkList;
@@ -219,7 +218,9 @@ export default class EditFile extends Vue {
           string,
           Record<string, string> | Record<string, string>[]
         > = {};
-        const task = taskjson.find((item) => item.id === id);
+        const task = taskjson.find(
+          (item) => item.id.toString() === id.toString()
+        );
         if (task) {
           object['task'] = task;
 
@@ -253,7 +254,6 @@ export default class EditFile extends Vue {
     }
 
     store.commit('copyTaskList', stringify(copyList));
-    console.log('拷贝完成，提交vuex');
   }
 
   getAwardList(award: string): Record<string, string>[] | undefined {
@@ -268,7 +268,6 @@ export default class EditFile extends Vue {
 
   pasteTask(): void {
     let copyTaskList = store.state.copyTaskList;
-    console.log('粘贴任务数量', copyTaskList?.length);
 
     copyTaskList = cloneDeep(copyTaskList);
     if (!copyTaskList) {
@@ -283,12 +282,14 @@ export default class EditFile extends Vue {
     const sourceid = store.getters.sourceid;
     const conditionid = store.getters.conditionid;
     const awardid = store.getters.awardid;
+
     copyTaskList.forEach((copyTask) => {
       const taskjson = copyTask.task as Record<string, string>;
       const processjson = copyTask.process as Record<string, string>;
       const sourcejson = copyTask.source as Record<string, string>[];
       const conditionjson = copyTask.condition as Record<string, string>[];
       const awardjson = copyTask.awards as Record<string, string>[];
+
       if (taskjson && processjson && sourcejson && conditionjson && awardjson) {
         taskjson.id = taskid();
 
@@ -327,6 +328,7 @@ export default class EditFile extends Vue {
         awardjson.forEach((a) => (a.uuid = uuid()));
 
         const taskList = workbookMap.get('task');
+
         if (taskList) taskList.push(taskjson);
         const processList = workbookMap.get('process_data');
         if (processList) processList.push(processjson);
@@ -339,7 +341,6 @@ export default class EditFile extends Vue {
       }
     });
     store.commit('workbookMap', workbookMap);
-    console.log('粘贴完成，刷新表格数据');
 
     this.refreshTable();
     this.afterRefreshTable = this.afterPasteTask;
