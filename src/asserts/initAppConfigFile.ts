@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 
+import './setWorkdir';
 import { getUserconfig } from '@/asserts/userconfig';
 
 const workDir: string = getUserconfig().workDir;
