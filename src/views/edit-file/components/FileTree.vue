@@ -43,7 +43,7 @@ export default class FileTree extends Vue {
   };
 
   mounted(): void {
-    this.refresh();
+    setTimeout(this.refresh, 1000);
   }
 
   refresh(): void {

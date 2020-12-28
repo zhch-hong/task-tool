@@ -1,10 +1,5 @@
 <template>
   <div>
-    <FileTree
-      :visible="treeDialog"
-      @update:visible="treeDialog = false"
-      @update:table="refreshTable"
-    />
     <div>
       <el-button @click="treeDialog = true" title="Ctrl+O">打开文件</el-button>
       <el-button @click="readLastExcel" title="F5">刷新</el-button>
@@ -72,6 +67,12 @@
         </template>
       </vxe-table-column>
     </vxe-table>
+
+    <FileTree
+      :visible="treeDialog"
+      @update:visible="treeDialog = false"
+      @update:table="refreshTable"
+    />
   </div>
 </template>
 <script lang="ts">
@@ -95,11 +96,7 @@ export default Vue.extend({
   components: {
     ExplorerPath,
     // eslint-disable-next-line vue/no-unused-components
-    FileTree: (resolve) => {
-      setTimeout(() => {
-        require(['./components/FileTree.vue'], resolve);
-      }, 1500);
-    },
+    FileTree: () => import('./components/FileTree.vue'),
   },
   data() {
     return {
