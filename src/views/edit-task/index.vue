@@ -1,37 +1,40 @@
 <template>
   <div id="edit-task">
-    <BaseData
-      ref="baseDataRef"
-      :base-data="baseData"
-      :template="propTemplate.base"
-      @submit="baseDataSubmit"
-      @template-uuid="setBaseTempid"
-    />
-    <ProgressData
-      ref="progressDataRef"
-      :process-data="processData"
-      :award-data="awardData"
-      :template="propTemplate.process"
-      @submit="progressDataSubmit"
-      @template-uuid="setProcessTempid"
-    />
-    <SourceData
-      ref="sourceDataRef"
-      :source-data="sourceData"
-      :condition-data="conditionData"
-      :template="propTemplate.source"
-      @submit="sourceDataSubmit"
-      @template-uuid="setSourceTempid"
-    />
-    <div style="text-align: right">
+    <div style="margin-bottom: 10px">
       <el-button
         :loading="loading"
         @click="handleSave"
         title="Ctrl+S"
         type="primary"
-        style="margin: 0 10px 20px 0"
         >保存任务</el-button
       >
+      <el-button @click="$router.push('/edit-file')">返回</el-button>
+    </div>
+    <div style="flex: 1; overflow: auto">
+      <BaseData
+        ref="baseDataRef"
+        :base-data="baseData"
+        :template="propTemplate.base"
+        @submit="baseDataSubmit"
+        @template-uuid="setBaseTempid"
+      />
+      <ProgressData
+        ref="progressDataRef"
+        :process-data="processData"
+        :award-data="awardData"
+        :template="propTemplate.process"
+        @submit="progressDataSubmit"
+        @template-uuid="setProcessTempid"
+      />
+      <SourceData
+        ref="sourceDataRef"
+        :source-data="sourceData"
+        :condition-data="conditionData"
+        :template="propTemplate.source"
+        @submit="sourceDataSubmit"
+        @template-uuid="setSourceTempid"
+      />
+      <div style="height: 80px"></div>
     </div>
   </div>
 </template>
@@ -212,6 +215,10 @@ export default class EditTask extends Vue {
 </script>
 <style lang="scss">
 #edit-task {
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
   fieldset {
     border-radius: 4px;
     margin: 20px 10px;
