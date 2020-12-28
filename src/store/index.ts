@@ -2,7 +2,6 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import { Workbook } from 'exceljs';
 import { cloneDeep } from 'lodash';
-
 import { Notification } from 'element-ui';
 
 import { userdir } from '@/asserts/userdir';
@@ -21,6 +20,7 @@ interface State {
     | Record<string, Record<string, string> | Record<string, string>[]>[]
     | null;
   windowHeight: number;
+  taskTableScroll: Record<string, number> | null;
 }
 
 const state: State = {
@@ -32,6 +32,7 @@ const state: State = {
   workbookMap: new Map(),
   copyTaskList: null,
   windowHeight: 800,
+  taskTableScroll: null,
 };
 
 let lostTaskid: string[] = [];
@@ -159,6 +160,7 @@ export default new Vuex.Store({
     windowHeight: (state) => {
       state.windowHeight = window.innerHeight;
     },
+    taskTableScroll: (state, value) => (state.taskTableScroll = value),
   },
   getters: {
     workbookMap(state) {
