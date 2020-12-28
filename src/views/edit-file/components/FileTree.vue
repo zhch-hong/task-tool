@@ -63,14 +63,12 @@ export default class FileTree extends Vue {
 
   nodeClick(data: TreeMeta): void {
     const path = data.path;
-
-    this.setLastOpenFilePath(path);
-
     const stat = statSync(path);
 
     if (stat.isDirectory()) {
       return;
     }
+    this.setLastOpenFilePath(path);
 
     const wb = new Workbook();
     const buffer = readFileSync(path);
