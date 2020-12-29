@@ -76,7 +76,6 @@
   </div>
 </template>
 <script lang="ts">
-import { FSWatcher } from 'fs';
 import Vue from 'vue';
 import { cloneDeep } from 'lodash';
 import { InterceptorKeydownParams, RowInfo, Table } from 'vxe-table';
@@ -104,15 +103,10 @@ export default Vue.extend({
       treeDialog: false,
       readLastFile: readLastFile,
       tableSelection: [] as Record<string, string>[],
-      /** 监听文件改动后的setTimeout */
-      watchFileTimer: -1,
-      /** 文件监视器 */
-      fileWatcher: null as FSWatcher | null,
       /** 最后一次勾选的数据行，用于按住shift键连选时的开头位置 */
       lastChecked: null as Record<string, never> | null,
       /** 最后一次取消勾选的数据行，用于按住shift键连续取消时的开头位置 */
       lastUnChecked: null as Record<string, never> | null,
-
       /** 表格刷新数据后需要执行的函数 */
       afterRefreshTable: null as (() => Promise<void>) | null,
     };

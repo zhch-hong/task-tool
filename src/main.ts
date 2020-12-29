@@ -7,6 +7,7 @@ import store from './store';
 
 import './plugins/element-ui';
 import './plugins/vxe-table';
+import './plugins/progress-bar';
 
 import '@/asserts/initAppConfigFile';
 
