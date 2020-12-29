@@ -380,7 +380,9 @@ export default Vue.extend({
           }
           (this.$refs.vxeTable as Table).setCheckboxRow(rows, true).then(() => {
             // 滚动到粘贴第一个任务的位置
-            const row = (this.$refs.vxeTable as Table).getData(scrollIndex - 1);
+            const row = (this.$refs.vxeTable as Table).getData(
+              this.tableData.length - 1
+            );
             setTimeout(() => {
               (this.$refs.vxeTable as Table).scrollToRow(row).then(() => {
                 resolve();
