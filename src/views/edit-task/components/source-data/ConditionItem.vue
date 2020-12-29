@@ -42,7 +42,6 @@
   </div>
 </template>
 <script lang="ts">
-import { stringify } from '@/utils';
 import { cloneDeep } from 'lodash';
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 
@@ -89,6 +88,14 @@ export default class ConditionItem extends Vue {
 
   async created(): Promise<void> {
     Object.assign(this.conditionForm, this.conditionItem);
+
+    // judge_type可能为string或number，如2或'2'
+    // 但下拉框的value为number，所以这里转一下
+    if (this.conditionForm.judge_type) {
+      Object.assign(this.conditionForm, {
+        judge_type: parseInt(this.conditionForm.judge_type),
+      });
+    }
   }
 
   emitCondition(): void {
