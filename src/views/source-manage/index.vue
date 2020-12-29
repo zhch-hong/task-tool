@@ -11,7 +11,9 @@
       node-key="uuid"
     >
       <template #default="{ node, data }">
-        <span v-if="data.type === 'root'"
+        <NodeItem :tree-node="node" :tree-data="data" />
+
+        <!-- <span v-if="data.type === 'root'"
           ><i class="el-icon-s-promotion" style="margin-right: 2px"></i
           >{{ node.label }}</span
         >
@@ -26,7 +28,7 @@
         <span v-else
           ><i class="el-icon-tickets" style="margin-right: 2px"></i
           >{{ node.label }}</span
-        >
+        > -->
       </template>
     </el-tree>
     <div data-tippy-root>
@@ -71,6 +73,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
+import { Tree } from 'element-ui';
 
 import tippy, { followCursor, Instance } from 'tippy.js';
 import 'tippy.js/dist/tippy.css'; // optional for styling
@@ -79,7 +82,7 @@ import { readFileText, writeFileText } from '@/utils/fileSystem';
 import { getUserconfig } from '@/asserts/userconfig';
 
 import UpdateNode from './components/UpdateNode.vue';
-import { Tree } from 'element-ui';
+import NodeItem from './components/NodeItem.vue';
 
 interface TreeMeta extends TreeData {
   uuid?: string;
@@ -95,6 +98,7 @@ const filePath = resolve(
 @Component({
   components: {
     UpdateNode,
+    NodeItem,
   },
 })
 export default class SourceManage extends Vue {
@@ -247,6 +251,8 @@ export default class SourceManage extends Vue {
     data: TreeMeta,
     node: TreeNode<string, TreeMeta>
   ): Promise<void> {
+    console.log('====');
+
     this.$refs.eltree.setCurrentNode(data);
 
     const target = event.target as HTMLElement;
