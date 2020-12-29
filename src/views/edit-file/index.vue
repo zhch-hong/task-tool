@@ -84,8 +84,7 @@ import { v4 as uuid } from 'uuid';
 
 import store from '@/store';
 import { SheetName, WorkbookMap } from '@/shims-cust';
-import { stringify } from '@/utils';
-import { writeMapToExcel } from '@/utils/xlsxIO';
+import { stringify, writeMapToExcel } from '@/utils';
 import { readLastFile } from '@/asserts/lastOpenFile';
 
 import ExplorerPath from './components/ExplorerPath.vue';

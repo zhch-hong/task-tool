@@ -6,6 +6,7 @@ import { parseString2Number } from '@/utils';
 import { getUserconfig } from '@/asserts/userconfig';
 import { getSheet } from './likeSheet';
 import { setColumnKey } from './setColumnKey';
+import { MessageBox } from 'element-ui';
 
 /**
  * 判断task工作表是否有模板id存储列，没有则添加
@@ -77,56 +78,98 @@ export async function readExcelToMap(path: string): Promise<WorkbookMap> {
   return workbook2map(workbook);
 }
 
-export async function writeMapToExcel(workbookMap: WorkbookMap, path?: string) {
-  if (!path) {
-    const object: Record<string, string> = getUserconfig();
-    const { lastOpenFile } = object;
-    path = lastOpenFile;
-  }
+function _writeMapToExcel(workbookMap: WorkbookMap, path?: string) {
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise<void>(async (resolve, reject) => {
+    if (!path) {
+      const object: Record<string, string> = getUserconfig();
+      const { lastOpenFile } = object;
+      path = lastOpenFile;
+    }
 
-  if (!path) return;
+    if (!path) {
+      reject('无效文件路径');
+      return;
+    }
 
-  const buffer = readFileSync(path);
-  const workbook = new Workbook();
-  await workbook.xlsx.load(buffer);
+    const buffer = readFileSync(path);
+    const workbook = new Workbook();
 
-  const taskSheet = getSheet(workbook, 'task');
-  if (taskSheet) {
-    descriptionColumn(taskSheet);
-    addTemplateCol(taskSheet);
-  }
+    try {
+      await workbook.xlsx.load(buffer);
+    } catch (error) {
+      reject(error);
+      return;
+    }
 
-  setColumnKey(workbook);
+    const taskSheet = getSheet(workbook, 'task');
+    if (taskSheet) {
+      descriptionColumn(taskSheet);
+      addTemplateCol(taskSheet);
+    }
 
-  const taskList = workbookMap.get('task') as Record<string, string>[];
-  const processList = workbookMap.get('process_data') as Record<
-    string,
-    string
-  >[];
-  const sourceList = workbookMap.get('source') as Record<string, string>[];
-  const conditionList = workbookMap.get('condition') as Record<
-    string,
-    string
-  >[];
-  const awardList = workbookMap.get('award_data') as Record<string, string>[];
+    setColumnKey(workbook);
 
-  const newWorkbook = new Workbook();
+    const taskList = workbookMap.get('task') as Record<string, string>[];
+    const processList = workbookMap.get('process_data') as Record<
+      string,
+      string
+    >[];
+    const sourceList = workbookMap.get('source') as Record<string, string>[];
+    const conditionList = workbookMap.get('condition') as Record<
+      string,
+      string
+    >[];
+    const awardList = workbookMap.get('award_data') as Record<string, string>[];
 
-  jsonToSheet(newWorkbook, taskList, taskSheet);
+    const newWorkbook = new Workbook();
 
-  const processSheet = getSheet(workbook, 'process_data');
-  jsonToSheet(newWorkbook, processList, processSheet);
+    jsonToSheet(newWorkbook, taskList, taskSheet);
 
-  const sourceSheet = getSheet(workbook, 'source');
-  jsonToSheet(newWorkbook, sourceList, sourceSheet);
+    const processSheet = getSheet(workbook, 'process_data');
+    jsonToSheet(newWorkbook, processList, processSheet);
 
-  const conditionSheet = getSheet(workbook, 'condition');
-  jsonToSheet(newWorkbook, conditionList, conditionSheet);
+    const sourceSheet = getSheet(workbook, 'source');
+    jsonToSheet(newWorkbook, sourceList, sourceSheet);
 
-  const awardSheet = getSheet(workbook, 'award_data');
-  jsonToSheet(newWorkbook, awardList, awardSheet);
+    const conditionSheet = getSheet(workbook, 'condition');
+    jsonToSheet(newWorkbook, conditionList, conditionSheet);
 
-  newWorkbook.xlsx.writeBuffer().then((buffer) => {
-    writeFileSync(path!, new Uint8Array(buffer));
+    const awardSheet = getSheet(workbook, 'award_data');
+    jsonToSheet(newWorkbook, awardList, awardSheet);
+
+    newWorkbook.xlsx.writeBuffer().then((buffer) => {
+      try {
+        writeFileSync(path!, new Uint8Array(buffer));
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  });
+}
+
+export function writeMapToExcel(map: WorkbookMap, path?: string) {
+  return new Promise<void>((resolve, reject) => {
+    _writeMapToExcel(map, path)
+      .then(() => {
+        resolve();
+      })
+      .catch(() => {
+        MessageBox({
+          title: '保存失败',
+          message: '文件被占用，请关闭占用程序后再保存',
+          type: 'warning',
+          confirmButtonText: '已关闭，保存',
+        })
+          .then(() => {
+            writeMapToExcel(map, path)
+              .then(() => resolve())
+              .catch(() => reject());
+          })
+          .catch(() => {
+            resolve();
+          });
+      });
   });
 }
