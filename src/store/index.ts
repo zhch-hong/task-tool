@@ -68,11 +68,7 @@ function setLostid(map: Map<SheetName, Record<string, string>[]>) {
   maxAwardid = award.max;
 }
 
-function getLostid(
-  map: Map<SheetName, Record<string, string>[]>,
-  name: SheetName,
-  key: string
-) {
+function getLostid(map: WorkbookMap, name: SheetName, key: string) {
   const workbook = map;
   const sheetName = name;
   const sheet = workbook.get(sheetName);
@@ -87,6 +83,11 @@ function getLostid(
   }
 
   let existing: number[] = sheet.map((item) => parseInt(item[key]));
+
+  // 长度为0说明一条数据也没有，设置一个默认ID
+  if (existing.length === 0) {
+    existing.push(0);
+  }
 
   existing = [...new Set(existing)];
   existing.sort((a, b) => a - b);
