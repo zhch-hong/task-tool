@@ -1,4 +1,5 @@
 import store from '@/store';
+import { MessageBox } from 'element-ui';
 
 import { deleteExisting, stringify, writeMapToExcel } from '@/utils';
 import { WorkbookMap } from '@/shims-cust';
@@ -14,6 +15,64 @@ let updateTaskid: string | number = '';
 /** 操作模式，是修改任务，还是添加任务 */
 let activeModel: 'update' | 'create' = 'update';
 
+function validateTaskid(id?: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const workbookMap: WorkbookMap = store.getters.workbookMap();
+    const list = workbookMap.get('task');
+    if (list) {
+      if (activeModel === 'create') {
+        if (id) {
+          const task = list.find(
+            (item) => item.id.toString() === id.toString()
+          );
+          if (task) {
+            MessageBox({
+              title: '重复任务ID',
+              message: `任务<strong>【${id}】</strong>已存在，继续执行可能会出现无法预料的数据错误，请确认！`,
+              type: 'error',
+              dangerouslyUseHTMLString: true,
+              closeOnClickModal: false,
+            })
+              .then(() => resolve())
+              .catch(reject);
+          } else {
+            resolve();
+          }
+        } else {
+          resolve();
+        }
+      } else {
+        if (id) {
+          if (id.toString() === updateTaskid.toString()) {
+            resolve();
+          } else {
+            const task = list.find(
+              (item) => item.id.toString() === id.toString()
+            );
+            if (task) {
+              MessageBox({
+                title: '重复任务ID',
+                message: `任务<strong>【${id}】</strong>已存在，继续执行可能会出现无法预料的数据错误，请确认！`,
+                type: 'error',
+                dangerouslyUseHTMLString: true,
+                closeOnClickModal: false,
+              })
+                .then(() => resolve())
+                .catch(reject);
+            } else {
+              resolve();
+            }
+          }
+        } else {
+          resolve();
+        }
+      }
+    } else {
+      reject();
+    }
+  });
+}
+
 export function writeExcel(data: Record<string, any>) {
   lostTaskid = store.getters.taskid();
   lostProcessid = store.getters.processid();
@@ -26,7 +85,7 @@ export function writeExcel(data: Record<string, any>) {
 
   console.log(stringify(data));
 
-  const workbookMap = store.getters.workbookMap();
+  const workbookMap: WorkbookMap = store.getters.workbookMap();
   const base: Record<string, any> = data.base;
   const process: Record<string, any> = data.process;
   const source: Record<string, any>[] = data.source;
@@ -34,13 +93,17 @@ export function writeExcel(data: Record<string, any>) {
   const { baseTempid, processTempid, sourceTempid } = data;
   const template = { baseTempid, processTempid, sourceTempid };
 
-  writeBase(workbookMap, base, template);
-  writeProgress(workbookMap, process);
-  writeSource(workbookMap, source);
+  validateTaskid(base.id)
+    .then(() => {
+      writeBase(workbookMap, base, template);
+      writeProgress(workbookMap, process);
+      writeSource(workbookMap, source);
 
-  store.commit('workbookMap', workbookMap);
+      store.commit('workbookMap', workbookMap);
 
-  writeMapToExcel(workbookMap);
+      writeMapToExcel(workbookMap);
+    })
+    .catch();
 }
 
 function writeBase(
@@ -52,7 +115,6 @@ function writeBase(
   const { baseTempid, processTempid, sourceTempid } = template;
 
   if (activeModel === 'update') {
-    lostTaskid = data.id;
     lostProcessid = data.process_id;
 
     const index = taskList.findIndex(
@@ -68,7 +130,10 @@ function writeBase(
     data['base_temp'] = baseTempid || null;
     data['process_temp'] = processTempid || null;
     data['source_temp'] = sourceTempid || null;
-    data.id = lostTaskid;
+
+    // 如果创建任务时手动输入了id，则使用输入的id，否则使用自增的id
+    if (!data.id) data.id = lostTaskid;
+
     data.process_id = lostProcessid;
     taskList.push(data);
   }
