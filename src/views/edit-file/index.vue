@@ -164,9 +164,9 @@ export default Vue.extend({
           if (this.$refs.vxeTable) {
             (this.$refs.vxeTable as Table).updateData().then(() => {
               if (this.afterRefreshTable) {
-                this.afterRefreshTable().then(
-                  () => (this.afterRefreshTable = null)
-                );
+                this.afterRefreshTable()
+                  .then(() => (this.afterRefreshTable = null))
+                  .catch();
               }
             });
           }
