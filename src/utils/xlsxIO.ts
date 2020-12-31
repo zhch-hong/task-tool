@@ -61,14 +61,38 @@ function jsonToSheet(
       if (cell.text) firstRow.push(cell.text);
     });
 
-    const newTask = workbook.addWorksheet(sheetName, {
+    const worksheet = workbook.addWorksheet(sheetName, {
       views: [{ state: 'frozen', xSplit: 1, ySplit: 1 }],
     });
-    newTask.columns = columns.slice(0, firstRow.length);
-    newTask.addRow(firstRow);
+    worksheet.columns = columns.slice(0, firstRow.length);
+    worksheet.addRow(firstRow);
     json.forEach((item) => parseString2Number(item));
-    newTask.addRows(json);
+    worksheet.addRows(json);
+
+    columnOrderFill(worksheet);
   }
+}
+
+/**
+ * 除task工作表之外，其他工作表含有id列的，按顺序赋值
+ * @param sheet
+ */
+function columnOrderFill(sheet: Worksheet) {
+  const name = sheet.name;
+  if (name.includes('task')) return;
+
+  let count = sheet.rowCount;
+
+  const column = sheet.getColumn(1);
+
+  const values: Array<number | string> = [];
+
+  while (count--) {
+    values.unshift(count);
+  }
+
+  values[0] = column.values[1] as string;
+  column.values = values;
 }
 
 export async function readExcelToMap(path: string): Promise<WorkbookMap> {
