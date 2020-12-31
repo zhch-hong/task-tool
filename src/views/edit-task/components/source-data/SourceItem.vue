@@ -116,7 +116,23 @@ export default class SourceItem extends Vue {
   submit(): void {
     this.$emit('submit-itemdata', {
       source: this.sourceForm,
-      condition: this.conditionList,
+      condition: this.filterEmptyCondition(this.conditionList),
+    });
+  }
+
+  /**
+   * 过滤掉空的条件项
+   * 一个条件包含名称、判断、值
+   * 必须三个属性都有值才能被保留
+   *
+   * @param list
+   */
+  filterEmptyCondition(
+    list: Record<string, string>[]
+  ): Record<string, string>[] {
+    return list.filter((item) => {
+      const { condition_name, condition_value, judge_type } = item;
+      return condition_name && condition_value && judge_type;
     });
   }
 }

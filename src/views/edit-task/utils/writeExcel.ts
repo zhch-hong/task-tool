@@ -142,7 +142,8 @@ function writeSource(
   >[];
 
   deleteExisting(sourceList, 'source_id', lostSourceid);
-  // 查找需要删除的id
+
+  // 将source工作表和condition工作表中旧的数据删除
   let delSourceid: string | number = '';
   const delConditionid: string | number[] = [];
   data.forEach((item) => {
@@ -179,20 +180,30 @@ function writeSource(
   });
 
   data.forEach((sourceItem: Record<string, any>) => {
-    let condition_id = '';
     const source: Record<string, string> = sourceItem.source;
+
+    // 来源的条件列表，包含原有的和新增的
+    // 从条件列表中查找是否有包含condition_id的条件
+    // 如果找到，则它是该来源原有的条件，那么就取它的condition_id赋值给该来源的其他条件
+    // 如果没有找到，则说明该来源的所有条件都是新增的，则从缺失的id池中取一个，赋给该来源的所有条件
     const conditionArray: Record<string, string>[] = sourceItem.condition;
-    conditionArray.find((condItem) => {
-      if (
-        typeof condItem.condition_id !== 'undefined' &&
-        condItem.condition_id !== ''
-      ) {
-        condition_id = condItem.condition_id;
-        return true;
-      }
-      return false;
-    });
-    if (condition_id === '') condition_id = lostConditionid();
+    let condition_id = '';
+    if (conditionArray.length === 0) {
+      // 如果条件列表的长度为0，说明该来源没有任何条件，那么就将该来源的condition_id置为0
+      condition_id = '0';
+    } else {
+      conditionArray.find((condItem) => {
+        if (
+          typeof condItem.condition_id !== 'undefined' &&
+          condItem.condition_id !== ''
+        ) {
+          condition_id = condItem.condition_id;
+          return true;
+        }
+        return false;
+      });
+      if (condition_id === '') condition_id = lostConditionid();
+    }
 
     source.source_id = source_id;
     source.condition_id = condition_id;
