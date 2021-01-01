@@ -12,10 +12,19 @@
         <el-select v-model="form.asset_type">
           <el-option
             v-for="option in selectOptions"
+            filterable
+            allow-create
             :key="option.value"
             :label="option.name"
             :value="option.value"
-          ></el-option>
+          >
+            <span style="float: left; margin-right: 20px">{{
+              option.name
+            }}</span>
+            <span style="float: right; color: #8492a6; font-size: 13px">{{
+              option.value
+            }}</span></el-option
+          >
         </el-select>
       </el-form-item>
       <el-form-item label="数量" prop="asset_count">

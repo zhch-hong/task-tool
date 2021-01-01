@@ -1,11 +1,16 @@
 <template>
-  <el-select v-model="selectvalue">
+  <el-select v-model="selectvalue" filterable allow-create>
     <el-option
       v-for="opt in options"
       :key="opt.value"
       :value="opt.value"
       :label="opt.name"
-    ></el-option>
+    >
+      <span style="float: left; margin-right: 20px">{{ opt.name }}</span>
+      <span style="float: right; color: #8492a6; font-size: 13px">{{
+        opt.value
+      }}</span></el-option
+    >
   </el-select>
 </template>
 <script lang="ts">
