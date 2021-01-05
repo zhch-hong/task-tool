@@ -1,30 +1,16 @@
 <template>
   <div>
-    <el-select v-model="selectValue" @change="selectChange">
-      <el-option
-        v-for="op in selectList"
-        :key="op.value"
-        :label="op.label"
-        :value="op.value"
-      ></el-option>
-    </el-select>
-
-    <el-table :data="tableData">
-      <el-table-column label="名称" prop="value"></el-table-column>
-      <el-table-column label="说明" prop="name"></el-table-column>
-      <el-table-column>
-        <template #default="{ $index }">
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            size="mini"
-            @click="deleteRow($index)"
-            >删除</el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table>
-    <!--  -->
+    <el-tabs v-model="activeName">
+      <el-tab-pane label="任务获得类型" name="type">
+        <tab-item :table-data="typeData" @update-data="updateType" />
+      </el-tab-pane>
+      <el-tab-pane label="任务枚举类型" name="enum">
+        <tab-item :table-data="enumData" @update-data="updateEnum" />
+      </el-tab-pane>
+      <el-tab-pane label="财富类型" name="asset">
+        <tab-item :table-data="assetData" @update-data="updateAsset" />
+      </el-tab-pane>
+    </el-tabs>
     <CreateConfig
       :visible="createConfig"
       @update:visible="(v) => (createConfig = v)"
@@ -35,79 +21,103 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { resolve } from 'path';
+import { v4 as uuid } from 'uuid';
 
 import { readFileText, writeFileText } from '@/utils/fileSystem';
 import { getUserconfig } from '@/asserts/userconfig';
 
+import TabItem from './components/TabItem.vue';
 import CreateConfig from './components/CreateConfig.vue';
 
-const filePath = resolve(
+const path = resolve(
   getUserconfig().workDir,
   'app_config',
   'input-manage.json'
 );
 
-interface Config {
-  value: string;
-  name: string;
-  select: Array<ConfigSelect>;
-}
-
-interface ConfigSelect {
-  value: string;
-  name: string;
-}
-
 @Component({
   components: {
+    TabItem,
     CreateConfig,
   },
 })
 export default class InputManage extends Vue {
-  selectValue = '';
-  sourceData: Array<Config> = [];
-  selectList: Array<Record<string, string>> = [];
-  tableData: Array<ConfigSelect> = [];
+  activeName: 'type' | 'enum' | 'asset' = 'type';
+
+  data: Record<string, any>[] = readFileText(path);
+
+  typeData: Record<string, string>[] = [];
+  enumData: Record<string, string>[] = [];
+  assetData: Record<string, string>[] = [];
+
   createConfig = false;
 
   created(): void {
-    this.sourceData = readFileText(filePath);
-    this.parseSelect();
-  }
-
-  parseSelect(): void {
-    this.selectList = this.sourceData.map((item) => {
-      return {
-        label: item.name,
-        value: item.value,
-      };
+    this.data.forEach((object) => {
+      const select: Record<string, string>[] = object.select;
+      select.forEach((selc) => (selc['uuid'] = uuid()));
+      if (object.value === 'type') this.typeData = select;
+      if (object.value === 'enum') this.enumData = select;
+      if (object.value === 'asset') this.assetData = select;
     });
   }
 
-  selectChange(value: string): void {
-    const config = this.sourceData.find((item) => item.value === value);
-    if (config) {
-      this.tableData = config.select;
+  appendRow(payload: Record<string, string>): void {
+    if (this.activeName === 'type') {
+      this.typeData.push({
+        name: payload.name,
+        value: payload.value,
+        uuid: uuid(),
+      });
+    } else if (this.activeName === 'enum') {
+      this.enumData.push({
+        name: payload.name,
+        value: payload.value,
+        uuid: uuid(),
+      });
+    } else if (this.activeName === 'asset') {
+      this.assetData.push({
+        name: payload.name,
+        value: payload.value,
+        uuid: uuid(),
+      });
     }
   }
 
-  appendRow(row: ConfigSelect): void {
-    this.tableData.push(row);
-    this.writeFile();
+  updateType(data: Record<string, string>[]): void {
+    const res = this.data.find((item) => item.value === 'type');
+    if (res) {
+      res.select = data;
+      this.writeFile();
+    }
+    //
   }
 
-  async deleteRow(index: number): Promise<void> {
-    try {
-      await this.$confirm('确定删除该条配置吗？');
-    } catch (error) {
-      return;
+  updateEnum(data: Record<string, string>[]): void {
+    const res = this.data.find((item) => item.value === 'enum');
+    if (res) {
+      res.select = data;
+      this.writeFile();
     }
-    this.tableData.splice(index, 1);
-    this.writeFile();
+    //
+  }
+
+  updateAsset(data: Record<string, string>[]): void {
+    const res = this.data.find((item) => item.value === 'asset');
+    if (res) {
+      res.select = data;
+      this.writeFile();
+    }
+    //
   }
 
   writeFile(): void {
-    writeFileText(filePath, this.sourceData);
+    this.data.forEach((item) => {
+      item.select.forEach(
+        (object: Record<string, string>) => delete object.uuid
+      );
+    });
+    writeFileText(path, this.data);
   }
 }
 </script>
