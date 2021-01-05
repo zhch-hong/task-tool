@@ -9,7 +9,6 @@
       node-key="uuid"
       show-checkbox
       default-expand-all
-      @node-click="nodeClick"
     >
       <template #default="{ data }">
         <span>{{ nameSlice(data) }}</span>
@@ -297,10 +296,6 @@ export default class TemplateManage extends Vue {
     readTemplate().then((data) => {
       this.treedata = data;
     });
-  }
-
-  nodeClick(data: any, node: any): void {
-    console.log(data, node);
   }
 
   filterNode(value: string, data: Record<string, string>): any {
