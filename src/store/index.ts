@@ -6,7 +6,6 @@ import { userdir } from '@/asserts/userdir';
 Vue.use(Vuex);
 
 interface State {
-  userStoragePath: string;
   updateTaskId: string | number;
   copyTaskList:
     | Record<string, Record<string, string> | Record<string, string>[]>[]
@@ -16,7 +15,6 @@ interface State {
 }
 
 const state: State = {
-  userStoragePath: userdir,
   updateTaskId: '',
   copyTaskList: null,
   windowHeight: 800,

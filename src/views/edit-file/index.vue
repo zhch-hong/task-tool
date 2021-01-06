@@ -82,7 +82,6 @@ import { InterceptorKeydownParams, RowInfo, Table } from 'vxe-table';
 import { bind, unbind } from 'mousetrap';
 import { v4 as uuid } from 'uuid';
 
-import { SheetName, WorkbookMap } from '@/shims-cust';
 import { stringify, writeMapToExcel } from '@/utils';
 import { readLastFile } from '@/asserts/lastOpenFile';
 
@@ -195,6 +194,7 @@ export default Vue.extend({
 
     async copySelection(): Promise<void> {
       const checkList = (this.$refs.vxeTable as Table).getCheckboxRecords();
+      console.log(checkList);
 
       // if (this.tableHeight !== 0) return;
       this.tableSelection = checkList;

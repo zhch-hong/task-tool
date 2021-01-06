@@ -51,7 +51,7 @@ function getLostid(map: WorkbookMap, name: SheetName, key: string) {
   };
 }
 
-@Module({ dynamic: true, store, name: 'changedMap' })
+@Module({ dynamic: true, store, name: 'lostId' })
 class LostId extends VuexModule {
   private lostTaskid: string[] = [];
   private maxTaskid = -1;

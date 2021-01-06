@@ -9,6 +9,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import { shell } from 'electron';
 
 import { userConfig } from '@/asserts/userconfig';
+import { ActiveFileModule } from '@/store/modules/active-file';
 
 @Component
 export default class ExplorerPath extends Vue {

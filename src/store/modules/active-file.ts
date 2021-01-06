@@ -9,7 +9,7 @@ import store from '@/store';
 import { LostIdModule } from './lost-id';
 import { WorkspacedModule } from './workspaced';
 
-@Module({ dynamic: true, store, name: 'changedMap' })
+@Module({ dynamic: true, store, name: 'activeFile' })
 class ActiveFile extends VuexModule {
   public path = '';
 
