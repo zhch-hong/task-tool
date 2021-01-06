@@ -25,7 +25,7 @@
   </fieldset>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import { v4 as uuid } from 'uuid';
 import { resolve } from 'path';
 import { cloneDeep } from 'lodash';
@@ -67,6 +67,11 @@ export default class SourceData extends Vue {
 
   /** 保存时的数据 */
   emitSourceList: Record<string, any>[] = [];
+
+  @Watch('sourceData')
+  dataWatch(value: Record<string, string>[]): void {
+    this.sourceList = value;
+  }
 
   appendSourceItem(): void {
     this.sourceList.push({

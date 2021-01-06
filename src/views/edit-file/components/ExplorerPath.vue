@@ -13,7 +13,7 @@ import { userConfig } from '@/asserts/userconfig';
 @Component
 export default class ExplorerPath extends Vue {
   get path(): string {
-    return store.state.taskFilePath;
+    return ActiveFileModule.path;
   }
 
   get explorerpath(): string {

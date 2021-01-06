@@ -95,11 +95,14 @@ function columnOrderFill(sheet: Worksheet) {
   column.values = values;
 }
 
-export async function readExcelToMap(path: string): Promise<WorkbookMap> {
-  const buffer = readFileSync(path);
-  const workbook = new Workbook();
-  await workbook.xlsx.load(buffer);
-  return workbook2map(workbook);
+export function readExcelToMap(path: string): Promise<WorkbookMap> {
+  return new Promise<WorkbookMap>((resolve, reject) => {
+    const buffer = readFileSync(path);
+    new Workbook().xlsx
+      .load(buffer)
+      .then((workbook) => resolve(workbook2map(workbook)))
+      .catch((error) => reject(error));
+  });
 }
 
 function _writeMapToExcel(workbookMap: WorkbookMap, path?: string) {

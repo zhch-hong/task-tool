@@ -2,6 +2,7 @@ import store from '@/store';
 import { WorkbookMap } from '@/shims-cust';
 import { assign } from 'lodash';
 import { deleteExisting } from '.';
+import { LostIdModule } from '@/store/modules/lost-id';
 
 function getProcessId(
   workbookMap: WorkbookMap,
@@ -48,7 +49,7 @@ function updateProcess(
   taskid: string | number,
   data: Record<string, any>
 ) {
-  const lostAwardid: () => string = store.getters.awardid;
+  const lostAwardid = LostIdModule.awardid;
 
   const processList = workbookMap.get('process_data') as Record<
     string,
@@ -127,7 +128,7 @@ function updateSource(
     );
 
     data.source.forEach((s: Record<string, string>, i: number) => {
-      const condition_id = store.getters.conditionid();
+      const condition_id = LostIdModule.conditionid();
       s.source_id = source_id;
       s.condition_id = condition_id;
 

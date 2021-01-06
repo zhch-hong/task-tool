@@ -25,6 +25,8 @@ import { resolve } from 'path';
 import { userdir } from '@/asserts/userdir';
 import { Workbook } from 'exceljs';
 import store from '@/store';
+import { WorkspacedModule } from '@/store/modules/workspaced';
+import { ActiveFileModule } from '@/store/modules/active-file';
 
 interface TreeMeta extends TreeData {
   path: string;
@@ -68,20 +70,9 @@ export default class FileTree extends Vue {
     if (stat.isDirectory()) {
       return;
     }
-    this.setLastOpenFilePath(path);
 
-    const wb = new Workbook();
-    const buffer = readFileSync(path);
-    wb.xlsx.load(buffer).then((workbook) => {
-      setColumnKey(workbook);
-
-      const map = workbook2map(workbook);
-
-      store.commit('taskFilePath', path);
-      store.commit('workbookMap', map);
-
-      this.$emit('update:table');
-    });
+    ActiveFileModule.SetPath(path);
+    this.$emit('update:table');
 
     this.visiblesync = false;
   }

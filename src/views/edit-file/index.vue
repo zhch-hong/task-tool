@@ -82,12 +82,15 @@ import { InterceptorKeydownParams, RowInfo, Table } from 'vxe-table';
 import { bind, unbind } from 'mousetrap';
 import { v4 as uuid } from 'uuid';
 
-import store from '@/store';
 import { SheetName, WorkbookMap } from '@/shims-cust';
 import { stringify, writeMapToExcel } from '@/utils';
 import { readLastFile } from '@/asserts/lastOpenFile';
 
 import ExplorerPath from './components/ExplorerPath.vue';
+import { WorkspacedModule } from '@/store/modules/workspaced';
+import { LostIdModule } from '@/store/modules/lost-id';
+import store from '@/store';
+import { ActiveFileModule } from '@/store/modules/active-file';
 
 export default Vue.extend({
   name: 'EditFile',
@@ -112,10 +115,6 @@ export default Vue.extend({
   },
 
   computed: {
-    taskFilePath(): string {
-      return store.state.taskFilePath;
-    },
-
     tableHeight(): number {
       return this.$store.state.windowHeight - 62;
     },
@@ -148,12 +147,15 @@ export default Vue.extend({
       this.$router.push('/edit-task');
     },
 
-    refreshTable(): void {
-      const workbookMap: WorkbookMap = store.getters.workbookMap();
-      if (workbookMap.size === 0) {
+    async refreshTable(): Promise<void> {
+      const path = ActiveFileModule.path;
+
+      if (!path) {
         this.readLastExcel();
         return;
       }
+
+      const workbookMap = await WorkspacedModule.bookMapByPath(path);
 
       const taskList = workbookMap.get('task');
 
@@ -191,7 +193,7 @@ export default Vue.extend({
       this.pasteTask();
     },
 
-    copySelection(): void {
+    async copySelection(): Promise<void> {
       const checkList = (this.$refs.vxeTable as Table).getCheckboxRecords();
 
       // if (this.tableHeight !== 0) return;
@@ -202,8 +204,8 @@ export default Vue.extend({
         return;
       }
 
-      const workbookMap: Map<SheetName, Record<string, string>[]> =
-        store.state.workbookMap;
+      const path = ActiveFileModule.path;
+      const workbookMap = await WorkspacedModule.bookMapByPath(path);
       const taskjson = workbookMap.get('task');
       const processjson = workbookMap.get('process_data');
       const sourcejson = workbookMap.get('source');
@@ -215,7 +217,7 @@ export default Vue.extend({
         Record<string, string> | Record<string, string>[]
       >[] = [];
       if (taskjson && processjson && sourcejson && conditionjson && awardjson) {
-        idList.forEach((id) => {
+        idList.forEach(async (id) => {
           const object: Record<
             string,
             Record<string, string> | Record<string, string>[]
@@ -235,7 +237,7 @@ export default Vue.extend({
               object['process'] = process;
 
               const { awards, source_id } = process;
-              const awardList = this.getAwardList(awards);
+              const awardList = await this.getAwardList(awards);
               if (awardList) object['awards'] = awardList;
 
               object['source'] = sourcejson.filter(
@@ -258,17 +260,19 @@ export default Vue.extend({
       store.commit('copyTaskList', stringify(copyList));
     },
 
-    getAwardList(award: string): Record<string, string>[] | undefined {
+    async getAwardList(
+      award: string
+    ): Promise<Record<string, string>[] | undefined> {
       const idList = award.split(',');
-      const workbookMap: Map<SheetName, Record<string, string>[]> =
-        store.state.workbookMap;
+      const path = ActiveFileModule.path;
+      const workbookMap = await WorkspacedModule.bookMapByPath(path);
       const awardjson = workbookMap.get('award_data');
       if (awardjson) {
         return awardjson.filter((item) => idList.includes(item.award_id));
       }
     },
 
-    pasteTask(): void {
+    async pasteTask(): Promise<void> {
       let copyTaskList = store.state.copyTaskList;
 
       copyTaskList = cloneDeep(copyTaskList);
@@ -277,15 +281,16 @@ export default Vue.extend({
         return;
       }
 
-      const workbookMap: WorkbookMap = store.getters.workbookMap();
+      const path = ActiveFileModule.path;
+      const workbookMap = await WorkspacedModule.bookMapByPath(path);
 
-      const taskid = store.getters.taskid;
-      const processid = store.getters.processid;
-      const sourceid = store.getters.sourceid;
-      const conditionid = store.getters.conditionid;
-      const awardid = store.getters.awardid;
+      const taskid = LostIdModule.taskid;
+      const processid = LostIdModule.processid;
+      const sourceid = LostIdModule.sourceid;
+      const conditionid = LostIdModule.conditionid;
+      const awardid = LostIdModule.awardid;
 
-      copyTaskList.forEach((copyTask) => {
+      copyTaskList.forEach((copyTask: Record<string, any>) => {
         const taskjson = copyTask.task as Record<string, string>;
         const processjson = copyTask.process as Record<string, string>;
         const sourcejson = copyTask.source as Record<string, string>[];
@@ -348,7 +353,6 @@ export default Vue.extend({
           if (awardList) awardList.push(...awardjson);
         }
       });
-      store.commit('workbookMap', workbookMap);
 
       this.refreshTable();
       this.afterRefreshTable = this.afterPasteTask;

@@ -36,7 +36,7 @@
 <script lang="ts">
 import { stringify } from '@/utils';
 import { cloneDeep } from 'lodash';
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 
 import ProgressLine from './progress-data/ProgressLine.vue';
 import TemplateOption from './TemplateOption.vue';
@@ -75,15 +75,19 @@ export default class ProgressData extends Vue {
   process: string[] | null = null;
   awards = this.awardData;
 
-  created(): void {
-    if (this.processData) {
-      Object.assign(this.processForm, this.processData);
+  @Watch('processData')
+  dataWatch(value: Record<string, string>): void {
+    Object.assign(this.processForm, value);
 
-      const _process = this.processData.process.split(',');
-      this.lastLoop = _process[_process.length - 1] === '-1';
-      if (this.lastLoop) this.process = _process.slice(0, _process.length - 1);
-      else this.process = _process;
-    }
+    const _process = value.process.split(',');
+    this.lastLoop = _process[_process.length - 1] === '-1';
+    if (this.lastLoop) this.process = _process.slice(0, _process.length - 1);
+    else this.process = _process;
+  }
+
+  @Watch('awardData', { deep: true })
+  awardWatch(value: Record<string, string>[][]): void {
+    this.awards = value;
   }
 
   submit(): void {

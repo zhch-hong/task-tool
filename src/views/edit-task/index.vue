@@ -52,6 +52,9 @@ import { WorkbookMap } from '@/shims-cust';
 import BaseData from './components/BaseData.vue';
 import ProgressData from './components/ProgressData.vue';
 import SourceData from './components/SourceData.vue';
+import { WorkspacedModule } from '@/store/modules/workspaced';
+import { readLastFile } from '@/asserts/lastOpenFile';
+import { ActiveFileModule } from '@/store/modules/active-file';
 
 @Component({
   components: {
@@ -86,8 +89,8 @@ export default class EditTask extends Vue {
     source: '',
   };
 
-  created(): void {
-    this.getUpdateTaskData();
+  async created(): Promise<void> {
+    await this.getUpdateTaskData();
     this.bindKeyboard();
   }
 
@@ -95,10 +98,21 @@ export default class EditTask extends Vue {
     this.unBindKeyboard();
   }
 
-  getUpdateTaskData(): void {
+  async getUpdateTaskData(): Promise<void> {
     const id = store.state.updateTaskId;
     if (id !== '') {
-      const workbookMap: WorkbookMap = store.getters.workbookMap();
+      const path = ActiveFileModule.path;
+
+      if (!path) {
+        readLastFile()
+          .then(() => {
+            this.getUpdateTaskData();
+          })
+          .catch();
+        return;
+      }
+
+      const workbookMap = await WorkspacedModule.bookMapByPath(path);
 
       const taskList = workbookMap.get('task') as Record<string, string>[];
       const taskJson = taskList.find(

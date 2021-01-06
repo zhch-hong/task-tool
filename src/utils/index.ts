@@ -6,6 +6,7 @@ export { sheet2json, workbook2map } from './sheetToJson';
 export { setColumnKey } from './setColumnKey';
 export { updateBase, updateProcess, updateSource } from './writeTask';
 export { readExcelToMap, writeMapToExcel } from './xlsxIO';
+export { writeChanged } from './write-changed';
 
 /**
  * 删除现有的数据，递归删除

@@ -63,7 +63,8 @@ const routes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import('@/views/template-manage/template-manage.vue'),
+        component: () =>
+          import('@/views/template-manage/template-manage-copy.vue'),
       },
     ],
   },

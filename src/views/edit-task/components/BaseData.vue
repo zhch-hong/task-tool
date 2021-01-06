@@ -47,7 +47,7 @@
   </fieldset>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import { cloneDeep } from 'lodash';
 
 import { propertySlice } from '@/utils/propertySlice';
@@ -93,10 +93,9 @@ export default class BaseData extends Vue {
   form: Record<string, any> = cloneDeep(form);
   rules = {};
 
-  created(): void {
-    if (this.baseData) {
-      this.form = propertySlice(form, this.baseData);
-    }
+  @Watch('baseData')
+  dataWatch(value: Record<string, string>): void {
+    this.form = propertySlice(form, value);
   }
 
   submit(): void {

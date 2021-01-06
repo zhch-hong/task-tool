@@ -3,13 +3,16 @@ import { MessageBox } from 'element-ui';
 
 import { deleteExisting, stringify, writeMapToExcel } from '@/utils';
 import { WorkbookMap } from '@/shims-cust';
+import { WorkspacedModule } from '@/store/modules/workspaced';
+import { LostIdModule } from '@/store/modules/lost-id';
+import { ActiveFileModule } from '@/store/modules/active-file';
 
 // 从小到大缺失的id，供添加任务时使用
 let lostTaskid = '';
 let lostProcessid = '';
 let lostSourceid = '';
-const lostAwardid: () => string = store.getters.awardid;
-const lostConditionid: () => string = store.getters.conditionid;
+const lostAwardid: () => string = LostIdModule.awardid;
+const lostConditionid: () => string = LostIdModule.conditionid;
 
 let updateTaskid: string | number = '';
 /** 操作模式，是修改任务，还是添加任务 */
@@ -17,66 +20,70 @@ let activeModel: 'update' | 'create' = 'update';
 
 function validateTaskid(id?: string): Promise<void> {
   return new Promise<void>((resolve, reject) => {
-    const workbookMap: WorkbookMap = store.getters.workbookMap();
-    const list = workbookMap.get('task');
-    if (list) {
-      if (activeModel === 'create') {
-        if (id) {
-          const task = list.find(
-            (item) => item.id.toString() === id.toString()
-          );
-          if (task) {
-            MessageBox({
-              title: '重复任务ID',
-              message: `任务<strong>【${id}】</strong>已存在，继续执行可能会出现无法预料的数据错误，请确认！`,
-              type: 'error',
-              dangerouslyUseHTMLString: true,
-              closeOnClickModal: false,
-            })
-              .then(() => resolve())
-              .catch(reject);
+    const path = ActiveFileModule.path;
+    WorkspacedModule.bookMapByPath(path)
+      .then((workbookMap) => {
+        const list = workbookMap.get('task');
+        if (list) {
+          if (activeModel === 'create') {
+            if (id) {
+              const task = list.find(
+                (item) => item.id.toString() === id.toString()
+              );
+              if (task) {
+                MessageBox({
+                  title: '重复任务ID',
+                  message: `任务<strong>【${id}】</strong>已存在，继续执行可能会出现无法预料的数据错误，请确认！`,
+                  type: 'error',
+                  dangerouslyUseHTMLString: true,
+                  closeOnClickModal: false,
+                })
+                  .then(() => resolve())
+                  .catch(reject);
+              } else {
+                resolve();
+              }
+            } else {
+              resolve();
+            }
           } else {
-            resolve();
-          }
-        } else {
-          resolve();
-        }
-      } else {
-        if (id) {
-          if (id.toString() === updateTaskid.toString()) {
-            resolve();
-          } else {
-            const task = list.find(
-              (item) => item.id.toString() === id.toString()
-            );
-            if (task) {
-              MessageBox({
-                title: '重复任务ID',
-                message: `任务<strong>【${id}】</strong>已存在，继续执行可能会出现无法预料的数据错误，请确认！`,
-                type: 'error',
-                dangerouslyUseHTMLString: true,
-                closeOnClickModal: false,
-              })
-                .then(() => resolve())
-                .catch(reject);
+            if (id) {
+              if (id.toString() === updateTaskid.toString()) {
+                resolve();
+              } else {
+                const task = list.find(
+                  (item) => item.id.toString() === id.toString()
+                );
+                if (task) {
+                  MessageBox({
+                    title: '重复任务ID',
+                    message: `任务<strong>【${id}】</strong>已存在，继续执行可能会出现无法预料的数据错误，请确认！`,
+                    type: 'error',
+                    dangerouslyUseHTMLString: true,
+                    closeOnClickModal: false,
+                  })
+                    .then(() => resolve())
+                    .catch(reject);
+                } else {
+                  resolve();
+                }
+              }
             } else {
               resolve();
             }
           }
         } else {
-          resolve();
+          reject();
         }
-      }
-    } else {
-      reject();
-    }
+      })
+      .catch((error: Error) => reject(error));
   });
 }
 
-export function writeExcel(data: Record<string, any>) {
-  lostTaskid = store.getters.taskid();
-  lostProcessid = store.getters.processid();
-  lostSourceid = store.getters.sourceid();
+export async function writeExcel(data: Record<string, any>) {
+  lostTaskid = LostIdModule.taskid();
+  lostProcessid = LostIdModule.processid();
+  lostSourceid = LostIdModule.sourceid();
 
   updateTaskid = store.state.updateTaskId;
   if (updateTaskid === '') {
@@ -85,7 +92,8 @@ export function writeExcel(data: Record<string, any>) {
 
   console.log(stringify(data));
 
-  const workbookMap: WorkbookMap = store.getters.workbookMap();
+  const path = ActiveFileModule.path;
+  const workbookMap = await WorkspacedModule.bookMapByPath(path);
   const base: Record<string, any> = data.base;
   const process: Record<string, any> = data.process;
   const source: Record<string, any>[] = data.source;
@@ -98,9 +106,6 @@ export function writeExcel(data: Record<string, any>) {
       writeBase(workbookMap, base, template);
       writeProgress(workbookMap, process);
       writeSource(workbookMap, source);
-
-      store.commit('workbookMap', workbookMap);
-
       writeMapToExcel(workbookMap);
     })
     .catch();
