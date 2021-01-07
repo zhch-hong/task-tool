@@ -20,7 +20,7 @@
 </template>
 <script lang="ts">
 import { TemplateType } from '@/shims-cust';
-import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
 
@@ -49,6 +49,16 @@ export default class TemplateOption extends Vue {
   templateValue = '';
   templateName = '';
   templateList: Record<string, any>[] = [];
+
+  @Watch('uuid')
+  uuidWatch(value: string): void {
+    this.templateValue = value;
+  }
+
+  @Watch('templateType')
+  typeWatch(value: TemplateType): void {
+    this.templateList = readTemplate(value);
+  }
 
   created(): void {
     this.templateList = readTemplate(this.templateType);

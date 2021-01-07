@@ -34,7 +34,6 @@
         @submit="sourceDataSubmit"
         @template-uuid="setSourceTempid"
       />
-      <div style="height: 80px"></div>
     </div>
   </div>
 </template>

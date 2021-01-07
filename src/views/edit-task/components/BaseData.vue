@@ -51,7 +51,6 @@ import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import { cloneDeep } from 'lodash';
 
 import { propertySlice } from '@/utils/propertySlice';
-import { stringify } from '@/utils';
 
 import TaskReset from './base-data/TaskReset.vue';
 import ValidTime from './base-data/ValidTime.vue';
