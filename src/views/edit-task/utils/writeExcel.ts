@@ -1,18 +1,24 @@
 import store from '@/store';
 import { MessageBox } from 'element-ui';
 
-import { deleteExisting, stringify, writeMapToExcel } from '@/utils';
+import { deleteExisting, stringify } from '@/utils';
 import { WorkbookMap } from '@/shims-cust';
 import { WorkspacedModule } from '@/store/modules/workspaced';
-import { LostIdModule } from '@/store/modules/lost-id';
+import {
+  LostIdModule,
+  getLostTaskId,
+  getLostProcessId,
+  getLostSourceId,
+  getLostAwardId,
+  getLostConditionId,
+} from '@/store/modules/lost-id';
 import { ActiveFileModule } from '@/store/modules/active-file';
+import { ChangedMapModule } from '@/store/modules/changed-map';
 
 // 从小到大缺失的id，供添加任务时使用
 let lostTaskid = '';
 let lostProcessid = '';
 let lostSourceid = '';
-const lostAwardid: () => string = LostIdModule.awardid;
-const lostConditionid: () => string = LostIdModule.conditionid;
 
 let updateTaskid: string | number = '';
 /** 操作模式，是修改任务，还是添加任务 */
@@ -81,9 +87,9 @@ function validateTaskid(id?: string): Promise<void> {
 }
 
 export async function writeExcel(data: Record<string, any>) {
-  lostTaskid = LostIdModule.taskid();
-  lostProcessid = LostIdModule.processid();
-  lostSourceid = LostIdModule.sourceid();
+  lostTaskid = getLostTaskId();
+  lostProcessid = getLostProcessId();
+  lostSourceid = getLostSourceId();
 
   updateTaskid = store.state.updateTaskId;
   if (updateTaskid === '') {
@@ -106,7 +112,10 @@ export async function writeExcel(data: Record<string, any>) {
       writeBase(workbookMap, base, template);
       writeProgress(workbookMap, process);
       writeSource(workbookMap, source);
-      writeMapToExcel(workbookMap);
+      ChangedMapModule.Append({
+        path: ActiveFileModule.path,
+        data: workbookMap,
+      });
     })
     .catch();
 }
@@ -162,7 +171,7 @@ function writeProgress(workbookMap: WorkbookMap, data: Record<string, any>) {
         awards.forEach((awa) => (awa.award_id = old.award_id));
         item.award_id = old.award_id;
       } else {
-        const _id = lostAwardid();
+        const _id = getLostAwardId();
         awards.forEach((awa) => (awa.award_id = _id));
         item.award_id = _id;
       }
@@ -272,7 +281,7 @@ function writeSource(
         }
         return false;
       });
-      if (condition_id === '') condition_id = lostConditionid();
+      if (condition_id === '') condition_id = getLostConditionId();
     }
 
     source.source_id = source_id;

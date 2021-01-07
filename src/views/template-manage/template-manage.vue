@@ -30,13 +30,13 @@ import {
   readExcelToMap,
   getSheet,
   getTreeDataDefault,
-  writeMapToExcel,
   readFileText,
   sheet2json,
   updateBase,
   updateProcess,
   updateSource,
 } from '@/utils';
+import { ChangedMapModule } from '@/store/modules/changed-map';
 
 interface TreeMeta extends TreeData {
   uuid: string;
@@ -354,7 +354,7 @@ export default class TemplateManage extends Vue {
         if (type === 'process') updateProcess(map, id, data);
         if (type === 'source') updateSource(map, id, data);
       });
-      writeMapToExcel(map, path);
+      ChangedMapModule.Append({ path, data: map });
 
       if (index === array.length - 1) {
         this.$notify({

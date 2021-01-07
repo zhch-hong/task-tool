@@ -75,6 +75,8 @@ export default class FileTree extends Vue {
     this.$emit('update:table');
 
     this.visiblesync = false;
+
+    this.setLastOpenFilePath(path);
   }
 }
 </script>

@@ -82,14 +82,21 @@ import { InterceptorKeydownParams, RowInfo, Table } from 'vxe-table';
 import { bind, unbind } from 'mousetrap';
 import { v4 as uuid } from 'uuid';
 
-import { stringify, writeMapToExcel } from '@/utils';
 import { readLastFile } from '@/asserts/lastOpenFile';
 
 import ExplorerPath from './components/ExplorerPath.vue';
 import { WorkspacedModule } from '@/store/modules/workspaced';
-import { LostIdModule } from '@/store/modules/lost-id';
+import {
+  getLostAwardId,
+  getLostConditionId,
+  getLostProcessId,
+  getLostSourceId,
+  getLostTaskId,
+  LostIdModule,
+} from '@/store/modules/lost-id';
 import store from '@/store';
 import { ActiveFileModule } from '@/store/modules/active-file';
+import { ChangedMapModule } from '@/store/modules/changed-map';
 
 export default Vue.extend({
   name: 'EditFile',
@@ -188,76 +195,94 @@ export default Vue.extend({
     },
 
     doubleTask(): void {
-      this.copySelection();
-      this.pasteTask();
+      this.copySelection().then(() => {
+        this.pasteTask();
+      });
     },
 
-    async copySelection(): Promise<void> {
-      const checkList = (this.$refs.vxeTable as Table).getCheckboxRecords();
-      console.log(checkList);
+    copySelection(): Promise<void> {
+      return new Promise<void>((resolve, reject) => {
+        const checkList = (this.$refs.vxeTable as Table).getCheckboxRecords();
+        this.tableSelection = checkList;
+        const idList = this.tableSelection.map((task) => task.id);
+        if (idList.length === 0) {
+          this.$message.info('请勾选需要拷贝的任务');
+          return;
+        }
 
-      // if (this.tableHeight !== 0) return;
-      this.tableSelection = checkList;
-      const idList = this.tableSelection.map((task) => task.id);
-      if (idList.length === 0) {
-        this.$message.info('请勾选需要拷贝的任务');
-        return;
-      }
+        const path = ActiveFileModule.path;
+        WorkspacedModule.bookMapByPath(path)
+          .then((workbookMap) => {
+            const taskjson = workbookMap.get('task');
+            const processjson = workbookMap.get('process_data');
+            const sourcejson = workbookMap.get('source');
+            const conditionjson = workbookMap.get('condition');
+            const awardjson = workbookMap.get('award_data');
 
-      const path = ActiveFileModule.path;
-      const workbookMap = await WorkspacedModule.bookMapByPath(path);
-      const taskjson = workbookMap.get('task');
-      const processjson = workbookMap.get('process_data');
-      const sourcejson = workbookMap.get('source');
-      const conditionjson = workbookMap.get('condition');
-      const awardjson = workbookMap.get('award_data');
+            const copyList: Record<
+              string,
+              Record<string, string> | Record<string, string>[]
+            >[] = [];
+            if (
+              taskjson &&
+              processjson &&
+              sourcejson &&
+              conditionjson &&
+              awardjson
+            ) {
+              idList.forEach(async (id, index) => {
+                const object: Record<
+                  string,
+                  Record<string, string> | Record<string, string>[]
+                > = {};
+                const task = taskjson.find(
+                  (item) => item.id.toString() === id.toString()
+                );
+                if (task) {
+                  object['task'] = task;
 
-      const copyList: Record<
-        string,
-        Record<string, string> | Record<string, string>[]
-      >[] = [];
-      if (taskjson && processjson && sourcejson && conditionjson && awardjson) {
-        idList.forEach(async (id) => {
-          const object: Record<
-            string,
-            Record<string, string> | Record<string, string>[]
-          > = {};
-          const task = taskjson.find(
-            (item) => item.id.toString() === id.toString()
-          );
-          if (task) {
-            object['task'] = task;
+                  const { process_id } = task;
+                  const process = processjson.find(
+                    (item) => item.process_id === process_id
+                  );
 
-            const { process_id } = task;
-            const process = processjson.find(
-              (item) => item.process_id === process_id
-            );
+                  if (process) {
+                    object['process'] = process;
 
-            if (process) {
-              object['process'] = process;
+                    const { awards, source_id } = process;
+                    const awardList = await this.getAwardList(awards);
+                    if (awardList) object['awards'] = awardList;
 
-              const { awards, source_id } = process;
-              const awardList = await this.getAwardList(awards);
-              if (awardList) object['awards'] = awardList;
+                    object['source'] = sourcejson.filter(
+                      (item) => item.source_id === source_id
+                    );
+                    const conditionidList = object.source.map(
+                      (item) => item.condition_id
+                    );
 
-              object['source'] = sourcejson.filter(
-                (item) => item.source_id === source_id
-              );
-              const conditionidList = object.source.map(
-                (item) => item.condition_id
-              );
+                    object['condition'] = conditionjson.filter((item) =>
+                      conditionidList.includes(item.condition_id)
+                    );
+                  } else {
+                    reject();
+                  }
+                } else {
+                  reject();
+                }
 
-              object['condition'] = conditionjson.filter((item) =>
-                conditionidList.includes(item.condition_id)
-              );
+                copyList.push(object);
+
+                if (index === idList.length - 1) {
+                  store.commit('copyTaskList', copyList);
+                  resolve();
+                }
+              });
+            } else {
+              reject(new Error('工作表缺失'));
             }
-          }
-
-          copyList.push(object);
-        });
-      }
-
-      store.commit('copyTaskList', stringify(copyList));
+          })
+          .catch((error: Error) => reject(error));
+      });
     },
 
     async getAwardList(
@@ -284,12 +309,6 @@ export default Vue.extend({
       const path = ActiveFileModule.path;
       const workbookMap = await WorkspacedModule.bookMapByPath(path);
 
-      const taskid = LostIdModule.taskid;
-      const processid = LostIdModule.processid;
-      const sourceid = LostIdModule.sourceid;
-      const conditionid = LostIdModule.conditionid;
-      const awardid = LostIdModule.awardid;
-
       copyTaskList.forEach((copyTask: Record<string, any>) => {
         const taskjson = copyTask.task as Record<string, string>;
         const processjson = copyTask.process as Record<string, string>;
@@ -304,10 +323,10 @@ export default Vue.extend({
           conditionjson &&
           awardjson
         ) {
-          taskjson.id = taskid();
+          taskjson.id = getLostTaskId();
 
-          const newProcessid = processid();
-          const newSourceid = sourceid();
+          const newProcessid = getLostProcessId();
+          const newSourceid = getLostSourceId();
 
           taskjson.process_id = newProcessid;
           processjson.process_id = newProcessid;
@@ -315,7 +334,7 @@ export default Vue.extend({
 
           const newAwardid: string[] = [];
           processjson.awards.split(',').forEach((award_id) => {
-            const _award_id = awardid();
+            const _award_id = getLostAwardId();
             newAwardid.push(_award_id);
             awardjson.forEach((award) => {
               if (award.award_id === award_id) award.award_id = _award_id;
@@ -324,7 +343,7 @@ export default Vue.extend({
           processjson.awards = newAwardid.join(',');
 
           sourcejson.forEach((source) => {
-            const newConditionid = conditionid();
+            const newConditionid = getLostConditionId();
             source.source_id = newSourceid;
             source.condition_id = newConditionid;
             conditionjson.forEach((cond) => {
@@ -356,8 +375,11 @@ export default Vue.extend({
 
       this.refreshTable();
       this.afterRefreshTable = this.afterPasteTask;
-      // 延迟写入，不影响表格重绘
-      setTimeout(writeMapToExcel, 1000, workbookMap);
+
+      ChangedMapModule.Append({
+        path: ActiveFileModule.path,
+        data: workbookMap,
+      });
     },
 
     /**

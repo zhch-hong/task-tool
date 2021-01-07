@@ -3,10 +3,10 @@ import { Workbook, Worksheet } from 'exceljs';
 import { WorkbookMap } from '@/shims-cust';
 import { workbook2map } from './sheetToJson';
 import { parseString2Number } from '@/utils';
-import { getUserconfig } from '@/asserts/userconfig';
 import { getSheet } from './likeSheet';
 import { setColumnKey } from './setColumnKey';
 import { MessageBox } from 'element-ui';
+import { ActiveFileModule } from '@/store/modules/active-file';
 
 /**
  * 判断task工作表是否有模板id存储列，没有则添加
@@ -109,9 +109,7 @@ function _writeMapToExcel(workbookMap: WorkbookMap, path?: string) {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise<void>(async (resolve, reject) => {
     if (!path) {
-      const object: Record<string, string> = getUserconfig();
-      const { lastOpenFile } = object;
-      path = lastOpenFile;
+      path = ActiveFileModule.path;
     }
 
     if (!path) {

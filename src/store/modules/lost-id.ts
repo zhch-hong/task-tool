@@ -92,11 +92,36 @@ class LostId extends VuexModule {
     this.SET_LOST_ID(map);
   }
 
+  @Mutation
+  public PROGRESS_TASK_ID(): void {
+    this.maxTaskid++;
+  }
+
+  @Mutation
+  public PROGRESS_PROCESS_ID(): void {
+    this.maxProcessid++;
+  }
+
+  @Mutation
+  public PROGRESS_SOURCE_ID(): void {
+    this.maxSourceid++;
+  }
+
+  @Mutation
+  public PROGRESS_CONDITION_ID(): void {
+    this.maxConditionid++;
+  }
+
+  @Mutation
+  public PROGRESS_AWARD_ID(): void {
+    this.maxAwardid++;
+  }
+
   public get taskid() {
     return (): string => {
       const id = this.lostTaskid.shift();
       if (id) return id;
-      return (++this.maxTaskid).toString();
+      return this.maxTaskid.toString();
     };
   }
 
@@ -104,7 +129,7 @@ class LostId extends VuexModule {
     return (): string => {
       const id = this.lostProcessid.shift();
       if (id) return id;
-      return (++this.maxProcessid).toString();
+      return this.maxProcessid.toString();
     };
   }
 
@@ -112,7 +137,7 @@ class LostId extends VuexModule {
     return () => {
       const id = this.lostSourceid.shift();
       if (id) return id;
-      return (++this.maxSourceid).toString();
+      return this.maxSourceid.toString();
     };
   }
 
@@ -120,7 +145,7 @@ class LostId extends VuexModule {
     return () => {
       const id = this.lostConditionid.shift();
       if (id) return id;
-      return (++this.maxConditionid).toString();
+      return this.maxConditionid.toString();
     };
   }
 
@@ -128,9 +153,34 @@ class LostId extends VuexModule {
     return () => {
       const id = this.lostAwardid.shift();
       if (id) return id;
-      return (++this.maxAwardid).toString();
+      return this.maxAwardid.toString();
     };
   }
 }
 
 export const LostIdModule = getModule(LostId);
+
+export function getLostTaskId() {
+  LostIdModule.PROGRESS_TASK_ID();
+  return LostIdModule.taskid();
+}
+
+export function getLostProcessId() {
+  LostIdModule.PROGRESS_PROCESS_ID();
+  return LostIdModule.processid();
+}
+
+export function getLostSourceId() {
+  LostIdModule.PROGRESS_SOURCE_ID();
+  return LostIdModule.sourceid();
+}
+
+export function getLostConditionId() {
+  LostIdModule.PROGRESS_CONDITION_ID();
+  return LostIdModule.conditionid();
+}
+
+export function getLostAwardId() {
+  LostIdModule.PROGRESS_AWARD_ID();
+  return LostIdModule.awardid();
+}
