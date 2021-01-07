@@ -92,11 +92,11 @@ import {
   getLostProcessId,
   getLostSourceId,
   getLostTaskId,
-  LostIdModule,
 } from '@/store/modules/lost-id';
 import store from '@/store';
 import { ActiveFileModule } from '@/store/modules/active-file';
 import { ChangedMapModule } from '@/store/modules/changed-map';
+import { ViewResizeModule } from '@/store/modules/veiw-resize';
 
 export default Vue.extend({
   name: 'EditFile',
@@ -122,7 +122,7 @@ export default Vue.extend({
 
   computed: {
     tableHeight(): number {
-      return this.$store.state.windowHeight - 62;
+      return ViewResizeModule.windowHeight - 62;
     },
   },
 

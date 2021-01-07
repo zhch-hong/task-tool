@@ -7,14 +7,17 @@
 <script lang="ts">
 import Vue from 'vue';
 import TitleBar from '@/components/TitleBar.vue';
+import { ViewResizeModule } from './store/modules/veiw-resize';
 
 export default Vue.extend({
   components: {
     TitleBar,
   },
   mounted(): void {
-    this.$store.commit('windowHeight');
-    window.addEventListener('resize', () => this.$store.commit('windowHeight'));
+    ViewResizeModule.resetWindowHeight();
+    window.addEventListener('resize', () =>
+      ViewResizeModule.resetWindowHeight()
+    );
   },
 });
 </script>

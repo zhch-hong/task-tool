@@ -10,14 +10,12 @@ interface State {
   copyTaskList:
     | Record<string, Record<string, string> | Record<string, string>[]>[]
     | null;
-  windowHeight: number;
   taskTableScroll: Record<string, number> | null;
 }
 
 const state: State = {
   updateTaskId: '',
   copyTaskList: null,
-  windowHeight: 800,
   taskTableScroll: null,
 };
 
@@ -29,9 +27,6 @@ export default new Vuex.Store({
     },
     copyTaskList: (state, list) => {
       state.copyTaskList = list;
-    },
-    windowHeight: (state) => {
-      state.windowHeight = window.innerHeight;
     },
     taskTableScroll: (state, value) => (state.taskTableScroll = value),
   },
