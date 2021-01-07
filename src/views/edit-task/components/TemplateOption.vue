@@ -52,7 +52,7 @@ export default class TemplateOption extends Vue {
 
   @Watch('uuid')
   uuidWatch(value: string): void {
-    this.templateValue = value;
+    this.templateValue = value.split('|')[0];
   }
 
   @Watch('templateType')

@@ -1,9 +1,23 @@
 <template>
   <div>
-    <!-- <el-input placeholder="输入关键字进行过滤" v-model="filterText"> </el-input> -->
+    <el-input placeholder="输入关键字进行过滤" v-model="filterText"> </el-input>
     <el-tree
+      v-if="filterText"
+      :data="treedata"
       :props="treeProps"
       :filter-node-method="filterNode"
+      :default-expand-all="true"
+      ref="treeFull"
+      node-key="uuid"
+      show-checkbox
+    >
+      <template #default="{ data }">
+        <span style="user-select: none">{{ nameSlice(data) }}</span>
+      </template>
+    </el-tree>
+    <el-tree
+      v-else
+      :props="treeProps"
       :load="loadNode"
       ref="tree"
       node-key="uuid"
@@ -33,6 +47,7 @@ import {
 } from '@/utils';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import { ChangedMapModule } from '@/store/modules/changed-map';
+import { fullData } from './full-data';
 
 interface TreeMeta extends TreeData {
   uuid: string;
@@ -77,9 +92,11 @@ function readTemplate() {
 export default class TemplateManage extends Vue {
   $refs!: {
     tree: Tree<string, TreeMeta>;
+    treeFull: Tree<string, TreeMeta>;
   };
 
   filterText = '';
+  treedata: any[] = [];
 
   treeProps = {
     label: 'name',
@@ -102,7 +119,16 @@ export default class TemplateManage extends Vue {
 
   @Watch('filterText')
   textWatch(value: string): void {
-    this.$refs.tree.filter(value);
+    this.$nextTick(() => {
+      fullData().then((data) => {
+        this.treedata = data;
+        this.$nextTick(() => {
+          setTimeout(() => {
+            this.$refs.treeFull.filter(value);
+          }, 3000);
+        });
+      });
+    });
   }
 
   loadNode(
@@ -199,13 +225,35 @@ export default class TemplateManage extends Vue {
               if (taskList) {
                 let list: Record<string, string>[] = [];
                 if (type === 'base') {
-                  list = taskList.filter((item) => item.base_temp === tempid);
+                  list = taskList.filter((item) => {
+                    if (!item.base_temp) return false;
+                    if (item.base_temp.split('|')[0] === tempid) {
+                      if (this.filterText)
+                        return item.name.includes(this.filterText);
+                      return true;
+                    }
+                    return false;
+                  });
                 } else if (type === 'process') {
-                  list = taskList.filter(
-                    (item) => item.process_temp === tempid
-                  );
+                  list = taskList.filter((item) => {
+                    if (!item.process_temp) return false;
+                    if (item.process_temp.split('|')[0] === tempid) {
+                      if (this.filterText)
+                        return item.name.includes(this.filterText);
+                      return true;
+                    }
+                    return false;
+                  });
                 } else if (type === 'source') {
-                  list = taskList.filter((item) => item.source_temp === tempid);
+                  list = taskList.filter((item) => {
+                    if (!item.source_temp) return false;
+                    if (item.source_temp.split('|')[0] === tempid) {
+                      if (this.filterText)
+                        return item.name.includes(this.filterText);
+                      return true;
+                    }
+                    return false;
+                  });
                 }
                 list.forEach((task) => {
                   const object = {
@@ -234,6 +282,8 @@ export default class TemplateManage extends Vue {
   }
 
   filterNode(value: string, data: Record<string, string>): any {
+    console.log(data);
+
     if (value === '') return true;
 
     if (data.type !== 'task') return true;

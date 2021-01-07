@@ -1,8 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import { userdir } from '@/asserts/userdir';
-
 Vue.use(Vuex);
 
 interface State {
@@ -19,7 +17,7 @@ const state: State = {
   taskTableScroll: null,
 };
 
-export default new Vuex.Store({
+export default new Vuex.Store<State>({
   state: state,
   mutations: {
     updateTaskId: (state, id) => {
