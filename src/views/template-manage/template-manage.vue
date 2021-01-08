@@ -19,24 +19,19 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import { Workbook } from 'exceljs';
-import { v4 as uuid } from 'uuid';
-import { resolve } from 'path';
-import { readFileSync } from 'fs';
 import { Tree } from 'element-ui';
 import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { getUserconfig } from '@/asserts/userconfig';
+import { fullData } from './full-data';
 import {
   readExcelToMap,
-  getSheet,
-  getTreeDataDefault,
-  readFileText,
-  sheet2json,
   updateBase,
   updateProcess,
   updateSource,
 } from '@/utils';
 import { ChangedMapModule } from '@/store/modules/changed-map';
+import { NProgress } from '@/plugins/nprogress';
+import nProgress from 'nprogress';
 
 interface TreeMeta extends TreeData {
   uuid: string;
@@ -50,226 +45,6 @@ interface TreeMeta extends TreeData {
 
 const workDir: string = getUserconfig().workDir;
 
-// type name path task
-
-function flatTreedata(params: TreeMeta[], pathList: string[]) {
-  params.forEach((item) => {
-    if (item.path?.endsWith('.xlsx')) {
-      pathList.push(item.path);
-    }
-    if (item.children && item.children.length !== 0) {
-      flatTreedata(item.children, pathList);
-    }
-  });
-}
-
-function treedataMap(pathList: string[]): Promise<Record<string, any>> {
-  return new Promise((resolve) => {
-    const uuidMap: Record<string, any> = {};
-    pathList.forEach(async (path, index) => {
-      const workbook = new Workbook();
-      const buffer = readFileSync(path);
-      await workbook.xlsx.load(buffer);
-      const sheet = getSheet(workbook, 'task');
-      if (sheet) {
-        const json = sheet2json(sheet);
-        json.forEach((task) => {
-          const { base_temp, process_temp, source_temp } = task;
-
-          if (base_temp) {
-            const baseid = base_temp.split('|')[0];
-            const baseidMap = uuidMap[baseid];
-
-            if (baseidMap) {
-              const res = baseidMap.find(
-                (item: Record<string, any>) => item.name === path
-              );
-              if (res) {
-                res.children.push({
-                  uuid: uuid(),
-                  type: 'task',
-                  name: `${task.name}@${task.id}`,
-                });
-              } else {
-                const object = {
-                  uuid: uuid(),
-                  name: path,
-                  type: 'path',
-                  children: [
-                    {
-                      uuid: uuid(),
-                      type: 'task',
-                      name: `${task.name}@${task.id}`,
-                    },
-                  ],
-                };
-                baseidMap.push(object);
-              }
-            } else {
-              const object = {
-                uuid: uuid(),
-                name: path,
-                type: 'path',
-                children: [
-                  {
-                    uuid: uuid(),
-                    type: 'task',
-                    name: `${task.name}@${task.id}`,
-                  },
-                ],
-              };
-              uuidMap[baseid] = [object];
-            }
-          }
-
-          if (process_temp) {
-            const processid = process_temp.split('|')[0];
-            const processidMap = uuidMap[processid];
-
-            if (processidMap) {
-              const res = processidMap.find(
-                (item: Record<string, any>) => item.name === path
-              );
-              if (res) {
-                res.children.push({
-                  uuid: uuid(),
-                  type: 'task',
-                  name: `${task.name}@${task.id}`,
-                });
-              } else {
-                const object = {
-                  uuid: uuid(),
-                  name: path,
-                  type: 'path',
-                  children: [
-                    {
-                      uuid: uuid(),
-                      type: 'task',
-                      name: `${task.name}@${task.id}`,
-                    },
-                  ],
-                };
-                processidMap.push(object);
-              }
-            } else {
-              const object = {
-                uuid: uuid(),
-                name: path,
-                type: 'path',
-                children: [
-                  {
-                    uuid: uuid(),
-                    type: 'task',
-                    name: `${task.name}@${task.id}`,
-                  },
-                ],
-              };
-              uuidMap[processid] = [object];
-            }
-          }
-
-          if (source_temp) {
-            const sourceid = source_temp.split('|')[0];
-            const sourceidMap = uuidMap[sourceid];
-
-            if (sourceidMap) {
-              const res = sourceidMap.find(
-                (item: Record<string, any>) => item.name === path
-              );
-              if (res) {
-                res.children.push({
-                  uuid: uuid(),
-                  type: 'task',
-                  name: `${task.name}@${task.id}`,
-                });
-              } else {
-                const object = {
-                  uuid: uuid(),
-                  name: path,
-                  type: 'path',
-                  children: [
-                    {
-                      uuid: uuid(),
-                      type: 'task',
-                      name: `${task.name}@${task.id}`,
-                    },
-                  ],
-                };
-                sourceidMap.push(object);
-              }
-            } else {
-              const object = {
-                uuid: uuid(),
-                name: path,
-                type: 'path',
-                children: [
-                  {
-                    uuid: uuid(),
-                    type: 'task',
-                    name: `${task.name}@${task.id}`,
-                  },
-                ],
-              };
-              uuidMap[sourceid] = [object];
-            }
-          }
-        });
-      }
-      if (index === pathList.length - 1) {
-        resolve(uuidMap);
-      }
-    });
-  });
-}
-
-async function readTemplate() {
-  const treedata: any = getTreeDataDefault();
-  const pathList: string[] = [];
-  flatTreedata(treedata, pathList);
-
-  const treeMap: Record<string, any> = await treedataMap(pathList);
-
-  const uuidList: string[] = [];
-
-  const path = resolve(resolve(workDir, 'app_config'), `template-manage.json`);
-  const object: Record<string, Record<string, any>[]> = readFileText(path);
-  for (const key in object) {
-    if (Object.prototype.hasOwnProperty.call(object, key)) {
-      const element = object[key];
-      element.forEach((el) => {
-        uuidList.push(el.uuid);
-        el['type'] = 'name';
-        el['children'] = treeMap[el.uuid];
-      });
-    }
-  }
-
-  const data = [
-    {
-      uuid: uuid(),
-      type: 'type',
-      value: 'base',
-      name: '任务模板',
-      children: object.base,
-    },
-    {
-      uuid: uuid(),
-      type: 'type',
-      value: 'process',
-      name: '过程模板',
-      children: object.process,
-    },
-    {
-      uuid: uuid(),
-      type: 'type',
-      value: 'source',
-      name: '来源模板',
-      children: object.source,
-    },
-  ];
-  return data;
-}
-
 @Component
 export default class TemplateManage extends Vue {
   $refs!: {
@@ -282,9 +57,6 @@ export default class TemplateManage extends Vue {
     label: 'name',
     children: 'children',
     disabled: false,
-    isLeaf: (data: any, node: any) => {
-      return false;
-    },
   };
 
   @Watch('filterText')
@@ -292,9 +64,13 @@ export default class TemplateManage extends Vue {
     this.$refs.tree.filter(value);
   }
 
-  created(): void {
-    readTemplate().then((data) => {
+  async mounted(): Promise<void> {
+    NProgress.start();
+    await this.$nextTick();
+    fullData().then(async (data) => {
       this.treedata = data;
+      await this.$nextTick();
+      nProgress.done();
     });
   }
 

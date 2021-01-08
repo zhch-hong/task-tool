@@ -1,15 +1,8 @@
-import { TreeData } from 'element-ui/types/tree';
-import { Workbook } from 'exceljs';
-import { v4 as uuid } from 'uuid';
-import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import {
-  getSheet,
-  getTreeDataDefault,
-  readFileText,
-  sheet2json,
-} from '@/utils';
+import { v4 as uuid } from 'uuid';
+import { TreeData } from 'element-ui/types/tree';
 import { getUserconfig } from '@/asserts/userconfig';
+import { getTreeDataDefault, readFileText } from '@/utils';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 
 interface TreeMeta extends TreeData {
