@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="margin: 20px">
     <ConfigTable :config-path="configPath" />
     <FileTree :config-path="configPath" />
   </div>

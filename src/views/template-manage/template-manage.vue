@@ -1,6 +1,11 @@
 <template>
-  <div>
-    <el-input placeholder="输入关键字进行过滤" v-model="filterText"> </el-input>
+  <div style="margin: 20px; width: 500px">
+    <el-input
+      v-model="filterText"
+      style="width: 400px; margin-bottom: 20px"
+      placeholder="输入关键字进行过滤"
+    >
+    </el-input>
     <el-tree
       :data="treedata"
       :props="treeProps"
@@ -14,7 +19,9 @@
         <span>{{ nameSlice(data) }}</span>
       </template>
     </el-tree>
-    <el-button type="primary" @click="getCheckedNodes">应用模板数据</el-button>
+    <el-button type="primary" style="margin-top: 20px" @click="getCheckedNodes"
+      >应用模板数据</el-button
+    >
   </div>
 </template>
 <script lang="ts">
@@ -74,10 +81,18 @@ export default class TemplateManage extends Vue {
     });
   }
 
-  filterNode(value: string, data: Record<string, string>): any {
+  filterNode(value: string, data: Record<string, any>): any {
     if (value === '') return true;
 
-    if (data.type !== 'task') return true;
+    if (data.type !== 'task') {
+      if (data.type === 'path') {
+        const b = data.children.some((item: Record<string, string>) =>
+          item.name.includes(value)
+        );
+        return b;
+      }
+      return true;
+    }
 
     return data.name.includes(value);
   }
@@ -117,7 +132,7 @@ export default class TemplateManage extends Vue {
       }
     });
 
-    array.forEach(async (item, index) => {
+    array.forEach(async (item) => {
       const path: string = item.path;
       const map = await readExcelToMap(path);
       const list: Record<string, any>[] = item.list;
@@ -131,15 +146,6 @@ export default class TemplateManage extends Vue {
         if (type === 'source') updateSource(map, id, data);
       });
       ChangedMapModule.Append({ path, data: map });
-
-      if (index === array.length - 1) {
-        this.$notify({
-          title: '文件更新完成',
-          message: '所选任务已全部使用模板数据',
-          type: 'success',
-          position: 'bottom-right',
-        });
-      }
     });
   }
 

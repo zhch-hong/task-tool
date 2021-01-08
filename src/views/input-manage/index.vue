@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="margin: 20px">
     <el-tabs v-model="activeName">
       <el-tab-pane label="任务获得类型" name="type">
         <tab-item :table-data="typeData" @update-data="updateType" />

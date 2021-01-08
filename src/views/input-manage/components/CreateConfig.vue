@@ -4,7 +4,7 @@
       <el-button
         type="primary"
         @click="visiblesync = true"
-        style="margin: 20px 20px 0 0"
+        style="margin: 20px 0 0 0"
         >添加</el-button
       >
     </div>
