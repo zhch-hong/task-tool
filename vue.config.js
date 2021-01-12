@@ -6,6 +6,7 @@ module.exports = {
         win: {
           icon: 'src/assets/icon_256.ico',
         },
+        publish: ['github'],
       },
     },
   },
