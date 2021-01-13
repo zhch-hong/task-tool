@@ -52,7 +52,8 @@ function validateTaskid(id?: string): Promise<void> {
             } else {
               resolve();
             }
-          } else {
+          }
+          if (activeModel === 'update') {
             if (id) {
               if (id.toString() === updateTaskid.toString()) {
                 resolve();
@@ -94,6 +95,8 @@ export async function writeExcel(data: Record<string, any>) {
   updateTaskid = store.state.updateTaskId;
   if (updateTaskid === '') {
     activeModel = 'create';
+  } else {
+    activeModel = 'update';
   }
 
   console.log(stringify(data));
