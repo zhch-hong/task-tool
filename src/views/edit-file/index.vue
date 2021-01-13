@@ -344,12 +344,14 @@ export default Vue.extend({
 
           sourcejson.forEach((source) => {
             const newConditionid = getLostConditionId();
+            console.log(newConditionid, conditionjson);
+
             source.source_id = newSourceid;
-            source.condition_id = newConditionid;
             conditionjson.forEach((cond) => {
               if (cond.condition_id === source.condition_id)
                 cond.condition_id = newConditionid;
             });
+            source.condition_id = newConditionid;
           });
 
           // 复制的任务数据需要为每一条赋新的uuid
