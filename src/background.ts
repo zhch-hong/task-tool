@@ -1,12 +1,16 @@
 'use strict';
 
-import { autoUpdater } from 'electron-updater';
-import { app, protocol, BrowserWindow, Menu, NativeImage } from 'electron';
+import { app, protocol, BrowserWindow, Menu } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+
+import { autoUpdater } from '@/ipcMain/upgrade';
+
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-// Menu.setApplicationMenu(null);
+if (!process.env.WEBPACK_DEV_SERVER_URL) {
+  Menu.setApplicationMenu(null);
+}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -32,6 +36,8 @@ function createWindow() {
     frame: false,
   });
 
+  win.maximize();
+
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string);
@@ -41,7 +47,9 @@ function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html');
 
-    autoUpdater.checkForUpdatesAndNotify();
+    // win.webContents.openDevTools();
+
+    autoUpdater.checkForUpdates();
   }
 
   win.on('closed', () => {

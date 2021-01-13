@@ -1,5 +1,3 @@
-import './styles/index.scss';
-
 import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
@@ -10,6 +8,8 @@ import './plugins/vxe-table';
 import './plugins/progress-bar';
 
 import '@/asserts/initAppConfigFile';
+
+import './styles/index.scss';
 
 Vue.config.productionTip = false;
 
