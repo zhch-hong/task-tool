@@ -43,10 +43,12 @@ export default class TitleBar extends Vue {
 
   maxSize(): void {
     BrowserWindow.getFocusedWindow()?.maximize();
+    this.isMax = true;
   }
 
   normalSize(): void {
     BrowserWindow.getFocusedWindow()?.unmaximize();
+    this.isMax = false;
   }
 }
 </script>

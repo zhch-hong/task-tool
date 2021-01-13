@@ -35,8 +35,24 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import { resolve } from 'path';
+import { readFileText } from '@/utils';
+import { getUserconfig } from '@/asserts/userconfig';
 
 import UpdateReward from './UpdateReward.vue';
+
+const path = resolve(
+  getUserconfig().workDir,
+  'app_config',
+  'input-manage.json'
+);
+
+const inputList: Record<string, any>[] = readFileText(path);
+const assetData = inputList.find((item) => item.value === 'asset');
+let assetList: Record<string, string>[] = [];
+if (assetData) {
+  assetList = assetData.select;
+}
 
 @Component({
   components: {
@@ -85,9 +101,8 @@ export default class RewardTable extends Vue {
     column: Record<string, any>,
     value: string
   ): string {
-    if (value === 'prop_web_chip_huafei') return '福卡';
-    if (value === 'jing_bi') return '金币';
-    if (value === 'shop_gold_sum') return '鱼币';
+    const res = assetList.find((item) => item.value === value);
+    if (res) return res.name;
     return value;
   }
 }
