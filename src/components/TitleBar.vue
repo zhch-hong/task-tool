@@ -14,6 +14,8 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { remote } from 'electron';
+import { ChangedMapModule } from '@/store/modules/changed-map';
+import { writeChanged } from '@/utils';
 
 const { app, BrowserWindow } = remote;
 
@@ -30,7 +32,13 @@ export default class TitleBar extends Vue {
   }
 
   closeWindow(): void {
-    app.exit();
+    if (ChangedMapModule.changedMap.size === 0) {
+      app.exit();
+    } else {
+      writeChanged(0).then(() => {
+        app.exit();
+      });
+    }
   }
 
   switchSize(): void {
