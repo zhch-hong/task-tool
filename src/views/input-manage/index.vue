@@ -69,19 +69,27 @@ export default class InputManage extends Vue {
         value: payload.value,
         uuid: uuid(),
       });
+      const typeList = this.data.find((item) => item.value === 'type');
+      if (typeList) typeList.select = this.typeData;
     } else if (this.activeName === 'enum') {
       this.enumData.push({
         name: payload.name,
         value: payload.value,
         uuid: uuid(),
       });
+      const enumList = this.data.find((item) => item.value === 'enum');
+      if (enumList) enumList.select = this.enumData;
     } else if (this.activeName === 'asset') {
       this.assetData.push({
         name: payload.name,
         value: payload.value,
         uuid: uuid(),
       });
+      const assetList = this.data.find((item) => item.value === 'asset');
+      if (assetList) assetList.select = this.assetData;
     }
+
+    this.writeFile();
   }
 
   updateType(data: Record<string, string>[]): void {
