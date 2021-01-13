@@ -4,6 +4,7 @@
       <el-button @click="treeDialog = true" title="Ctrl+O">打开文件</el-button>
       <el-button @click="readLastExcel" title="F5">刷新</el-button>
       <el-button @click="createTask" title="Ctrl+N">添加任务</el-button>
+      <el-button @click="deleteTask" title="ctrl+R">删除任务</el-button>
       <el-button @click="copySelection" title="Ctrl+C">拷贝</el-button>
       <el-button @click="pasteTask" title="Ctrl+V">粘贴</el-button>
       <el-button @click="doubleTask" title="Ctrl+D">复制</el-button>
@@ -97,6 +98,7 @@ import store from '@/store';
 import { ActiveFileModule } from '@/store/modules/active-file';
 import { ChangedMapModule } from '@/store/modules/changed-map';
 import { ViewResizeModule } from '@/store/modules/veiw-resize';
+import { deleteExisting } from '@/utils';
 
 export default Vue.extend({
   name: 'EditFile',
@@ -478,6 +480,51 @@ export default Vue.extend({
       }
     },
 
+    async deleteTask(): Promise<void> {
+      const checkList = (this.$refs.vxeTable as Table).getCheckboxRecords();
+
+      if (checkList.length !== 0) {
+        const path = ActiveFileModule.path;
+        const map = await WorkspacedModule.bookMapByPath(path);
+        const taskList = map.get('task')!;
+        const processList = map.get('process_data')!;
+        const sourceList = map.get('source')!;
+        const conditionList = map.get('condition')!;
+        const awardList = map.get('award_data')!;
+        checkList.forEach((task) => {
+          const taskId: string = task.id;
+          const processId: string = task.process_id;
+          let sourceId = '';
+          let conditionIdList: string[] = [];
+          let awardIdList: string[] = [];
+
+          const process = processList.find((p) => p.process_id === processId);
+          if (process) {
+            sourceId = process.source_id;
+            conditionIdList = sourceList
+              .filter((s) => s.source_id === sourceId)
+              .map((s) => s.condition_id);
+
+            awardIdList = process.awards.split(',');
+          }
+
+          deleteExisting(taskList, 'id', taskId);
+          deleteExisting(processList, 'process_id', processId);
+          deleteExisting(sourceList, 'source_id', sourceId);
+          conditionIdList.forEach((id) =>
+            deleteExisting(conditionList, 'condition_id', id)
+          );
+          awardIdList.forEach((id) =>
+            deleteExisting(awardList, 'award_id', id)
+          );
+        });
+
+        ChangedMapModule.Append({ path: path, data: map });
+
+        this.refreshTable();
+      }
+    },
+
     bindKeyboard(): void {
       bind(
         'ctrl+o',
@@ -499,6 +546,14 @@ export default Vue.extend({
         'ctrl+n',
         () => {
           this.createTask();
+          return false;
+        },
+        'keydown'
+      );
+      bind(
+        'ctrl+r',
+        () => {
+          this.deleteTask();
           return false;
         },
         'keydown'
@@ -533,6 +588,7 @@ export default Vue.extend({
       unbind('ctrl+o', 'keydown');
       unbind('f5', 'keydown');
       unbind('ctrl+n', 'keydown');
+      unbind('delete', 'keydown');
       unbind('ctrl+c', 'keydown');
       unbind('ctrl+v', 'keydown');
       unbind('ctrl+d', 'keydown');
