@@ -24,6 +24,7 @@
       <!-- 条件值 -->
       <template v-else-if="treeData.type === 'value'">
         <li @click.stop="onclickNode('update')">编辑条件值</li>
+        <li @click.stop="onclickNode('remove')">删除条件值</li>
       </template>
     </ul>
   </div>
