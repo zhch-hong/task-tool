@@ -3,7 +3,7 @@ module.exports = {
     electronBuilder: {
       nodeIntegration: true,
       builderOptions: {
-        productName: '任务管理器',
+        productName: '任务配置工具',
         win: {
           icon: 'src/assets/icon_256.ico',
         },

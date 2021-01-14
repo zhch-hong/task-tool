@@ -1,6 +1,7 @@
 <template>
   <div style="-webkit-app-region: drag" class="title-bar">
     <div class="app-icon"></div>
+    <div class="app-name">任务配置工具</div>
     <ul style="-webkit-app-region: no-drag" class="do-window">
       <li class="min-size" @click.stop="minSize"></li>
       <li
@@ -64,8 +65,7 @@ export default class TitleBar extends Vue {
 .title-bar {
   position: relative;
   height: 30px;
-  box-shadow: #dcdfe6 0 0 1px 0;
-  // background-image: linear-gradient(to bottom, #dcdfe6, #fff);
+  background-color: #eaeaeb;
   .do-window {
     position: absolute;
     height: 100%;
@@ -118,6 +118,14 @@ export default class TitleBar extends Vue {
   display: inline-block;
   height: 100%;
   width: 30px;
-  background: no-repeat url('../assets/icon_32.png') center/55%;
+  margin-left: 5px;
+  background: no-repeat url('../assets/icon_32.png') 5px 6px/20px 18px;
+}
+.app-name {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
 }
 </style>
