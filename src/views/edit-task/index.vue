@@ -46,7 +46,6 @@ import { bind, unbind } from 'mousetrap';
 import store from '@/store';
 import { stringify } from '@/utils';
 import { writeExcel } from './utils/writeExcel';
-import { WorkbookMap } from '@/shims-cust';
 
 import BaseData from './components/BaseData.vue';
 import ProgressData from './components/ProgressData.vue';

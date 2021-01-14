@@ -345,13 +345,20 @@ export default Vue.extend({
           processjson.awards = newAwardid.join(',');
 
           sourcejson.forEach((source) => {
-            const newConditionid = getLostConditionId();
-            console.log(newConditionid, conditionjson);
-
             source.source_id = newSourceid;
+
+            // 如果一条来源的数据的条件id为0，说明该来源没有条件
+            // 那么在拷贝时将不赋值新的条件id，仍然使用0
+            let newConditionid = '0';
             conditionjson.forEach((cond) => {
-              if (cond.condition_id === source.condition_id)
+              if (
+                source.condition_id.toString() !== '0' &&
+                cond.condition_id === source.condition_id
+              ) {
+                newConditionid = getLostConditionId();
+
                 cond.condition_id = newConditionid;
+              }
             });
             source.condition_id = newConditionid;
           });
