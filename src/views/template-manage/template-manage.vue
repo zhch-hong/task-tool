@@ -15,8 +15,14 @@
       show-checkbox
       default-expand-all
     >
-      <template #default="{ data }">
-        <span>{{ nameSlice(data) }}</span>
+      <template #default="{ data, node }">
+        <NodeItem
+          :tree-node="node"
+          :tree-data="data"
+          @remove="deleteTemplate(data, node)"
+        >
+          <span style="user-select: none">{{ nameSlice(data) }}</span>
+        </NodeItem>
       </template>
     </el-tree>
     <el-button type="primary" style="margin-top: 20px" @click="getCheckedNodes"
@@ -26,19 +32,25 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator';
+import { resolve } from 'path';
 import { Tree } from 'element-ui';
 import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { getUserconfig } from '@/asserts/userconfig';
 import { fullData } from './full-data';
 import {
   readExcelToMap,
+  readFileText,
+  stringify,
   updateBase,
   updateProcess,
   updateSource,
+  writeFileText,
 } from '@/utils';
 import { ChangedMapModule } from '@/store/modules/changed-map';
 import { NProgress } from '@/plugins/nprogress';
 import nProgress from 'nprogress';
+
+import NodeItem from './components/NodeItem.vue';
 
 interface TreeMeta extends TreeData {
   uuid: string;
@@ -52,7 +64,11 @@ interface TreeMeta extends TreeData {
 
 const workDir: string = getUserconfig().workDir;
 
-@Component
+@Component({
+  components: {
+    NodeItem,
+  },
+})
 export default class TemplateManage extends Vue {
   $refs!: {
     tree: Tree<string, TreeMeta>;
@@ -71,7 +87,11 @@ export default class TemplateManage extends Vue {
     this.$refs.tree.filter(value);
   }
 
-  async mounted(): Promise<void> {
+  mounted(): void {
+    this.readTreeData();
+  }
+
+  async readTreeData(): Promise<void> {
     NProgress.start();
     await this.$nextTick();
     fullData().then(async (data) => {
@@ -147,6 +167,30 @@ export default class TemplateManage extends Vue {
       });
       ChangedMapModule.Append({ path, data: map });
     });
+  }
+
+  deleteTemplate(data: TreeMeta, node: TreeNode<string, TreeMeta>): void {
+    console.log(stringify(data), node);
+
+    const type = node.parent?.data.value;
+    if (typeof type === 'undefined') return;
+
+    const workDir: string = getUserconfig().workDir;
+    const path = resolve(
+      resolve(workDir, 'app_config'),
+      `template-manage.json`
+    );
+    const object: Record<string, Record<string, any>[]> = readFileText(path);
+
+    const index = object[type].findIndex((el) => el.uuid === data.uuid);
+
+    if (index !== -1) {
+      object[type].splice(index, 1);
+    }
+
+    writeFileText(path, object);
+
+    this.readTreeData();
   }
 
   nameSlice(data: TreeMeta): string {
