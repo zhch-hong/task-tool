@@ -25,7 +25,11 @@
         </NodeItem>
       </template>
     </el-tree>
-    <el-button type="primary" style="margin-top: 20px" @click="getCheckedNodes"
+    <el-button
+      :loading="loading"
+      type="primary"
+      style="margin-top: 20px"
+      @click="getCheckedNodes"
       >应用模板数据</el-button
     >
   </div>
@@ -51,6 +55,7 @@ import { NProgress } from '@/plugins/nprogress';
 import nProgress from 'nprogress';
 
 import NodeItem from './components/NodeItem.vue';
+import { WorkspacedModule } from '@/store/modules/workspaced';
 
 interface TreeMeta extends TreeData {
   uuid: string;
@@ -74,6 +79,7 @@ export default class TemplateManage extends Vue {
     tree: Tree<string, TreeMeta>;
   };
 
+  loading = false;
   filterText = '';
   treedata: any[] = [];
   treeProps = {
@@ -117,7 +123,10 @@ export default class TemplateManage extends Vue {
     return data.name.includes(value);
   }
 
-  getCheckedNodes(): void {
+  async getCheckedNodes(): Promise<void> {
+    this.loading = true;
+    await this.$nextTick();
+
     const nodes = this.$refs.tree.getCheckedNodes(true);
     const array: Record<string, any>[] = [];
     nodes.forEach((data) => {
@@ -152,9 +161,9 @@ export default class TemplateManage extends Vue {
       }
     });
 
-    array.forEach(async (item) => {
+    array.forEach(async (item, index) => {
       const path: string = item.path;
-      const map = await readExcelToMap(path);
+      const map = await WorkspacedModule.bookMapByPath(path);
       const list: Record<string, any>[] = item.list;
       list.forEach((t) => {
         const id: string = t.id;
@@ -166,6 +175,11 @@ export default class TemplateManage extends Vue {
         if (type === 'source') updateSource(map, id, data);
       });
       ChangedMapModule.Append({ path, data: map });
+
+      if (index === array.length - 1) {
+        this.$message.success('模板数据应用完成');
+        this.loading = false;
+      }
     });
   }
 
