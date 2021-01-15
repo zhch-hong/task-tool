@@ -111,11 +111,17 @@ export default Vue.extend({
         message: '检测到数据已经改动，并尚未保存，离开将丢弃数据',
         type: 'warning',
         cancelId: -1,
-        buttons: ['取消', '放弃改动'],
+        defaultId: 1,
+        buttons: ['取消', '保存', '放弃改动'],
       });
-      if (response === 1) {
+      if (response === 2) {
         store.commit('updateTaskId', '');
         next();
+      } else if (response === 1) {
+        this.handleSave().then(() => {
+          store.commit('updateTaskId', '');
+          next();
+        });
       } else {
         next(false);
       }
