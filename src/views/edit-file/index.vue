@@ -252,7 +252,11 @@ export default Vue.extend({
                     object['process'] = process;
 
                     const { awards, source_id } = process;
+                    console.log(awards);
+
                     const awardList = await this.getAwardList(awards);
+                    console.log(awardList);
+
                     if (awardList) object['awards'] = awardList;
 
                     object['source'] = sourcejson.filter(
@@ -294,8 +298,13 @@ export default Vue.extend({
       const path = ActiveFileModule.path;
       const workbookMap = await WorkspacedModule.bookMapByPath(path);
       const awardjson = workbookMap.get('award_data');
+      console.log(awardjson);
+      console.log(idList);
+
       if (awardjson) {
-        return awardjson.filter((item) => idList.includes(item.award_id));
+        return awardjson.filter((item) =>
+          idList.includes(item.award_id.toString())
+        );
       }
     },
 
@@ -339,7 +348,7 @@ export default Vue.extend({
             const _award_id = getLostAwardId();
             newAwardid.push(_award_id);
             awardjson.forEach((award) => {
-              if (award.award_id === award_id) award.award_id = _award_id;
+              if (award.award_id == award_id) award.award_id = _award_id;
             });
           });
           processjson.awards = newAwardid.join(',');
@@ -380,17 +389,23 @@ export default Vue.extend({
           const conditionList = workbookMap.get('condition');
           if (conditionList) conditionList.push(...conditionjson);
           const awardList = workbookMap.get('award_data');
+          console.log(awardjson);
+
           if (awardList) awardList.push(...awardjson);
         }
       });
-
-      this.refreshTable();
-      this.afterRefreshTable = this.afterPasteTask;
 
       ChangedMapModule.Append({
         path: ActiveFileModule.path,
         data: workbookMap,
       });
+
+      this.refreshTable();
+      this.afterRefreshTable = this.afterPasteTask;
+
+      setTimeout(() => {
+        console.log(workbookMap.get('award_data'));
+      }, 3000);
     },
 
     /**

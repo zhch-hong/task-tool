@@ -186,7 +186,7 @@ export default Vue.extend({
           string
         >[];
         this.awardData = awards.split(',').map((award_id) => {
-          return awardList.filter((award) => award.award_id === award_id);
+          return awardList.filter((award) => award.award_id == award_id);
         });
 
         const sourceList = workbookMap.get('source') as Record<
