@@ -8,7 +8,6 @@ import FileManage from '@/views/file-manage/index.vue';
 import SourceManage from '@/views/source-manage/index.vue';
 import InputManage from '@/views/input-manage/index.vue';
 import TemplateManage from '@/views/template-manage/template-manage.vue';
-// import Electron from '@/views/electron.vue';
 
 const routes: RouteConfig[] = [
   {
@@ -45,11 +44,6 @@ const routes: RouteConfig[] = [
     component: Layout,
     children: [{ path: '', component: TemplateManage }],
   },
-  // {
-  //   path: '/electron',
-  //   component: Layout,
-  //   children: [{ path: '', component: Electron }],
-  // },
 ];
 
 export default routes;

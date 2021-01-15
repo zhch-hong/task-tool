@@ -13,7 +13,6 @@
       ref="tree"
       node-key="uuid"
       show-checkbox
-      default-expand-all
     >
       <template #default="{ data, node }">
         <NodeItem
