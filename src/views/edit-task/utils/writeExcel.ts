@@ -131,10 +131,6 @@ function writeBase(
   const taskList = workbookMap.get('task') as Record<string, string>[];
   const { baseTempid, processTempid, sourceTempid } = template;
 
-  data['base_temp'] = baseTempid || null;
-  data['process_temp'] = processTempid || null;
-  data['source_temp'] = sourceTempid || null;
-
   if (activeModel === 'update') {
     lostProcessid = data.process_id;
 
@@ -142,9 +138,26 @@ function writeBase(
       (item) => item.id.toString() === updateTaskid.toString()
     );
     if (index !== -1) {
+      data['base_temp'] =
+        typeof baseTempid === 'undefined'
+          ? taskList[index].base_temp || null
+          : baseTempid;
+      data['process_temp'] =
+        typeof processTempid === 'undefined'
+          ? taskList[index].process_temp || null
+          : processTempid;
+      data['source_temp'] =
+        typeof sourceTempid === 'undefined'
+          ? taskList[index].source_temp || null
+          : sourceTempid;
+
       taskList.splice(index, 1, data);
     }
   } else {
+    data['base_temp'] = baseTempid || null;
+    data['process_temp'] = processTempid || null;
+    data['source_temp'] = sourceTempid || null;
+
     // 如果创建任务时手动输入了id，则使用输入的id，否则使用自增的id
     if (!data.id) data.id = lostTaskid;
 
