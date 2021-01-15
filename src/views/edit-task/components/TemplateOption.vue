@@ -61,9 +61,13 @@ export default class TemplateOption extends Vue {
   }
 
   created(): void {
-    this.templateList = readTemplate(this.templateType);
+    this.refreshTemplate();
 
     if (this.uuid) this.templateValue = this.uuid;
+  }
+
+  refreshTemplate(): void {
+    this.templateList = readTemplate(this.templateType);
   }
 
   templateChange(value: string): void {
@@ -173,11 +177,20 @@ export default class TemplateOption extends Vue {
     }
   }
 
-  saveTemplate(data: any): void {
+  saveTemplate(data: Record<string, any>): void {
     const object = this.writeTempBefore(data);
+    console.log(object);
     if (object) {
       this.templateList.push(object);
       writeTemplate(this.templateType, this.templateList);
+
+      this.$nextTick(() => {
+        this.refreshTemplate();
+
+        this.templateValue = object.uuid;
+
+        this.$emit('template-uuid', object.uuid + '|' + object.name);
+      });
     }
   }
 }
