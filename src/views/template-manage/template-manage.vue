@@ -41,7 +41,6 @@ import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { getUserconfig } from '@/asserts/userconfig';
 import { fullData } from './full-data';
 import {
-  readExcelToMap,
   readFileText,
   stringify,
   updateBase,
@@ -93,10 +92,10 @@ export default class TemplateManage extends Vue {
   }
 
   mounted(): void {
-    this.readTreeData();
+    this.refreshTreeData();
   }
 
-  async readTreeData(): Promise<void> {
+  async refreshTreeData(): Promise<void> {
     NProgress.start();
     await this.$nextTick();
     fullData().then(async (data) => {
@@ -183,6 +182,7 @@ export default class TemplateManage extends Vue {
   }
 
   deleteTemplate(data: TreeMeta, node: TreeNode<string, TreeMeta>): void {
+    const { uuid: templateId } = data;
     console.log(stringify(data), node);
 
     const type = node.parent?.data.value;
@@ -195,7 +195,7 @@ export default class TemplateManage extends Vue {
     );
     const object: Record<string, Record<string, any>[]> = readFileText(path);
 
-    const index = object[type].findIndex((el) => el.uuid === data.uuid);
+    const index = object[type].findIndex((el) => el.uuid === templateId);
 
     if (index !== -1) {
       object[type].splice(index, 1);
@@ -203,7 +203,42 @@ export default class TemplateManage extends Vue {
 
     writeFileText(path, object);
 
-    this.readTreeData();
+    this.refreshTreeData();
+
+    let typeParam = '';
+    if (type) {
+      if (type === 'base') typeParam = 'base_temp';
+      if (type === 'process') typeParam = 'process_temp';
+      if (type === 'source') typeParam = 'source_temp';
+    }
+    data.children?.forEach((pathNode) => {
+      const { name: path } = pathNode;
+      const taskIdList: string[] = [];
+      pathNode.children?.forEach((taskNode) => {
+        const taskId = taskNode.name.split('@')[1];
+        taskIdList.push(taskId);
+      });
+
+      this.clearTemplateId(path, typeParam, taskIdList);
+    });
+  }
+
+  async clearTemplateId(
+    path: string,
+    type: string,
+    list: string[]
+  ): Promise<void> {
+    const map = await WorkspacedModule.bookMapByPath(path);
+    const taskList = map.get('task')!;
+
+    list.forEach((id) => {
+      const task = taskList.find((t) => t.id === id);
+      if (task) {
+        Object.assign(task, { [type]: null });
+      }
+    });
+
+    ChangedMapModule.Append({ path, data: map });
   }
 
   nameSlice(data: TreeMeta): string {
