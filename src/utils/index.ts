@@ -1,12 +1,25 @@
-export { getSheet } from './likeSheet';
-export { readFileText, writeFileText } from '@/utils/fileSystem';
-export { getTreeData, getTreeDataDefault } from './filtFileTree';
-export { propertySlice } from './propertySlice';
-export { sheet2json, workbook2map } from './sheetToJson';
-export { setColumnKey } from './setColumnKey';
-export { updateBase, updateProcess, updateSource } from './writeTask';
-export { readExcelToMap, writeMapToExcel } from './xlsxIO';
-export { writeChanged } from './write-changed';
+import { TreeData } from 'element-ui/types/tree';
+
+interface TreeMeta extends TreeData {
+  uuid?: string;
+  type?: 'type' | 'name' | 'path' | 'task';
+  value?: 'base' | 'process' | 'source';
+  name?: string;
+  path?: string;
+  data?: Record<string, any>;
+  children?: TreeMeta[];
+}
+
+function flatTreedata(params: TreeMeta[], pathList: string[]) {
+  params.forEach((item) => {
+    if (item.path?.endsWith('.xlsx')) {
+      pathList.push(item.path);
+    }
+    if (item.children && item.children.length !== 0) {
+      flatTreedata(item.children, pathList);
+    }
+  });
+}
 
 /**
  * 删除现有的数据，递归删除
@@ -14,13 +27,13 @@ export { writeChanged } from './write-changed';
  * @param col
  * @param id
  */
-export function deleteExisting(
+function deleteExisting(
   list: Record<string, string>[],
   col: string,
   value: number | string
 ) {
   const index = list.findIndex((item) => {
-    return item[col].toString() === value.toString();
+    return item[col] == value;
   });
 
   if (index !== -1) {
@@ -34,7 +47,7 @@ export function deleteExisting(
  * （process awards condition_value 这三个属性需要为String类型）
  * @param object
  */
-export function parseString2Number(object: Record<string, any>) {
+function parseString2Number(object: Record<string, any>) {
   const _obj: Record<string, any> = {};
   for (const key in object) {
     if (Object.prototype.hasOwnProperty.call(object, key)) {
@@ -61,6 +74,17 @@ export function parseString2Number(object: Record<string, any>) {
   Object.assign(object, _obj);
 }
 
-export function stringify(params: any) {
+function stringify(params: any) {
   return JSON.parse(JSON.stringify(params));
 }
+
+export { getSheet } from './likeSheet';
+export { readFileText, writeFileText } from '@/utils/fileSystem';
+export { getTreeData, getTreeDataDefault } from './filtFileTree';
+export { propertySlice } from './propertySlice';
+export { sheet2json, workbook2map } from './sheetToJson';
+export { setColumnKey } from './setColumnKey';
+export { updateBase, updateProcess, updateSource } from './writeTask';
+export { readExcelToMap, writeMapToExcel } from './xlsxIO';
+export { writeChanged } from './write-changed';
+export { flatTreedata, deleteExisting, parseString2Number, stringify };

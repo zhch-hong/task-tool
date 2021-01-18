@@ -1,30 +1,8 @@
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
-import { TreeData } from 'element-ui/types/tree';
 import { getUserconfig } from '@/asserts/userconfig';
-import { getTreeDataDefault, readFileText } from '@/utils';
+import { flatTreedata, getTreeDataDefault, readFileText } from '@/utils';
 import { WorkspacedModule } from '@/store/modules/workspaced';
-
-interface TreeMeta extends TreeData {
-  uuid: string;
-  type: 'type' | 'name' | 'path' | 'task';
-  value: 'base' | 'process' | 'source';
-  name: string;
-  path?: string;
-  data?: Record<string, any>;
-  children?: TreeMeta[];
-}
-
-function flatTreedata(params: TreeMeta[], pathList: string[]) {
-  params.forEach((item) => {
-    if (item.path?.endsWith('.xlsx')) {
-      pathList.push(item.path);
-    }
-    if (item.children && item.children.length !== 0) {
-      flatTreedata(item.children, pathList);
-    }
-  });
-}
 
 function treedataMap(pathList: string[]): Promise<Record<string, any>> {
   return new Promise((resolve) => {
