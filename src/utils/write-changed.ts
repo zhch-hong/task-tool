@@ -3,7 +3,7 @@ import { writeMapToExcel } from './xlsxIO';
 
 let timer: NodeJS.Timeout | null = null;
 
-export function writeChanged(time = 5000): Promise<void> {
+export function writeChanged(time = 1000): Promise<void> {
   return new Promise<void>((resolve) => {
     if (timer) {
       clearTimeout(timer);

@@ -54,6 +54,7 @@ import nProgress from 'nprogress';
 
 import NodeItem from './components/NodeItem.vue';
 import { WorkspacedModule } from '@/store/modules/workspaced';
+import { cloneDeep } from 'lodash';
 
 interface TreeMeta extends TreeData {
   uuid: string;
@@ -166,7 +167,7 @@ export default class TemplateManage extends Vue {
       list.forEach((t) => {
         const id: string = t.id;
         const type: string = t.type;
-        const data: Record<string, any> = t.data;
+        const data: Record<string, any> = cloneDeep(t.data);
 
         if (type === 'base') updateBase(map, id, data);
         if (type === 'process') updateProcess(map, id, data);
