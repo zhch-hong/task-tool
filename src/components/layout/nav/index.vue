@@ -9,7 +9,6 @@
       <el-menu-item-group title="任务配置工具">
         <el-menu-item index="/edit-file">编辑文件</el-menu-item>
         <el-menu-item index="/edit-task">编辑任务</el-menu-item>
-        <el-menu-item index="/validate-data">数据检测</el-menu-item>
       </el-menu-item-group>
       <el-menu-item-group title="工具配置">
         <el-menu-item index="/file-manage">文件管理</el-menu-item>
@@ -17,6 +16,7 @@
         <el-menu-item index="/input-manage">输入项管理</el-menu-item>
         <el-menu-item index="/template-manage">模板管理</el-menu-item>
       </el-menu-item-group>
+      <!-- <el-menu-item index="/electron">ELECTRON</el-menu-item> -->
     </el-menu>
   </nav>
 </template>

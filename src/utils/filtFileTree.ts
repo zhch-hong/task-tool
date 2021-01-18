@@ -6,7 +6,6 @@ import { readFileText } from './fileSystem';
 
 interface TreeMeta extends TreeData {
   path: string;
-  name?: string;
 }
 
 export function getTreeData(path: string, fileList: string[]): TreeMeta[] {
