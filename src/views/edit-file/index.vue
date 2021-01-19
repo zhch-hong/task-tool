@@ -509,11 +509,11 @@ export default Vue.extend({
           let conditionIdList: string[] = [];
           let awardIdList: string[] = [];
 
-          const process = processList.find((p) => p.process_id === processId);
+          const process = processList.find((p) => p.process_id == processId);
           if (process) {
             sourceId = process.source_id;
             conditionIdList = sourceList
-              .filter((s) => s.source_id === sourceId)
+              .filter((s) => s.source_id == sourceId)
               .map((s) => s.condition_id);
 
             awardIdList = process.awards.split(',');
