@@ -356,19 +356,10 @@ export default Vue.extend({
           sourcejson.forEach((source) => {
             source.source_id = newSourceid;
 
-            // 如果一条来源的数据的条件id为0，说明该来源没有条件
-            // 那么在拷贝时将不赋值新的条件id，仍然使用0
-            let newConditionid = '0';
-            conditionjson.forEach((cond) => {
-              if (
-                source.condition_id.toString() !== '0' &&
-                cond.condition_id === source.condition_id
-              ) {
-                newConditionid = getLostConditionId();
-
-                cond.condition_id = newConditionid;
-              }
-            });
+            const newConditionid = getLostConditionId();
+            conditionjson
+              .filter((c) => c.condition_id == source.condition_id)
+              .forEach((c) => (c.condition_id = newConditionid));
             source.condition_id = newConditionid;
           });
 
@@ -389,8 +380,6 @@ export default Vue.extend({
           const conditionList = workbookMap.get('condition');
           if (conditionList) conditionList.push(...conditionjson);
           const awardList = workbookMap.get('award_data');
-          console.log(awardjson);
-
           if (awardList) awardList.push(...awardjson);
         }
       });
