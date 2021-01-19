@@ -1,9 +1,9 @@
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
 import { TreeData } from 'element-ui/types/tree';
-import { getUserconfig } from '@/asserts/userconfig';
 import { getTreeDataDefault, readFileText } from '@/utils';
 import { WorkspacedModule } from '@/store/modules/workspaced';
+import { workDir } from '@/asserts/dir-config';
 
 interface TreeMeta extends TreeData {
   uuid: string;
@@ -192,7 +192,6 @@ export async function fullData() {
 
   const uuidList: string[] = [];
 
-  const workDir: string = getUserconfig().workDir;
   const path = resolve(resolve(workDir, 'app_config'), `template-manage.json`);
   const object: Record<string, Record<string, any>[]> = readFileText(path);
   for (const key in object) {

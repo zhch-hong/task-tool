@@ -22,7 +22,7 @@ const { app, BrowserWindow } = remote;
 
 @Component
 export default class TitleBar extends Vue {
-  isMax = true;
+  isMax = false;
 
   created(): void {
     const win = BrowserWindow.getFocusedWindow();

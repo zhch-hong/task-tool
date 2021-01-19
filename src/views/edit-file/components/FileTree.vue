@@ -10,22 +10,13 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { readFileSync, statSync } from 'fs';
-import { userConfig } from '@/asserts/userconfig';
-import {
-  getTreeData,
-  readFileText,
-  setColumnKey,
-  workbook2map,
-  writeFileText,
-} from '@/utils';
+import { statSync } from 'fs';
+import { getUserconfig } from '@/asserts/userconfig';
+import { getTreeData, readFileText, writeFileText } from '@/utils';
 import { TreeData } from 'element-ui/types/tree';
 import { Component, PropSync, Vue } from 'vue-property-decorator';
 import { resolve } from 'path';
-import { userdir } from '@/asserts/userdir';
-import { Workbook } from 'exceljs';
-import store from '@/store';
-import { WorkspacedModule } from '@/store/modules/workspaced';
+import { configDir, dirConfigPath, workDir } from '@/asserts/dir-config';
 import { ActiveFileModule } from '@/store/modules/active-file';
 
 interface TreeMeta extends TreeData {
@@ -50,7 +41,6 @@ export default class FileTree extends Vue {
 
   refresh(): void {
     // 从配置文件读取过滤的文件树数据
-    const workDir = userConfig.workDir;
     const fileManageJson: Record<string, string>[] = readFileText(
       resolve(workDir, 'app_config', 'file-manage.json')
     );
@@ -59,8 +49,9 @@ export default class FileTree extends Vue {
   }
 
   setLastOpenFilePath(path: string): void {
-    userConfig.lastOpenFile = path;
-    writeFileText(userdir, userConfig);
+    const object = getUserconfig();
+    object.lastOpenFile = path;
+    writeFileText(dirConfigPath, object);
   }
 
   nodeClick(data: TreeMeta): void {

@@ -8,8 +8,8 @@ import store from '@/store';
 import { Component, Vue } from 'vue-property-decorator';
 import { shell } from 'electron';
 
-import { userConfig } from '@/asserts/userconfig';
 import { ActiveFileModule } from '@/store/modules/active-file';
+import { workDir } from '@/asserts/dir-config';
 
 @Component
 export default class ExplorerPath extends Vue {
@@ -18,7 +18,7 @@ export default class ExplorerPath extends Vue {
   }
 
   get explorerpath(): string {
-    return this.path.slice(userConfig.workDir.length + 1);
+    return this.path.slice(workDir.length + 1);
   }
 
   linkExplorer(event: MouseEvent): void {

@@ -24,10 +24,9 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
 
-import { getUserconfig } from '@/asserts/userconfig';
-import { readFileText, stringify, writeFileText } from '@/utils';
+import { readFileText, writeFileText } from '@/utils';
+import { workDir } from '@/asserts/dir-config';
 
-const workDir = getUserconfig().workDir;
 const path = resolve(resolve(workDir, 'app_config'), `template-manage.json`);
 
 function readTemplate(type: TemplateType): Record<string, any>[] {
@@ -179,7 +178,7 @@ export default class TemplateOption extends Vue {
 
   saveTemplate(data: Record<string, any>): void {
     const object = this.writeTempBefore(data);
-    console.log(object);
+
     if (object) {
       this.templateList.push(object);
       writeTemplate(this.templateType, this.templateList);

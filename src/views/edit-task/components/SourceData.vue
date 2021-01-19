@@ -31,17 +31,12 @@ import { resolve } from 'path';
 import { cloneDeep } from 'lodash';
 
 import { readFileText } from '@/utils/fileSystem';
-import { getUserconfig } from '@/asserts/userconfig';
 
 import SourceItem from './source-data/SourceItem.vue';
 import TemplateOption from './TemplateOption.vue';
-import { stringify } from '@/utils';
+import { workDir } from '@/asserts/dir-config';
 
-const filePath = resolve(
-  getUserconfig().workDir,
-  'app_config',
-  'source-manage.json'
-);
+const filePath = resolve(workDir, 'app_config', 'source-manage.json');
 const sourcetypeList: Record<string, any>[] = readFileText(filePath)[0]
   .children;
 

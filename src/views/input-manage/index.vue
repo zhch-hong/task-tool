@@ -24,16 +24,12 @@ import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
 
 import { readFileText, writeFileText } from '@/utils/fileSystem';
-import { getUserconfig } from '@/asserts/userconfig';
 
 import TabItem from './components/TabItem.vue';
 import CreateConfig from './components/CreateConfig.vue';
+import { workDir } from '@/asserts/dir-config';
 
-const path = resolve(
-  getUserconfig().workDir,
-  'app_config',
-  'input-manage.json'
-);
+const path = resolve(workDir, 'app_config', 'input-manage.json');
 
 @Component({
   components: {

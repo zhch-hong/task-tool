@@ -18,6 +18,10 @@ export function writeFileText(path: string, data: any): void {
 
 export function readFileText(path: string): any {
   try {
+    if (!path) {
+      throw new Error();
+    }
+
     const buf = readFileSync(path);
     return JSON.parse(buf.toString());
   } catch (error) {

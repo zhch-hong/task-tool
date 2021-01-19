@@ -18,13 +18,9 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { resolve } from 'path';
 
 import { readFileText } from '@/utils/fileSystem';
-import { getUserconfig } from '@/asserts/userconfig';
+import { configDir } from '@/asserts/dir-config';
 
-const filePath = resolve(
-  getUserconfig().workDir,
-  'app_config',
-  'input-manage.json'
-);
+const filePath = resolve(configDir, 'app_config', 'input-manage.json');
 
 @Component
 export default class GetType extends Vue {

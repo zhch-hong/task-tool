@@ -99,8 +99,6 @@ export async function writeExcel(data: Record<string, any>) {
     activeModel = 'update';
   }
 
-  console.log(stringify(data));
-
   const path = ActiveFileModule.path;
   const workbookMap = await WorkspacedModule.bookMapByPath(path);
   const base: Record<string, any> = data.base;
@@ -202,7 +200,6 @@ function writeProgress(workbookMap: WorkbookMap, data: Record<string, any>) {
 
   process.process = processArray.join(',');
   process.awards = awardArray.join(',');
-  console.log(process.awards);
 
   const processList = workbookMap.get('process_data') as Record<
     string,

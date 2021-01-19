@@ -1,12 +1,10 @@
 import path from 'path';
 import fs from 'fs';
 
-import './setWorkdir';
-import { getUserconfig } from '@/asserts/userconfig';
+import { configDir } from '@/asserts/dir-config';
 
-const workDir: string = getUserconfig().workDir;
+const dirPath = path.resolve(configDir, 'app_config');
 
-const dirPath = path.resolve(workDir, 'app_config');
 if (!fs.existsSync(dirPath)) {
   fs.mkdirSync(dirPath);
 }

@@ -48,8 +48,6 @@ export default class TabItem extends Vue {
 
   @Watch('tableData', { deep: true })
   dataWatch(value: Record<string, string>[]): void {
-    console.log('watch');
-
     this.data = cloneDeep(value);
   }
 

@@ -134,7 +134,13 @@ export default Vue.extend({
     await this.$nextTick();
     this.refreshTable();
     this.bindKeyboard();
-    this.setTableScroll();
+    this.setTableScroll()
+      .then(() => {
+        //
+      })
+      .catch(() => {
+        //
+      });
     (this.$refs.vxeTable as Table).focus();
   },
 
@@ -146,9 +152,13 @@ export default Vue.extend({
 
   methods: {
     readLastExcel(): void {
-      readLastFile().then(() => {
-        this.refreshTable();
-      });
+      readLastFile()
+        .then(() => {
+          this.refreshTable();
+        })
+        .catch(() => {
+          //
+        });
     },
 
     createTask(): void {
@@ -176,7 +186,9 @@ export default Vue.extend({
               if (this.afterRefreshTable) {
                 this.afterRefreshTable()
                   .then(() => (this.afterRefreshTable = null))
-                  .catch();
+                  .catch(() => {
+                    //
+                  });
               }
             });
           }
@@ -252,10 +264,8 @@ export default Vue.extend({
                     object['process'] = process;
 
                     const { awards, source_id } = process;
-                    console.log(awards);
 
                     const awardList = await this.getAwardList(awards);
-                    console.log(awardList);
 
                     if (awardList) object['awards'] = awardList;
 
@@ -298,8 +308,6 @@ export default Vue.extend({
       const path = ActiveFileModule.path;
       const workbookMap = await WorkspacedModule.bookMapByPath(path);
       const awardjson = workbookMap.get('award_data');
-      console.log(awardjson);
-      console.log(idList);
 
       if (awardjson) {
         return awardjson.filter((item) =>
@@ -391,10 +399,6 @@ export default Vue.extend({
 
       this.refreshTable();
       this.afterRefreshTable = this.afterPasteTask;
-
-      setTimeout(() => {
-        console.log(workbookMap.get('award_data'));
-      }, 3000);
     },
 
     /**

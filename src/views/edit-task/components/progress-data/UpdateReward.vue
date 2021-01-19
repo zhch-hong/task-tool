@@ -66,8 +66,8 @@ import { Form } from 'element-ui';
 import { resolve } from 'path';
 
 import DialogFooter from '@/components/DialogFooter.vue';
-import { getUserconfig } from '@/asserts/userconfig';
 import { readFileText } from '@/utils/fileSystem';
+import { workDir } from '@/asserts/dir-config';
 
 const form: Record<string, any> = {
   award_name: '',
@@ -78,11 +78,7 @@ const form: Record<string, any> = {
   is_send_email: false,
 };
 
-const filePath = resolve(
-  getUserconfig().workDir,
-  'app_config',
-  'input-manage.json'
-);
+const filePath = resolve(workDir, 'app_config', 'input-manage.json');
 
 @Component({
   components: { DialogFooter },

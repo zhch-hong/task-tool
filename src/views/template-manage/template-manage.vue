@@ -38,7 +38,6 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import { resolve } from 'path';
 import { Tree } from 'element-ui';
 import { TreeData, TreeNode } from 'element-ui/types/tree';
-import { getUserconfig } from '@/asserts/userconfig';
 import { fullData } from './full-data';
 import {
   readFileText,
@@ -55,6 +54,7 @@ import nProgress from 'nprogress';
 import NodeItem from './components/NodeItem.vue';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import { cloneDeep } from 'lodash';
+import { workDir } from '@/asserts/dir-config';
 
 interface TreeMeta extends TreeData {
   uuid: string;
@@ -65,8 +65,6 @@ interface TreeMeta extends TreeData {
   data?: Record<string, any>;
   children?: TreeMeta[];
 }
-
-const workDir: string = getUserconfig().workDir;
 
 @Component({
   components: {
@@ -184,12 +182,10 @@ export default class TemplateManage extends Vue {
 
   deleteTemplate(data: TreeMeta, node: TreeNode<string, TreeMeta>): void {
     const { uuid: templateId } = data;
-    console.log(stringify(data), node);
 
     const type = node.parent?.data.value;
     if (typeof type === 'undefined') return;
 
-    const workDir: string = getUserconfig().workDir;
     const path = resolve(
       resolve(workDir, 'app_config'),
       `template-manage.json`

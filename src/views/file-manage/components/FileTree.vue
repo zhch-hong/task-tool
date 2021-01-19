@@ -38,11 +38,11 @@ import { Workbook } from 'exceljs';
 import { Notification } from 'element-ui';
 
 import { readFileText } from '@/utils/fileSystem';
-import { getUserconfig } from '@/asserts/userconfig';
 import { getTreeData } from '@/utils/filtFileTree';
 import { getSheet } from '@/utils/likeSheet';
 
 import OpenFolder from './OpenFolder.vue';
+import { workDir } from '@/asserts/dir-config';
 
 interface TreeMeta extends TreeData {
   path: string;
@@ -75,10 +75,9 @@ export default class FileTree extends Vue {
   async setTreeFromStorage(): Promise<void> {
     this.treeLoading = true;
     await this.$nextTick();
-    const config = getUserconfig();
-    if (config.workDir) {
+    if (workDir) {
       const fileList = this.getFileList();
-      const data = getTreeData(config.workDir, fileList);
+      const data = getTreeData(workDir, fileList);
       this.treeData = data;
     }
     await this.$nextTick();

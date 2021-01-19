@@ -57,24 +57,19 @@ import { Component, Vue } from 'vue-property-decorator';
 import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
-import { Tree } from 'element-ui';
 
 import { readFileText, writeFileText } from '@/utils/fileSystem';
-import { getUserconfig } from '@/asserts/userconfig';
 
 import UpdateNode from './components/UpdateNode.vue';
 import NodeItem from './components/NodeItem.vue';
+import { workDir } from '@/asserts/dir-config';
 
 interface TreeMeta extends TreeData {
   uuid?: string;
   type?: string;
 }
 
-const filePath = resolve(
-  getUserconfig().workDir,
-  'app_config',
-  'source-manage.json'
-);
+const filePath = resolve(workDir, 'app_config', 'source-manage.json');
 
 @Component({
   components: {

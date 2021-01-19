@@ -1,12 +1,10 @@
-import { userdir } from '@/asserts/userdir';
+import { dirConfigPath } from '@/asserts/dir-config';
 import { readFileText, writeFileText } from '@/utils/fileSystem';
 
 export function getUserconfig(): Record<string, any> {
-  return readFileText(userdir);
+  return readFileText(dirConfigPath);
 }
 
 export function setUserconfig(data: Record<string, any>) {
-  writeFileText(userdir, data);
+  writeFileText(dirConfigPath, data);
 }
-
-export const userConfig = getUserconfig();

@@ -11,7 +11,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import ConfigTable from './components/ConfigTable.vue';
 import FileTree from './components/FileTree.vue';
 
-import { getUserconfig } from '@/asserts/userconfig';
+import { workDir } from '@/asserts/dir-config';
 
 @Component({
   components: {
@@ -20,10 +20,6 @@ import { getUserconfig } from '@/asserts/userconfig';
   },
 })
 export default class FileManage extends Vue {
-  configPath = resolve(
-    getUserconfig().workDir,
-    'app_config',
-    'file-manage.json'
-  );
+  configPath = resolve(workDir, 'app_config', 'file-manage.json');
 }
 </script>
