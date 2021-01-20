@@ -1,9 +1,9 @@
 <template>
   <div>
     <el-button @click="$emit('refresh')">刷新</el-button>
-    <el-tooltip content="需要重启">
-      <el-button @click="openFolder">选择文件夹</el-button>
-    </el-tooltip>
+    <!-- <el-tooltip content="需要重启"> -->
+    <el-button @click="openFolder">选择文件夹</el-button>
+    <!-- </el-tooltip> -->
     <span>{{ path }}</span>
   </div>
 </template>
@@ -18,9 +18,19 @@ export default class OpenFolder extends Vue {
   path = workDir;
 
   async openFolder(): Promise<void> {
-    const path = setWorkDir();
-    this.path = path;
-    this.setUserFolder(path);
+    const { dialog } = remote;
+    const response = dialog.showOpenDialogSync({
+      title: '请选择工作目录',
+      buttonLabel: '设为工作目录',
+      defaultPath: this.path,
+      properties: ['openDirectory'],
+    });
+
+    if (typeof response !== 'undefined') {
+      const path = setWorkDir();
+      this.path = path;
+      this.setUserFolder(path);
+    }
   }
 
   setUserFolder(path: string): void {
@@ -29,9 +39,9 @@ export default class OpenFolder extends Vue {
     setUserconfig(config);
     this.$emit('refresh');
 
-    const { app } = remote;
-    app.relaunch();
-    app.quit();
+    // const { app } = remote;
+    // app.relaunch();
+    // app.quit();
   }
 }
 </script>

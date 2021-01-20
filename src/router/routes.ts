@@ -2,11 +2,11 @@ import { RouteConfig } from 'vue-router';
 
 import Layout from '@/components/layout/index.vue';
 
-import EditFile from '@/views/edit-file/index.vue';
-import EditTask from '@/views/edit-task/index.vue';
-import FileManage from '@/views/file-manage/index.vue';
-import SourceManage from '@/views/source-manage/index.vue';
-import InputManage from '@/views/input-manage/index.vue';
+import EditFile from '@/views/edit-file/edit-file.vue';
+import EditTask from '@/views/edit-task/edit-task.vue';
+import FileManage from '@/views/file-manage/file-manage.vue';
+import SourceManage from '@/views/source-manage/source-manage.vue';
+import InputManage from '@/views/input-manage/input-manage.vue';
 import TemplateManage from '@/views/template-manage/template-manage.vue';
 
 const routes: RouteConfig[] = [
