@@ -42,7 +42,7 @@ export default class FileTree extends Vue {
   refresh(): void {
     // 从配置文件读取过滤的文件树数据
     const fileManageJson: Record<string, string>[] = readFileText(
-      resolve(workDir, 'app_config', 'file-manage.json')
+      resolve(configDir, 'app_config', 'file-manage.json')
     );
     const fileList = fileManageJson.map((item) => item.file);
     this.treeData = getTreeData(workDir, fileList);

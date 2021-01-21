@@ -1,4 +1,9 @@
 import Vue from 'vue';
+import { ipcRenderer } from 'electron';
+Vue.config.errorHandler = (err) => {
+  ipcRenderer.send('runtime-error', err);
+};
+
 import App from './App.vue';
 import router from './router';
 import store from './store';
@@ -10,15 +15,9 @@ import './plugins/vue-notification';
 
 import '@/asserts/initAppConfigFile';
 
-import log from 'electron-log';
-
 import './styles/index.scss';
 
 Vue.config.productionTip = false;
-
-Vue.config.errorHandler = (err, vm, info) => {
-  log.error(err.message);
-};
 
 new Vue({
   router,

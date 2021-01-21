@@ -41,7 +41,6 @@ import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { fullData } from './full-data';
 import {
   readFileText,
-  stringify,
   updateBase,
   updateProcess,
   updateSource,
@@ -54,7 +53,7 @@ import nProgress from 'nprogress';
 import NodeItem from './components/NodeItem.vue';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import { cloneDeep } from 'lodash';
-import { workDir } from '@/asserts/dir-config';
+import { configDir, workDir } from '@/asserts/dir-config';
 
 interface TreeMeta extends TreeData {
   uuid: string;
@@ -187,7 +186,7 @@ export default class TemplateManage extends Vue {
     if (typeof type === 'undefined') return;
 
     const path = resolve(
-      resolve(workDir, 'app_config'),
+      resolve(configDir, 'app_config'),
       `template-manage.json`
     );
     const object: Record<string, Record<string, any>[]> = readFileText(path);

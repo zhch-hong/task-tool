@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { TreeData } from 'element-ui/types/tree';
 import { getTreeDataDefault, readFileText } from '@/utils';
 import { WorkspacedModule } from '@/store/modules/workspaced';
-import { workDir } from '@/asserts/dir-config';
+import { configDir, workDir } from '@/asserts/dir-config';
 
 interface TreeMeta extends TreeData {
   uuid: string;
@@ -192,7 +192,10 @@ export async function fullData() {
 
   const uuidList: string[] = [];
 
-  const path = resolve(resolve(workDir, 'app_config'), `template-manage.json`);
+  const path = resolve(
+    resolve(configDir, 'app_config'),
+    `template-manage.json`
+  );
   const object: Record<string, Record<string, any>[]> = readFileText(path);
   for (const key in object) {
     if (Object.prototype.hasOwnProperty.call(object, key)) {

@@ -18,9 +18,9 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { resolve } from 'path';
 
 import { readFileText } from '@/utils/fileSystem';
-import { workDir } from '@/asserts/dir-config';
+import { configDir } from '@/asserts/dir-config';
 
-const filePath = resolve(workDir, 'app_config', 'input-manage.json');
+const filePath = resolve(configDir, 'app_config', 'input-manage.json');
 
 @Component
 export default class TaskEnum extends Vue {

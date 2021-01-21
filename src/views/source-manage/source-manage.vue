@@ -62,14 +62,14 @@ import { readFileText, writeFileText } from '@/utils/fileSystem';
 
 import UpdateNode from './components/UpdateNode.vue';
 import NodeItem from './components/NodeItem.vue';
-import { workDir } from '@/asserts/dir-config';
+import { configDir } from '@/asserts/dir-config';
 
 interface TreeMeta extends TreeData {
   uuid?: string;
   type?: string;
 }
 
-const filePath = resolve(workDir, 'app_config', 'source-manage.json');
+const filePath = resolve(configDir, 'app_config', 'source-manage.json');
 
 @Component({
   components: {

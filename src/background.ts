@@ -5,6 +5,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 
 import { autoUpdater } from '@/ipcMain/upgrade';
+import '@/ipcMain/log';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 

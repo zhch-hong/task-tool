@@ -39,9 +39,9 @@ import { resolve } from 'path';
 import { readFileText } from '@/utils';
 
 import UpdateReward from './UpdateReward.vue';
-import { workDir } from '@/asserts/dir-config';
+import { configDir } from '@/asserts/dir-config';
 
-const path = resolve(workDir, 'app_config', 'input-manage.json');
+const path = resolve(configDir, 'app_config', 'input-manage.json');
 
 const inputList: Record<string, any>[] = readFileText(path);
 const assetData = inputList.find((item) => item.value === 'asset');

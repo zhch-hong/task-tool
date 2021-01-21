@@ -27,9 +27,9 @@ import { readFileText, writeFileText } from '@/utils/fileSystem';
 
 import TabItem from './components/TabItem.vue';
 import CreateConfig from './components/CreateConfig.vue';
-import { workDir } from '@/asserts/dir-config';
+import { configDir } from '@/asserts/dir-config';
 
-const path = resolve(workDir, 'app_config', 'input-manage.json');
+const path = resolve(configDir, 'app_config', 'input-manage.json');
 
 @Component({
   components: {

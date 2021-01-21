@@ -1,5 +1,6 @@
-import { read, readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { Notification } from 'element-ui';
+import { ipcRenderer, remote } from 'electron';
 
 export function writeFileText(path: string, data: any): void {
   try {
@@ -25,12 +26,9 @@ export function readFileText(path: string): any {
     const buf = readFileSync(path);
     return JSON.parse(buf.toString());
   } catch (error) {
-    Notification({
-      title: `读取文件失败`,
-      message: `【${path}】${error.message}`,
-      type: 'error',
-      position: 'bottom-right',
-    });
+    const { dialog } = remote;
+    dialog.showErrorBox(error.name, error.stack);
+    ipcRenderer.send('runtime-error', error);
   }
 }
 

@@ -34,9 +34,9 @@ import { readFileText } from '@/utils/fileSystem';
 
 import SourceItem from './source-data/SourceItem.vue';
 import TemplateOption from './TemplateOption.vue';
-import { workDir } from '@/asserts/dir-config';
+import { configDir } from '@/asserts/dir-config';
 
-const filePath = resolve(workDir, 'app_config', 'source-manage.json');
+const filePath = resolve(configDir, 'app_config', 'source-manage.json');
 const sourcetypeList: Record<string, any>[] = readFileText(filePath)[0]
   .children;
 
