@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import { ipcRenderer } from 'electron';
+
 Vue.config.errorHandler = (err) => {
   ipcRenderer.send('runtime-error', err);
 };
@@ -12,6 +13,7 @@ import './plugins/element-ui';
 import './plugins/vxe-table';
 import './plugins/progress-bar';
 import './plugins/vue-notification';
+import './plugins/custom-electron-titlebar';
 
 import '@/asserts/initAppConfigFile';
 

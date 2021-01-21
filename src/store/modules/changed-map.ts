@@ -30,13 +30,7 @@ class ChangedMap extends VuexModule {
     // 更新工作空间中的数据
     WorkspacedModule.UpdateWorkbookmap(payload);
     // 当已改变的数据Map写入到本地磁盘完成后，清空已改变的数据Map
-    writeChanged()
-      .then(() => {
-        this.changedMap.clear();
-      })
-      .catch((error: Error) => {
-        throw error;
-      });
+    writeChanged();
   }
 }
 

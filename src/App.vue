@@ -1,29 +1,36 @@
 <template>
   <div id="app">
-    <TitleBar />
     <router-view></router-view>
   </div>
 </template>
 <script lang="ts">
 import Vue from 'vue';
-import TitleBar from '@/components/TitleBar.vue';
+import { ChangedMapModule } from './store/modules/changed-map';
 import { ViewResizeModule } from './store/modules/veiw-resize';
+import { writeChanged } from './utils';
 
 export default Vue.extend({
-  components: {
-    TitleBar,
-  },
   mounted(): void {
     ViewResizeModule.resetWindowHeight();
+
     window.addEventListener('resize', () =>
       ViewResizeModule.resetWindowHeight()
     );
+
+    window.addEventListener('beforeunload', (event) => {
+      if (ChangedMapModule.changedMap.size !== 0) {
+        event.returnValue = false;
+        writeChanged(0).then(() => {
+          window.close();
+        });
+      }
+    });
   },
 });
 </script>
 <style lang="scss">
 #app {
   position: relative;
-  height: 100vh;
+  height: 100%;
 }
 </style>

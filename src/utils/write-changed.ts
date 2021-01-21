@@ -18,6 +18,7 @@ export function writeChanged(time = 1000): Promise<void> {
       Promise.all(promises)
         .then(() => {
           timer = null;
+          ChangedMapModule.changedMap.clear();
           resolve();
           Notification({
             message: '写入文件成功',

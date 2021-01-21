@@ -20,7 +20,7 @@ export default class Layout extends Vue {}
 <style lang="scss">
 #layout {
   position: absolute;
-  top: 30px;
+  top: 0;
   bottom: 0;
   left: 0;
   width: 100%;
