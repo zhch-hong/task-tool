@@ -2,7 +2,7 @@ import { resolve } from 'path';
 import { readdirSync, statSync } from 'fs';
 import { TreeData } from 'element-ui/types/tree';
 import { readFileText } from './fileSystem';
-import { configDir } from '@/asserts/dir-config';
+import { configDir, workDir } from '@/asserts/dir-config';
 
 interface TreeMeta extends TreeData {
   path: string;
@@ -29,15 +29,18 @@ export function getTreeData(path: string, fileList: string[]): TreeMeta[] {
       }
     }
   });
+
   return array;
 }
 
 export function getTreeDataDefault(): TreeMeta[] {
-  const dir = configDir;
-  const path = resolve(dir, 'app_config', 'file-manage.json');
+  const dir = resolve(configDir, 'app_config');
+  const path = resolve(dir, 'file-manage.json');
   const array: Record<string, string>[] = readFileText(path);
+
   const fileList = array.map((item) => item.file);
 
-  const data = getTreeData(dir, fileList);
+  const data = getTreeData(workDir, fileList);
+
   return data;
 }
