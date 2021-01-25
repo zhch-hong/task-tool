@@ -2,7 +2,11 @@ import Vue from 'vue';
 import { app } from '@/main';
 import Options from './index.vue';
 
+let mounted = false;
+
 export function options() {
+  if (mounted) return;
+
   let visible = true;
 
   const div = document.createElement('div');
@@ -19,6 +23,7 @@ export function options() {
         Vue.nextTick(() => {
           ins.$el.remove();
           ins.$destroy();
+          mounted = false;
         });
       },
     },
@@ -28,5 +33,7 @@ export function options() {
     render: () => vnode,
   });
 
-  ins.$mount(div);
+  ins.$mount(div).$nextTick(() => {
+    mounted = true;
+  });
 }
