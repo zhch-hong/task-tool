@@ -1,11 +1,9 @@
 import { remote } from 'electron';
 import { Titlebar, Color } from 'custom-electron-titlebar';
 import { ComponentInstanceModule } from '@/store/modules/component-instance';
-import { options } from '@/menu';
+import { about, options } from '@/menu';
 
-import router from '@/router';
-
-const { Menu } = remote;
+const { app, dialog, Menu } = remote;
 
 const menu = Menu.buildFromTemplate([
   {
@@ -59,6 +57,15 @@ const menu = Menu.buildFromTemplate([
           const ins = ComponentInstanceModule.instance('EditFile');
           if (ins) ins.doubleTask();
         },
+      },
+    ],
+  },
+  {
+    label: '帮助',
+    submenu: [
+      {
+        label: '关于',
+        click: about,
       },
     ],
   },
