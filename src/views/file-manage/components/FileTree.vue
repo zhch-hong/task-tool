@@ -1,6 +1,5 @@
 <template>
   <div>
-    <OpenFolder @refresh="setTreeFromStorage" />
     <div style="display: flex">
       <el-scrollbar
         style="height: 40vh"
@@ -41,18 +40,13 @@ import { readFileText } from '@/utils/fileSystem';
 import { getTreeData } from '@/utils/filtFileTree';
 import { getSheet } from '@/utils/likeSheet';
 
-import OpenFolder from './OpenFolder.vue';
 import { workDir } from '@/asserts/dir-config';
 
 interface TreeMeta extends TreeData {
   path: string;
 }
 
-@Component({
-  components: {
-    OpenFolder,
-  },
-})
+@Component
 export default class FileTree extends Vue {
   @Prop({ type: String, required: true }) configPath!: string;
 
