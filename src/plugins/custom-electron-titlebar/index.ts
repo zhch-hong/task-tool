@@ -1,7 +1,9 @@
 import { remote } from 'electron';
 import { Titlebar, Color } from 'custom-electron-titlebar';
+import { ComponentInstanceModule } from '@/store/modules/component-instance';
+import { options } from '@/menu';
 
-import { options } from '@/menu/options';
+import router from '@/router';
 
 const { Menu } = remote;
 
@@ -12,6 +14,51 @@ const menu = Menu.buildFromTemplate([
       {
         label: '选项',
         click: options,
+      },
+    ],
+  },
+  {
+    label: '编辑',
+    submenu: [
+      {
+        label: '添加任务',
+        accelerator: 'Ctrl+N',
+        click: () => {
+          const ins = ComponentInstanceModule.instance('EditFile');
+          if (ins) ins.createTask();
+        },
+      },
+      {
+        label: '删除任务',
+        accelerator: 'Ctrl+R',
+        click: () => {
+          const ins = ComponentInstanceModule.instance('EditFile');
+          if (ins) ins.deleteTask();
+        },
+      },
+      {
+        label: '拷贝任务',
+        accelerator: 'Ctrl+C',
+        click: () => {
+          const ins = ComponentInstanceModule.instance('EditFile');
+          if (ins) ins.copySelection();
+        },
+      },
+      {
+        label: '粘贴任务',
+        accelerator: 'Ctrl+V',
+        click: () => {
+          const ins = ComponentInstanceModule.instance('EditFile');
+          if (ins) ins.pasteTask();
+        },
+      },
+      {
+        label: '复制任务',
+        accelerator: 'Ctrl+D',
+        click: () => {
+          const ins = ComponentInstanceModule.instance('EditFile');
+          if (ins) ins.doubleTask();
+        },
       },
     ],
   },

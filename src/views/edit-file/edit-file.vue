@@ -1,79 +1,78 @@
 <template>
-  <div>
-    <div>
-      <el-button @click="treeDialog = true" title="Ctrl+O">打开文件</el-button>
-      <el-button @click="readLastExcel" title="F5">刷新</el-button>
-      <el-button @click="createTask" title="Ctrl+N">添加任务</el-button>
-      <el-button @click="deleteTask" title="ctrl+R">删除任务</el-button>
-      <el-button @click="copySelection" title="Ctrl+C">拷贝</el-button>
-      <el-button @click="pasteTask" title="Ctrl+V">粘贴</el-button>
-      <el-button @click="doubleTask" title="Ctrl+D">复制</el-button>
-      <ExplorerPath />
+  <div class="edit-file">
+    <div class="outline">
+      <FileTree @update:table="refreshTable" />
     </div>
-    <vxe-table
-      :data="tableData"
-      :height="tableHeight"
-      :highlight-current-row="true"
-      :row-key="true"
-      :checkbox-config="{ range: true }"
-      :keyboard-config="{
-        isArrow: true,
-        isChecked: false,
-        isEnter: false,
-        isTab: false,
-      }"
-      @checkbox-change="checkboxChange"
-      @keydown="tableKeydown"
-      row-id="uuid"
-      show-overflow="title"
-      ref="vxeTable"
-    >
-      <vxe-table-column type="seq" width="60"></vxe-table-column>
-      <vxe-table-column
-        type="checkbox"
-        width="60"
-        align="center"
-      ></vxe-table-column>
-      <vxe-table-column
-        field="id"
-        title="ID"
-        width="100"
-        align="center"
-      ></vxe-table-column>
-      <vxe-table-column field="name" title="名称"></vxe-table-column>
-      <vxe-table-column
-        field="enable"
-        title="启用"
-        width="60"
-      ></vxe-table-column>
-      <vxe-table-column
-        field="is_reset"
-        title="重置"
-        width="60"
-      ></vxe-table-column>
-      <vxe-table-column field="own_type" title="类型"></vxe-table-column>
-      <vxe-table-column field="task_enum" title="枚举"></vxe-table-column>
-      <vxe-table-column
-        field="任务内容说明"
-        title="任务内容说明"
-      ></vxe-table-column>
-      <vxe-table-column width="100">
-        <template #default="{ rowIndex }">
-          <el-button
-            size="mini"
-            icon="el-icon-edit"
-            @click="updateRow(rowIndex)"
-            >修改</el-button
-          >
-        </template>
-      </vxe-table-column>
-    </vxe-table>
-
-    <FileTree
-      :visible="treeDialog"
-      @update:visible="treeDialog = false"
-      @update:table="refreshTable"
-    />
+    <div class="content">
+      <div class="position">
+        <div>
+          <!-- <el-button @click="createTask" title="Ctrl+N">添加任务</el-button>
+          <el-button @click="deleteTask" title="ctrl+R">删除任务</el-button> -->
+          <!-- <el-button @click="copySelection" title="Ctrl+C">拷贝</el-button>
+          <el-button @click="pasteTask" title="Ctrl+V">粘贴</el-button>
+          <el-button @click="doubleTask" title="Ctrl+D">复制</el-button> -->
+          <!-- <ExplorerPath /> -->
+        </div>
+        <vxe-table
+          :data="tableData"
+          :height="tableHeight"
+          :highlight-current-row="true"
+          :row-key="true"
+          :checkbox-config="{ range: true }"
+          :keyboard-config="{
+            isArrow: true,
+            isChecked: false,
+            isEnter: false,
+            isTab: false,
+          }"
+          @checkbox-change="checkboxChange"
+          @keydown="tableKeydown"
+          row-id="uuid"
+          show-overflow="title"
+          ref="vxeTable"
+        >
+          <vxe-table-column type="seq" width="60"></vxe-table-column>
+          <vxe-table-column
+            type="checkbox"
+            width="60"
+            align="center"
+          ></vxe-table-column>
+          <vxe-table-column
+            field="id"
+            title="ID"
+            width="100"
+            align="center"
+          ></vxe-table-column>
+          <vxe-table-column field="name" title="名称"></vxe-table-column>
+          <vxe-table-column
+            field="enable"
+            title="启用"
+            width="60"
+          ></vxe-table-column>
+          <vxe-table-column
+            field="is_reset"
+            title="重置"
+            width="60"
+          ></vxe-table-column>
+          <vxe-table-column field="own_type" title="类型"></vxe-table-column>
+          <vxe-table-column field="task_enum" title="枚举"></vxe-table-column>
+          <vxe-table-column
+            field="任务内容说明"
+            title="任务内容说明"
+          ></vxe-table-column>
+          <vxe-table-column width="100">
+            <template #default="{ rowIndex }">
+              <el-button
+                size="mini"
+                icon="el-icon-edit"
+                @click="updateRow(rowIndex)"
+                >修改</el-button
+              >
+            </template>
+          </vxe-table-column>
+        </vxe-table>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -87,6 +86,7 @@ import { readLastFile } from '@/asserts/lastOpenFile';
 
 import ExplorerPath from './components/ExplorerPath.vue';
 import { WorkspacedModule } from '@/store/modules/workspaced';
+import { ComponentInstanceModule } from '@/store/modules/component-instance';
 import {
   getLostAwardId,
   getLostConditionId,
@@ -103,14 +103,13 @@ import { deleteExisting } from '@/utils';
 export default Vue.extend({
   name: 'EditFile',
   components: {
-    ExplorerPath,
+    // ExplorerPath,
     // eslint-disable-next-line vue/no-unused-components
     FileTree: () => import('./components/FileTree.vue'),
   },
   data() {
     return {
       tableData: [] as Record<string, string>[],
-      treeDialog: false,
       readLastFile: readLastFile,
       tableSelection: [] as Record<string, string>[],
       /** 最后一次勾选的数据行，用于按住shift键连选时的开头位置 */
@@ -124,11 +123,14 @@ export default Vue.extend({
 
   computed: {
     tableHeight(): number {
-      return ViewResizeModule.windowHeight - 62;
+      return ViewResizeModule.windowHeight - 30;
+      // return ViewResizeModule.windowHeight - 62;
     },
   },
 
   async mounted(): Promise<void> {
+    ComponentInstanceModule.addInstance({ name: 'EditFile', ins: this });
+
     this.afterRefreshTable = this.setTableScroll;
     // 这里加上$nextTick，不然路由跳转的等待时间会大大加长，表格渲染很慢，暂时不知道什么原因
     await this.$nextTick();
@@ -215,12 +217,14 @@ export default Vue.extend({
     },
 
     copySelection(): Promise<void> {
+      console.log('copy');
+
       return new Promise<void>((resolve, reject) => {
         const checkList = (this.$refs.vxeTable as Table).getCheckboxRecords();
         this.tableSelection = checkList;
         const idList = this.tableSelection.map((task) => task.id);
+
         if (idList.length === 0) {
-          this.$message.info('请勾选需要拷贝的任务');
           return;
         }
 
@@ -542,14 +546,6 @@ export default Vue.extend({
 
     bindKeyboard(): void {
       bind(
-        'ctrl+o',
-        () => {
-          this.treeDialog = true;
-          return false;
-        },
-        'keydown'
-      );
-      bind(
         'f5',
         () => {
           this.refreshTable();
@@ -600,7 +596,6 @@ export default Vue.extend({
     },
 
     unBindKeyboard(): void {
-      unbind('ctrl+o', 'keydown');
       unbind('f5', 'keydown');
       unbind('ctrl+n', 'keydown');
       unbind('delete', 'keydown');
@@ -627,3 +622,28 @@ export default Vue.extend({
   },
 });
 </script>
+<style lang="scss" scoped>
+div.edit-file {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+  & > div.outline {
+    width: 300px;
+  }
+  & > div.content {
+    flex-grow: 1;
+    position: relative;
+    & > div.position {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+</style>
