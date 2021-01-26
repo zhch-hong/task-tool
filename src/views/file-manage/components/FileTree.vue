@@ -37,7 +37,7 @@ import { Workbook } from 'exceljs';
 import { Notification } from 'element-ui';
 
 import { readFileText } from '@/utils/fileSystem';
-import { getTreeData } from '@/utils/filtFileTree';
+import { getTreeDataDefault } from '@/utils/filtFileTree';
 import { getSheet } from '@/utils/likeSheet';
 
 import { workDir } from '@/asserts/dir-config';
@@ -50,7 +50,7 @@ interface TreeMeta extends TreeData {
 export default class FileTree extends Vue {
   @Prop({ type: String, required: true }) configPath!: string;
 
-  getTreeData = getTreeData;
+  getTreeDataDefault = getTreeDataDefault;
   treeLoading = false;
   /** 标题和子级使用的字段名 */
   defaultProps = {
@@ -70,8 +70,7 @@ export default class FileTree extends Vue {
     this.treeLoading = true;
     await this.$nextTick();
     if (workDir) {
-      const fileList = this.getFileList();
-      const data = getTreeData(workDir, fileList);
+      const data = getTreeDataDefault();
       this.treeData = data;
     }
     await this.$nextTick();

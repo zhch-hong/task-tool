@@ -1,5 +1,5 @@
 import { resolve } from 'path';
-import { readdirSync, statSync } from 'fs';
+import fs, { readdirSync, statSync } from 'fs';
 import { TreeData } from 'element-ui/types/tree';
 import { readFileText } from './fileSystem';
 import { configDir, workDir } from '@/asserts/dir-config';
@@ -8,7 +8,10 @@ interface TreeMeta extends TreeData {
   path: string;
 }
 
-export function getTreeData(path: string, fileList: string[]): TreeMeta[] {
+const path = resolve(resolve(configDir, 'app_config'), 'file-manage.json');
+let dataMemory: TreeMeta[] | null = null;
+
+function getTreeData(path: string, fileList: string[]): TreeMeta[] {
   const array: TreeMeta[] = [];
   const dirs = readdirSync(path);
   dirs.forEach((dir) => {
@@ -29,18 +32,37 @@ export function getTreeData(path: string, fileList: string[]): TreeMeta[] {
       }
     }
   });
-
   return array;
 }
 
+function watchFile() {
+  fs.watch(path, (eventType, filename) => {
+    if (eventType === 'change') {
+      dataMemory = null;
+      getTreeDataDefault();
+    }
+
+    if (eventType === 'rename') {
+      if (fs.existsSync(filename)) {
+        dataMemory = null;
+        getTreeDataDefault();
+      } else {
+        dataMemory = null;
+      }
+    }
+  });
+}
+
+watchFile();
+
 export function getTreeDataDefault(): TreeMeta[] {
-  const dir = resolve(configDir, 'app_config');
-  const path = resolve(dir, 'file-manage.json');
+  if (dataMemory) return dataMemory;
+
   const array: Record<string, string>[] = readFileText(path);
 
   const fileList = array.map((item) => item.file);
 
-  const data = getTreeData(workDir, fileList);
+  dataMemory = getTreeData(workDir, fileList);
 
-  return data;
+  return dataMemory;
 }

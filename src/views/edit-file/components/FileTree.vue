@@ -55,11 +55,10 @@
 <script lang="ts">
 import { statSync } from 'fs';
 import { getUserconfig } from '@/asserts/userconfig';
-import { getTreeData, readFileText, writeFileText } from '@/utils';
-import { TreeData, TreeNode } from 'element-ui/types/tree';
+import { getTreeDataDefault, writeFileText } from '@/utils';
+import { TreeData } from 'element-ui/types/tree';
 import { Component, Vue } from 'vue-property-decorator';
-import { resolve } from 'path';
-import { configDir, dirConfigPath, workDir } from '@/asserts/dir-config';
+import { dirConfigPath, workDir } from '@/asserts/dir-config';
 import { ActiveFileModule } from '@/store/modules/active-file';
 
 interface TreeMeta extends TreeData {
@@ -79,16 +78,11 @@ export default class FileTree extends Vue {
   dirButtons = false;
 
   mounted(): void {
-    setTimeout(this.refresh, 500);
+    this.refresh();
   }
 
   refresh(): void {
-    // 从配置文件读取过滤的文件树数据
-    const fileManageJson: Record<string, string>[] = readFileText(
-      resolve(configDir, 'app_config', 'file-manage.json')
-    );
-    const fileList = fileManageJson.map((item) => item.file);
-    this.treeData = getTreeData(workDir, fileList);
+    this.treeData = getTreeDataDefault();
   }
 
   setLastOpenFilePath(path: string): void {

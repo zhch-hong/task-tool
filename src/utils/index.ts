@@ -1,6 +1,6 @@
 export { getSheet } from './likeSheet';
 export { readFileText, writeFileText } from '@/utils/fileSystem';
-export { getTreeData, getTreeDataDefault } from './filtFileTree';
+export { getTreeDataDefault } from './filtFileTree';
 export { propertySlice } from './propertySlice';
 export { sheet2json, workbook2map } from './sheetToJson';
 export { setColumnKey } from './setColumnKey';
