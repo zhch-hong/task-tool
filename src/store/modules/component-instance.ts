@@ -5,7 +5,6 @@ import {
   Mutation,
   VuexModule,
 } from 'vuex-module-decorators';
-import { CombinedVueInstance } from 'vue/types/vue';
 import store from '@/store';
 
 @Module({ dynamic: true, store, name: 'componentInstance' })

@@ -18,10 +18,18 @@
       <div class="scrollbar">
         <el-scrollbar style="height: 100%" wrapStyle="overflow-x: hidden;">
           <el-tree
+            ref="tree"
             :data="treeData"
             :props="defaultProps"
+            :highlight-current="true"
+            :default-expanded-keys="defaultExpandedKeys"
+            :auto-expand-parent="false"
+            :current-node-key="currentNodeKey"
             style="user-select: none"
+            node-key="path"
             @node-click="nodeClick"
+            @node-expand="nodeExpand"
+            @node-collapse="nodeCollapse"
           >
             <template #default="{ data, node }">
               <div v-if="!statLabel(data)">
@@ -42,7 +50,6 @@
                   class="iconfont icon-Microsoft-Excel"
                   style="margin-right: 4px; color: #008000"
                 ></i>
-
                 <span :title="titlePath(data)">{{ node.label }}</span>
               </div>
             </template>
@@ -57,9 +64,12 @@ import { statSync } from 'fs';
 import { getUserconfig } from '@/asserts/userconfig';
 import { getTreeDataDefault, writeFileText } from '@/utils';
 import { TreeData } from 'element-ui/types/tree';
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import { dirConfigPath, workDir } from '@/asserts/dir-config';
 import { ActiveFileModule } from '@/store/modules/active-file';
+import { FileTreeModule } from '@/store/modules/file-tree';
+import { Tree } from 'element-ui';
+import { cloneDeep } from 'lodash';
 
 interface TreeMeta extends TreeData {
   path: string;
@@ -76,13 +86,17 @@ export default class FileTree extends Vue {
   };
   workDir = workDir;
   dirButtons = false;
+  defaultExpandedKeys = cloneDeep(FileTreeModule.expandedKeys);
+  currentNodeKey = ActiveFileModule.path;
 
   mounted(): void {
     this.refresh();
   }
 
-  refresh(): void {
+  async refresh(): Promise<void> {
     this.treeData = getTreeDataDefault();
+    await this.$nextTick();
+    (this.$refs.tree as Tree).setCurrentKey(ActiveFileModule.path);
   }
 
   setLastOpenFilePath(path: string): void {
@@ -96,6 +110,9 @@ export default class FileTree extends Vue {
     const stat = statSync(path);
 
     if (stat.isDirectory()) {
+      this.$nextTick(() => {
+        (this.$refs.tree as Tree).setCurrentKey(ActiveFileModule.path);
+      });
       return;
     }
 
@@ -103,6 +120,14 @@ export default class FileTree extends Vue {
     this.$emit('update:table');
 
     this.setLastOpenFilePath(path);
+  }
+
+  nodeExpand(data: TreeMeta): void {
+    FileTreeModule.appendKey(data.path);
+  }
+
+  nodeCollapse(data: TreeMeta): void {
+    FileTreeModule.removeKey(data.path);
   }
 
   statLabel(data: TreeMeta): boolean {
