@@ -5,14 +5,6 @@
     </div>
     <div class="content">
       <div class="position">
-        <div>
-          <!-- <el-button @click="createTask" title="Ctrl+N">添加任务</el-button>
-          <el-button @click="deleteTask" title="ctrl+R">删除任务</el-button> -->
-          <!-- <el-button @click="copySelection" title="Ctrl+C">拷贝</el-button>
-          <el-button @click="pasteTask" title="Ctrl+V">粘贴</el-button>
-          <el-button @click="doubleTask" title="Ctrl+D">复制</el-button> -->
-          <!-- <ExplorerPath /> -->
-        </div>
         <vxe-table
           :data="tableData"
           :height="tableHeight"
@@ -84,7 +76,6 @@ import { v4 as uuid } from 'uuid';
 
 import { readLastFile } from '@/asserts/lastOpenFile';
 
-import ExplorerPath from './components/ExplorerPath.vue';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import { ComponentInstanceModule } from '@/store/modules/component-instance';
 import {
@@ -103,8 +94,6 @@ import { deleteExisting } from '@/utils';
 export default Vue.extend({
   name: 'EditFile',
   components: {
-    // ExplorerPath,
-    // eslint-disable-next-line vue/no-unused-components
     FileTree: () => import('./components/FileTree.vue'),
   },
   data() {

@@ -4,7 +4,6 @@
   }}</span>
 </template>
 <script lang="ts">
-import store from '@/store';
 import { Component, Vue } from 'vue-property-decorator';
 import { shell } from 'electron';
 

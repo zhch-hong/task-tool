@@ -12,7 +12,7 @@ import TemplateManage from '@/views/template-manage/template-manage.vue';
 const routes: RouteConfig[] = [
   {
     path: '/',
-    redirect: '/file-manage',
+    redirect: '/edit-file',
   },
   {
     path: '/edit-file',

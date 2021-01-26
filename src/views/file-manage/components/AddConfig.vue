@@ -1,6 +1,8 @@
 <template>
   <div>
-    <el-button @click="visible = true">添加</el-button>
+    <el-button size="mini" type="primary" @click="visible = true"
+      >添加文件</el-button
+    >
     <el-dialog
       :visible.sync="visible"
       :close-on-click-modal="false"
