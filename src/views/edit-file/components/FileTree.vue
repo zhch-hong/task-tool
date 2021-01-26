@@ -27,18 +27,21 @@
               <div v-if="!statLabel(data)">
                 <i
                   v-if="!node.expanded"
-                  class="el-icon-folder"
-                  style="margin-right: 4px"
+                  class="iconfont icon-folder"
+                  style="margin-right: 4px; color: #ffc800"
                 ></i>
                 <i
                   v-if="node.expanded"
-                  class="el-icon-folder-opened"
-                  style="margin-right: 4px"
+                  class="iconfont icon-049-folder-open"
+                  style="margin-right: 4px; color: #ffc800"
                 ></i>
                 <span>{{ node.label }}</span>
               </div>
               <div v-else>
-                <i class="el-icon-document" style="margin-right: 4px"></i>
+                <i
+                  class="iconfont icon-Microsoft-Excel"
+                  style="margin-right: 4px; color: #008000"
+                ></i>
 
                 <span :title="titlePath(data)">{{ node.label }}</span>
               </div>
@@ -80,8 +83,6 @@ export default class FileTree extends Vue {
   }
 
   refresh(): void {
-    console.log('refresh');
-
     // 从配置文件读取过滤的文件树数据
     const fileManageJson: Record<string, string>[] = readFileText(
       resolve(configDir, 'app_config', 'file-manage.json')
@@ -96,9 +97,7 @@ export default class FileTree extends Vue {
     writeFileText(dirConfigPath, object);
   }
 
-  nodeClick(data: TreeMeta, node: TreeNode<PropertyKey, TreeMeta>): void {
-    console.log(node);
-
+  nodeClick(data: TreeMeta): void {
     const path = data.path;
     const stat = statSync(path);
 

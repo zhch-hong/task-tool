@@ -17,6 +17,8 @@ import './plugins/custom-electron-titlebar';
 
 import '@/asserts/initAppConfigFile';
 
+import '@/assets/font/iconfont.css';
+
 import './styles/index.scss';
 
 Vue.config.productionTip = false;

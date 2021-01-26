@@ -1,0 +1,30 @@
+{
+  "id": "2348838",
+  "name": "task-tool",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1331767",
+      "name": "049-folder-open",
+      "font_class": "049-folder-open",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
+      "icon_id": "7239473",
+      "name": "folder",
+      "font_class": "folder",
+      "unicode": "e6f3",
+      "unicode_decimal": 59123
+    },
+    {
+      "icon_id": "3965525",
+      "name": "Microsoft-Excel",
+      "font_class": "Microsoft-Excel",
+      "unicode": "e6d6",
+      "unicode_decimal": 59094
+    }
+  ]
+}

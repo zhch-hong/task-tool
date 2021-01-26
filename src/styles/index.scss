@@ -1,8 +1,8 @@
 body {
   margin: 0;
-  font-family: Segoe WPC, Segoe UI, sans-serif;
+  font-family: unset;
   font-size: 14px;
-  color: #262626;
+  color: black;
 }
 
 .v-modal {
@@ -20,4 +20,9 @@ body {
   letter-spacing: 1px;
   font-size: 18px;
   font-weight: 600;
+}
+
+/* Tree */
+.el-tree-node__content {
+  color: black;
 }
