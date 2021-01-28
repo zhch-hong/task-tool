@@ -23,7 +23,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
 
-import { readFileText, writeFileText } from '@/utils/fileSystem';
+import { readFileText, writeFileText } from '@/utils';
 
 import TabItem from './components/TabItem.vue';
 import CreateConfig from './components/CreateConfig.vue';

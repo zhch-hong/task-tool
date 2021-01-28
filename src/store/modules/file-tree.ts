@@ -7,7 +7,7 @@ import {
 } from 'vuex-module-decorators';
 import store from '@/store';
 import { dirConfigPath } from '@/asserts/dir-config';
-import { readFileText, writeFileText } from '@/utils/fileSystem';
+import { readFileText, writeFileText } from '@/utils';
 
 const object: Record<PropertyKey, any> = readFileText(dirConfigPath);
 

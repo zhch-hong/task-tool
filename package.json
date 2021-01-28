@@ -2,6 +2,7 @@
   "name": "electron-excel",
   "version": "0.1.12",
   "private": true,
+  "main": "background.js",
   "scripts": {
     "serve": "vue-cli-service electron:serve",
     "build": "vue-cli-service electron:build",
@@ -10,7 +11,6 @@
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
-  "main": "background.js",
   "dependencies": {
     "core-js": "^3.8.1",
     "custom-electron-titlebar": "^3.2.6",
@@ -32,7 +32,8 @@
     "vuex": "^3.6.0",
     "vuex-module-decorators": "^1.0.1",
     "vxe-table": "^3.0.18",
-    "xe-utils": "^3.0.4"
+    "xe-utils": "^3.0.4",
+    "xlsx": "^0.16.9"
   },
   "devDependencies": {
     "@types/electron-devtools-installer": "^2.2.0",

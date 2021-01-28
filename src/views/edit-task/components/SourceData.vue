@@ -30,7 +30,7 @@ import { v4 as uuid } from 'uuid';
 import { resolve } from 'path';
 import { cloneDeep } from 'lodash';
 
-import { readFileText } from '@/utils/fileSystem';
+import { readFileText } from '@/utils';
 
 import SourceItem from './source-data/SourceItem.vue';
 import TemplateOption from './TemplateOption.vue';

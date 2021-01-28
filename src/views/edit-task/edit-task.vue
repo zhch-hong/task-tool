@@ -46,7 +46,6 @@ import { remote } from 'electron';
 
 import store from '@/store';
 import { writeExcel } from './utils/writeExcel';
-import { stringify } from '@/utils';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import { readLastFile } from '@/asserts/lastOpenFile';
 import { ActiveFileModule } from '@/store/modules/active-file';

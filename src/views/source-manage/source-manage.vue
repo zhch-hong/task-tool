@@ -58,7 +58,7 @@ import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
 
-import { readFileText, writeFileText } from '@/utils/fileSystem';
+import { readFileText, writeFileText } from '@/utils';
 
 import UpdateNode from './components/UpdateNode.vue';
 import NodeItem from './components/NodeItem.vue';

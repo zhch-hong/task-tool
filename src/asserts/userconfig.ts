@@ -1,5 +1,5 @@
 import { dirConfigPath } from '@/asserts/dir-config';
-import { readFileText, writeFileText } from '@/utils/fileSystem';
+import { readFileText, writeFileText } from '@/utils';
 
 export function getUserconfig(): Record<string, any> {
   return readFileText(dirConfigPath);

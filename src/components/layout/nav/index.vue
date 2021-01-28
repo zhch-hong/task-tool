@@ -16,7 +16,6 @@
         <el-menu-item index="/input-manage">输入项管理</el-menu-item>
         <el-menu-item index="/template-manage">模板管理</el-menu-item>
       </el-menu-item-group>
-      <!-- <el-menu-item index="/electron">ELECTRON</el-menu-item> -->
     </el-menu>
   </nav>
 </template>

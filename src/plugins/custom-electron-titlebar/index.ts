@@ -1,7 +1,7 @@
 import { remote } from 'electron';
 import { Titlebar, Color } from 'custom-electron-titlebar';
 import { ComponentInstanceModule } from '@/store/modules/component-instance';
-import { about, options } from '@/menu';
+import { about, options, syncFile } from '@/menu';
 
 const { app, dialog, Menu } = remote;
 
@@ -57,6 +57,10 @@ const menu = Menu.buildFromTemplate([
           const ins = ComponentInstanceModule.instance('EditFile');
           if (ins) ins.doubleTask();
         },
+      },
+      {
+        label: '同步文件',
+        click: syncFile,
       },
     ],
   },

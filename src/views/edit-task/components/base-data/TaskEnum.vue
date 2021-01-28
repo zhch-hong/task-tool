@@ -17,7 +17,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { resolve } from 'path';
 
-import { readFileText } from '@/utils/fileSystem';
+import { readFileText } from '@/utils';
 import { configDir } from '@/asserts/dir-config';
 
 const filePath = resolve(configDir, 'app_config', 'input-manage.json');

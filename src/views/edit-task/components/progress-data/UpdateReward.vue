@@ -66,7 +66,7 @@ import { Form } from 'element-ui';
 import { resolve } from 'path';
 
 import DialogFooter from '@/components/DialogFooter.vue';
-import { readFileText } from '@/utils/fileSystem';
+import { readFileText } from '@/utils';
 import { configDir } from '@/asserts/dir-config';
 
 const form: Record<string, any> = {

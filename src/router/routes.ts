@@ -8,6 +8,7 @@ import FileManage from '@/views/file-manage/file-manage.vue';
 import SourceManage from '@/views/source-manage/source-manage.vue';
 import InputManage from '@/views/input-manage/input-manage.vue';
 import TemplateManage from '@/views/template-manage/template-manage.vue';
+import SyncFile from '@/views/sync-file/sync-file.vue';
 
 const routes: RouteConfig[] = [
   {
@@ -43,6 +44,11 @@ const routes: RouteConfig[] = [
     path: '/template-manage',
     component: Layout,
     children: [{ path: '', component: TemplateManage }],
+  },
+  {
+    path: '/sync-file/:path',
+    component: SyncFile,
+    props: true,
   },
 ];
 

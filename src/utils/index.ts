@@ -1,20 +1,10 @@
-export { getSheet } from './likeSheet';
-export { readFileText, writeFileText } from '@/utils/fileSystem';
-export { getTreeDataDefault } from './filtFileTree';
-export { propertySlice } from './propertySlice';
-export { sheet2json, workbook2map } from './sheetToJson';
-export { setColumnKey } from './setColumnKey';
-export { updateBase, updateProcess, updateSource } from './writeTask';
-export { readExcelToMap, writeMapToExcel } from './xlsxIO';
-export { writeChanged } from './write-changed';
-
 /**
  * 删除现有的数据，递归删除
  * @param sheet
  * @param col
  * @param id
  */
-export function deleteExisting(
+function deleteExisting(
   list: Record<string, string>[],
   col: string,
   value: number | string
@@ -34,7 +24,7 @@ export function deleteExisting(
  * （process awards condition_value 这三个属性需要为String类型）
  * @param object
  */
-export function parseString2Number(object: Record<string, any>) {
+function parseString2Number(object: Record<string, any>) {
   const _obj: Record<string, any> = {};
   for (const key in object) {
     if (Object.prototype.hasOwnProperty.call(object, key)) {
@@ -61,6 +51,22 @@ export function parseString2Number(object: Record<string, any>) {
   Object.assign(object, _obj);
 }
 
-export function stringify(params: any) {
+function stringify(params: any) {
   return JSON.parse(JSON.stringify(params));
 }
+
+export { getSheet } from './likeSheet';
+export {
+  readFileText,
+  writeFileText,
+  readFileBinary,
+  writeFileBinary,
+} from '@/utils/fileSystem';
+export { getTreeDataDefault } from './filtFileTree';
+export { propertySlice } from './propertySlice';
+export { sheet2json, workbook2map } from './sheetToJson';
+export { setColumnKey } from './setColumnKey';
+export { updateBase, updateProcess, updateSource } from './writeTask';
+export { readExcelToMap, writeMapToExcel } from './xlsxIO';
+export { writeChanged } from './write-changed';
+export { stringify, parseString2Number, deleteExisting };

@@ -76,7 +76,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { cloneDeep } from 'lodash';
 
-import { readFileText, writeFileText } from '@/utils/fileSystem';
+import { readFileText, writeFileText } from '@/utils';
 
 import AddConfig from './AddConfig.vue';
 import TableInlineInput from './TableInlineInput.vue';
