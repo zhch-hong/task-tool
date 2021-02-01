@@ -6,6 +6,7 @@
         <el-button size="mini" @click="undoSync">取消同步</el-button>
       </template>
     </vxe-toolbar>
+    <SheetTabs />
     <div v-for="(value, key) of jsonMap" :key="key" style="margin: 20px 10px 20px">
       <h2>{{ key }}</h2>
       <TableView :ref="'ref_' + key" :columns="value.columns" :data="value.data" :active-pane="activePane" />
@@ -21,12 +22,14 @@ import { ViewResizeModule } from '@/store/modules/veiw-resize';
 
 import TableView from './components/TableView.vue';
 import SyncFileList from './components/SyncFileList.vue';
+import SheetTabs from './components/SheetTabs.vue';
 
 export default Vue.extend({
   name: 'sync-file',
 
   components: {
     TableView,
+    SheetTabs,
   },
 
   props: {
