@@ -1,8 +1,13 @@
+html {
+  overflow: hidden;
+}
+
 body {
   margin: 0;
   font-family: unset;
   font-size: 14px;
   color: black;
+  overflow: hidden;
 }
 
 .v-modal {

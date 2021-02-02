@@ -1,16 +1,21 @@
 <template>
   <div>
-    <vxe-toolbar perfect>
-      <template v-slot:buttons>
-        <el-button size="mini" style="margin-left: 10px" @click="doingSync">同步数据</el-button>
-        <el-button size="mini" @click="undoSync">取消同步</el-button>
+    <v-toolbar>
+      <v-btn small tile style="margin-right: 20px" @click="doingSync">同步数据</v-btn>
+      <v-btn small tile @click="undoSync">取消同步</v-btn>
+      <template #extension>
+        <v-tabs v-model="activePane">
+          <v-tab v-for="(value, key) of jsonMap" :key="key">
+            {{ key }}
+          </v-tab>
+        </v-tabs>
       </template>
-    </vxe-toolbar>
-    <SheetTabs />
-    <div v-for="(value, key) of jsonMap" :key="key" style="margin: 20px 10px 20px">
-      <h2>{{ key }}</h2>
-      <TableView :ref="'ref_' + key" :columns="value.columns" :data="value.data" :active-pane="activePane" />
-    </div>
+    </v-toolbar>
+    <v-tabs-items v-model="activePane">
+      <v-tab-item v-for="(value, key) of jsonMap" :key="key">
+        <TableView :ref="'ref_' + key" :columns="value.columns" :data="value.data" />
+      </v-tab-item>
+    </v-tabs-items>
   </div>
 </template>
 <script lang="ts">
@@ -22,14 +27,12 @@ import { ViewResizeModule } from '@/store/modules/veiw-resize';
 
 import TableView from './components/TableView.vue';
 import SyncFileList from './components/SyncFileList.vue';
-import SheetTabs from './components/SheetTabs.vue';
 
 export default Vue.extend({
   name: 'sync-file',
 
   components: {
     TableView,
-    SheetTabs,
   },
 
   props: {
@@ -38,7 +41,7 @@ export default Vue.extend({
 
   data() {
     return {
-      activePane: '',
+      activePane: 0,
       jsonMap: {} as Record<string, Record<string, Array<Record<string | number, any>>>>,
     };
   },
@@ -49,6 +52,12 @@ export default Vue.extend({
     },
   },
 
+  watch: {
+    activePane(value: number) {
+      console.log(value);
+    },
+  },
+
   created(): void {
     const map = excel2json(this.path);
     const object: Record<string, Record<string, Array<Record<string | number, any>>>> = {};
@@ -56,7 +65,6 @@ export default Vue.extend({
       object[key] = value;
     });
 
-    this.activePane = Object.keys(this.jsonMap)[1];
     this.$nextTick(() => {
       this.jsonMap = object;
     });
@@ -124,7 +132,30 @@ export default Vue.extend({
             const _address = JSON.parse(address);
             const cellAddress = columns[_address.c] + (_address.r + 2);
             const cell: XLSX.CellObject = sheet[cellAddress];
-            if (cell) {
+
+            if (!cell) {
+              const ref = sheet['!ref'];
+
+              if (ref) {
+                const range = XLSX.utils.decode_range(ref);
+
+                if (range.e.c < _address.c + 1) {
+                  range.e.c = _address.c + 1;
+                }
+
+                if (range.e.r < _address.r + 2) {
+                  range.e.r = _address.r + 2;
+                }
+
+                sheet['!ref'] = XLSX.utils.encode_range(range);
+                sheet[cellAddress] = {
+                  h: value.n.toString(),
+                  t: typeof value.n,
+                  v: value.n,
+                  w: value.n.toString(),
+                };
+              }
+            } else {
               cell.v = value.n;
               cell.w = value.n.toString();
             }

@@ -5,7 +5,7 @@
     keep-source
     show-overflow="title"
     show-header-overflow="title"
-    :max-height="tableHeight"
+    :height="tableHeight"
     :data="tableData"
     :edit-config="{ trigger: 'click', mode: 'cell', showStatus: true }"
     @edit-closed="editClosed"
@@ -39,13 +39,11 @@ export default Vue.extend({
       type: Array as PropType<Array<Record<string, any>>>,
       default: () => [],
     },
-
-    activePane: String,
   },
 
   data() {
     return {
-      tableData: cloneDeep(this.data) as Record<PropertyKey, string>[],
+      tableData: [] as Record<PropertyKey, string>[],
       editCellValue: '',
       editRecords: new Map<string, Record<'o' | 'n', any>>(),
     };
@@ -53,21 +51,18 @@ export default Vue.extend({
 
   computed: {
     tableHeight(): string {
-      return ViewResizeModule.windowHeight - 300 + 'px';
-    },
-  },
-
-  watch: {
-    activePane: {
-      immediate: true,
-      handler() {
-        this.$forceUpdate();
-      },
+      return ViewResizeModule.windowHeight - 142 + 'px';
     },
   },
 
   created(): void {
-    // console.log('created');
+    console.log('created');
+  },
+
+  mounted() {
+    setTimeout(() => {
+      this.tableData = cloneDeep(this.data);
+    }, 500);
   },
 
   methods: {

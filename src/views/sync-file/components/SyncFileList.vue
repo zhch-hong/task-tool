@@ -121,6 +121,7 @@ div.sync-file {
     & > p.title {
       font-size: 17px;
       font-weight: 600;
+      margin: 1em 0;
     }
   }
 }
