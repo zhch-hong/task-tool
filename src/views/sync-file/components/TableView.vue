@@ -25,6 +25,7 @@
 import Vue, { PropType } from 'vue';
 import { cloneDeep } from 'lodash';
 import { ViewResizeModule } from '@/store/modules/veiw-resize';
+import { Table } from 'vxe-table';
 
 export default Vue.extend({
   name: 'TableView',
@@ -46,6 +47,7 @@ export default Vue.extend({
       tableData: [] as Record<PropertyKey, string>[],
       editCellValue: '',
       editRecords: new Map<string, Record<'o' | 'n', any>>(),
+      activeRow: {} as Record<string, any>,
     };
   },
 
@@ -83,6 +85,8 @@ export default Vue.extend({
       } else {
         this.editRecords.delete(JSON.stringify({ r: rowIndex, c: columnIndex }));
       }
+
+      this.activeRow = payload.row;
     },
 
     editActived(payload: Record<string, any>) {
@@ -103,6 +107,12 @@ export default Vue.extend({
 
     findExist(address: { r: number; c: number }) {
       return this.editRecords.get(JSON.stringify(address));
+    },
+
+    revert() {
+      const data = cloneDeep(this.activeRow);
+      data['|任务内容说明'] = '===';
+      (this.$refs.xTable as Table).reloadRow(this.activeRow, data, '|任务内容说明');
     },
   },
 });
