@@ -24,42 +24,17 @@
           ref="vxeTable"
         >
           <vxe-table-column type="seq" width="60"></vxe-table-column>
-          <vxe-table-column
-            type="checkbox"
-            width="60"
-            align="center"
-          ></vxe-table-column>
-          <vxe-table-column
-            field="id"
-            title="ID"
-            width="100"
-            align="center"
-          ></vxe-table-column>
+          <vxe-table-column type="checkbox" width="60" align="center"></vxe-table-column>
+          <vxe-table-column field="id" title="ID" width="100" align="center"></vxe-table-column>
           <vxe-table-column field="name" title="名称"></vxe-table-column>
-          <vxe-table-column
-            field="enable"
-            title="启用"
-            width="60"
-          ></vxe-table-column>
-          <vxe-table-column
-            field="is_reset"
-            title="重置"
-            width="60"
-          ></vxe-table-column>
+          <vxe-table-column field="enable" title="启用" width="60"></vxe-table-column>
+          <vxe-table-column field="is_reset" title="重置" width="60"></vxe-table-column>
           <vxe-table-column field="own_type" title="类型"></vxe-table-column>
           <vxe-table-column field="task_enum" title="枚举"></vxe-table-column>
-          <vxe-table-column
-            field="任务内容说明"
-            title="任务内容说明"
-          ></vxe-table-column>
+          <vxe-table-column field="任务内容说明" title="任务内容说明"></vxe-table-column>
           <vxe-table-column width="100">
             <template #default="{ rowIndex }">
-              <el-button
-                size="mini"
-                icon="el-icon-edit"
-                @click="updateRow(rowIndex)"
-                >修改</el-button
-              >
+              <el-button size="mini" icon="el-icon-edit" @click="updateRow(rowIndex)">修改</el-button>
             </template>
           </vxe-table-column>
         </vxe-table>
@@ -206,8 +181,6 @@ export default Vue.extend({
     },
 
     copySelection(): Promise<void> {
-      console.log('copy');
-
       return new Promise<void>((resolve, reject) => {
         const checkList = (this.$refs.vxeTable as Table).getCheckboxRecords();
         this.tableSelection = checkList;
@@ -226,32 +199,16 @@ export default Vue.extend({
             const conditionjson = workbookMap.get('condition');
             const awardjson = workbookMap.get('award_data');
 
-            const copyList: Record<
-              string,
-              Record<string, string> | Record<string, string>[]
-            >[] = [];
-            if (
-              taskjson &&
-              processjson &&
-              sourcejson &&
-              conditionjson &&
-              awardjson
-            ) {
+            const copyList: Record<string, Record<string, string> | Record<string, string>[]>[] = [];
+            if (taskjson && processjson && sourcejson && conditionjson && awardjson) {
               idList.forEach(async (id, index) => {
-                const object: Record<
-                  string,
-                  Record<string, string> | Record<string, string>[]
-                > = {};
-                const task = taskjson.find(
-                  (item) => item.id.toString() === id.toString()
-                );
+                const object: Record<string, Record<string, string> | Record<string, string>[]> = {};
+                const task = taskjson.find((item) => item.id.toString() === id.toString());
                 if (task) {
                   object['task'] = task;
 
                   const { process_id } = task;
-                  const process = processjson.find(
-                    (item) => item.process_id === process_id
-                  );
+                  const process = processjson.find((item) => item.process_id === process_id);
 
                   if (process) {
                     object['process'] = process;
@@ -262,16 +219,10 @@ export default Vue.extend({
 
                     if (awardList) object['awards'] = awardList;
 
-                    object['source'] = sourcejson.filter(
-                      (item) => item.source_id === source_id
-                    );
-                    const conditionidList = object.source.map(
-                      (item) => item.condition_id
-                    );
+                    object['source'] = sourcejson.filter((item) => item.source_id === source_id);
+                    const conditionidList = object.source.map((item) => item.condition_id);
 
-                    object['condition'] = conditionjson.filter((item) =>
-                      conditionidList.includes(item.condition_id)
-                    );
+                    object['condition'] = conditionjson.filter((item) => conditionidList.includes(item.condition_id));
                   } else {
                     reject();
                   }
@@ -294,18 +245,14 @@ export default Vue.extend({
       });
     },
 
-    async getAwardList(
-      award: string
-    ): Promise<Record<string, string>[] | undefined> {
+    async getAwardList(award: string): Promise<Record<string, string>[] | undefined> {
       const idList = award.split(',');
       const path = ActiveFileModule.path;
       const workbookMap = await WorkspacedModule.bookMapByPath(path);
       const awardjson = workbookMap.get('award_data');
 
       if (awardjson) {
-        return awardjson.filter((item) =>
-          idList.includes(item.award_id.toString())
-        );
+        return awardjson.filter((item) => idList.includes(item.award_id.toString()));
       }
     },
 
@@ -328,13 +275,7 @@ export default Vue.extend({
         const conditionjson = copyTask.condition as Record<string, string>[];
         const awardjson = copyTask.awards as Record<string, string>[];
 
-        if (
-          taskjson &&
-          processjson &&
-          sourcejson &&
-          conditionjson &&
-          awardjson
-        ) {
+        if (taskjson && processjson && sourcejson && conditionjson && awardjson) {
           taskjson.id = getLostTaskId();
 
           const newProcessid = getLostProcessId();
@@ -407,19 +348,13 @@ export default Vue.extend({
 
           // 将粘贴的任务设置为勾选状态
           const rows: RowInfo[] = [];
-          for (
-            let index = scrollIndex;
-            index < this.tableData.length;
-            index++
-          ) {
+          for (let index = scrollIndex; index < this.tableData.length; index++) {
             const element = this.tableData[index];
             rows.push(element);
           }
           (this.$refs.vxeTable as Table).setCheckboxRow(rows, true).then(() => {
             // 滚动到粘贴第一个任务的位置
-            const row = (this.$refs.vxeTable as Table).getData(
-              this.tableData.length - 1
-            );
+            const row = (this.$refs.vxeTable as Table).getData(this.tableData.length - 1);
             setTimeout(() => {
               (this.$refs.vxeTable as Table).scrollToRow(row).then(() => {
                 resolve();
@@ -509,9 +444,7 @@ export default Vue.extend({
           const process = processList.find((p) => p.process_id == processId);
           if (process) {
             sourceId = process.source_id;
-            conditionIdList = sourceList
-              .filter((s) => s.source_id == sourceId)
-              .map((s) => s.condition_id);
+            conditionIdList = sourceList.filter((s) => s.source_id == sourceId).map((s) => s.condition_id);
 
             awardIdList = process.awards.split(',');
           }
@@ -519,12 +452,8 @@ export default Vue.extend({
           deleteExisting(taskList, 'id', taskId);
           deleteExisting(processList, 'process_id', processId);
           deleteExisting(sourceList, 'source_id', sourceId);
-          conditionIdList.forEach((id) =>
-            deleteExisting(conditionList, 'condition_id', id)
-          );
-          awardIdList.forEach((id) =>
-            deleteExisting(awardList, 'award_id', id)
-          );
+          conditionIdList.forEach((id) => deleteExisting(conditionList, 'condition_id', id));
+          awardIdList.forEach((id) => deleteExisting(awardList, 'award_id', id));
         });
 
         ChangedMapModule.Append({ path: path, data: map });
@@ -601,10 +530,7 @@ export default Vue.extend({
     setTableScroll(): Promise<void> {
       const scroll = store.state.taskTableScroll;
       if (scroll) {
-        return (this.$refs.vxeTable as Table).scrollTo(
-          scroll.scrollLeft,
-          scroll.scrollTop
-        );
+        return (this.$refs.vxeTable as Table).scrollTo(scroll.scrollLeft, scroll.scrollTop);
       }
       return Promise.reject();
     },

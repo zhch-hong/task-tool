@@ -37,9 +37,10 @@
 </template>
 <script lang="ts">
 import Vue from 'vue';
-import { getTreeDataDefault } from '@/utils';
+import { getTreeData } from '@/utils';
 import { TreeData } from 'element-ui/types/tree';
 import { Tree } from 'element-ui';
+import { workDir } from '@/asserts/dir-config';
 
 interface TreeMeta extends TreeData {
   path: string;
@@ -50,6 +51,7 @@ export default Vue.extend({
 
   data() {
     return {
+      fileName: '',
       treeData: [] as TreeMeta[],
       loading: false,
       defaultProps: {
@@ -60,13 +62,13 @@ export default Vue.extend({
     };
   },
 
-  created() {
+  mounted() {
     this.getTreeData();
   },
 
   methods: {
     getTreeData() {
-      this.treeData = getTreeDataDefault();
+      this.treeData = getTreeData(workDir, [this.fileName]);
     },
 
     statLabel(data: TreeMeta): boolean {

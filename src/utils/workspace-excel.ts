@@ -12,8 +12,6 @@ function workspanceExcel(dirPath: string = workDir) {
     if (stats.isFile()) {
       const extname = path.extname(_path);
       if (extname === '.xls' || extname === '.xlsx') {
-        console.log(_path);
-
         array.push({ label: dir, path: _path });
       }
     } else if (stats.isDirectory()) {

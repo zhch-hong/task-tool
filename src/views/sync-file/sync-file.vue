@@ -52,12 +52,6 @@ export default Vue.extend({
     },
   },
 
-  watch: {
-    activePane(value: number) {
-      console.log(value);
-    },
-  },
-
   created(): void {
     const map = excel2json(this.path);
     const object: Record<string, Record<string, Array<Record<string | number, any>>>> = {};
@@ -175,6 +169,11 @@ export default Vue.extend({
         const div = document.createElement('div');
         document.body.append(div);
         const instance = new SyncFileList();
+
+        const path: string = this.$route.params.path;
+        const split = path.split('\\');
+        instance.fileName = split[split.length - 1];
+
         instance.$mount(div);
 
         instance.$on('close', () => {

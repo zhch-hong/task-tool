@@ -11,7 +11,7 @@ interface TreeMeta extends TreeData {
 const path = resolve(resolve(configDir, 'app_config'), 'file-manage.json');
 let dataMemory: TreeMeta[] | null = null;
 
-function getTreeData(path: string, fileList: string[]): TreeMeta[] {
+export function getTreeData(path: string = workDir, fileList: string[] = []): TreeMeta[] {
   const array: TreeMeta[] = [];
   const dirs = readdirSync(path);
   dirs.forEach((dir) => {

@@ -63,10 +63,6 @@ export default Vue.extend({
     },
   },
 
-  created(): void {
-    console.log('created');
-  },
-
   mounted() {
     setTimeout(() => {
       this.tableData = cloneDeep(this.data);
