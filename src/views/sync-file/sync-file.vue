@@ -81,6 +81,10 @@ export default Vue.extend({
           pathList.forEach((path) => this.syncingFile(path, map));
 
           cb();
+
+          this.$alert('文件同步完成').finally(() => {
+            this.undoSync();
+          });
         })
         .catch(() => {
           //
