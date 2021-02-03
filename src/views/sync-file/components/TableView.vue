@@ -19,13 +19,19 @@
       :min-width="200"
       :edit-render="{ name: 'input' }"
     ></vxe-table-column>
+    <vxe-table-column width="80" align="center">
+      <template #default="{ row }">
+        <v-btn small dark icon color="#409EFF" @click="$refs.xTable.revertData(row)"
+          ><v-icon small>el-icon-refresh-left</v-icon></v-btn
+        >
+      </template>
+    </vxe-table-column>
   </vxe-table>
 </template>
 <script lang="ts">
 import Vue, { PropType } from 'vue';
 import { cloneDeep } from 'lodash';
 import { ViewResizeModule } from '@/store/modules/veiw-resize';
-import { Table } from 'vxe-table';
 
 export default Vue.extend({
   name: 'TableView',
@@ -107,12 +113,6 @@ export default Vue.extend({
 
     findExist(address: { r: number; c: number }) {
       return this.editRecords.get(JSON.stringify(address));
-    },
-
-    revert() {
-      const data = cloneDeep(this.activeRow);
-      data['|任务内容说明'] = '===';
-      (this.$refs.xTable as Table).reloadRow(this.activeRow, data, '|任务内容说明');
     },
   },
 });

@@ -30,7 +30,7 @@
         </el-tree>
       </el-scrollbar>
       <div style="text-align: right; margin-top: 10px">
-        <el-button size="mini" type="primary" @click="submit">开始同步</el-button>
+        <v-btn :loading="loading" small @click="submit">开始同步</v-btn>
       </div>
     </div>
   </div>
@@ -51,6 +51,7 @@ export default Vue.extend({
   data() {
     return {
       treeData: [] as TreeMeta[],
+      loading: false,
       defaultProps: {
         children: 'children',
         label: 'label',
@@ -82,11 +83,18 @@ export default Vue.extend({
       this.$emit('close');
     },
 
-    submit(): void {
-      const nodes: TreeMeta[] = (this.$refs.tree as Tree).getCheckedNodes(true) as TreeMeta[];
-      const pathList = nodes.map((node) => node.path);
-      this.$emit('path-list', pathList);
+    syncComplete(): void {
+      this.loading = false;
       this.close();
+    },
+
+    submit(): void {
+      this.loading = true;
+      setTimeout(() => {
+        const nodes: TreeMeta[] = (this.$refs.tree as Tree).getCheckedNodes(true) as TreeMeta[];
+        const pathList = nodes.map((node) => node.path);
+        this.$emit('path-list', { pathList, cb: this.syncComplete });
+      }, 500);
     },
   },
 });

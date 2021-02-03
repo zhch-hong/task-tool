@@ -3,7 +3,6 @@
     <v-toolbar>
       <v-btn small tile style="margin-right: 20px" @click="doingSync">同步数据</v-btn>
       <v-btn small tile @click="undoSync">取消同步</v-btn>
-      <v-btn small @click="revert">还原</v-btn>
       <template #extension>
         <v-tabs v-model="activePane">
           <v-tab v-for="(value, key) of jsonMap" :key="key">
@@ -74,7 +73,7 @@ export default Vue.extend({
   methods: {
     doingSync(): void {
       this.getSyncFileList()
-        .then((pathList) => {
+        .then(({ pathList, cb }) => {
           const map = new Map<string, Map<string, Record<'o' | 'n', any>>>();
           const object = this.$refs;
           for (const key in object) {
@@ -86,6 +85,8 @@ export default Vue.extend({
           }
 
           pathList.forEach((path) => this.syncingFile(path, map));
+
+          cb();
         })
         .catch(() => {
           //
@@ -151,13 +152,15 @@ export default Vue.extend({
                 sheet['!ref'] = XLSX.utils.encode_range(range);
                 sheet[cellAddress] = {
                   h: value.n.toString(),
-                  t: typeof value.n,
-                  v: value.n,
+                  t: 's',
+                  v: value.n.toString(),
                   w: value.n.toString(),
                 };
               }
             } else {
-              cell.v = value.n;
+              cell.h = value.n.toString();
+              cell.t = 's';
+              cell.v = value.n.toString();
               cell.w = value.n.toString();
             }
           });
@@ -167,8 +170,8 @@ export default Vue.extend({
       XLSX.writeFile(workbook, path);
     },
 
-    getSyncFileList(): Promise<string[]> {
-      return new Promise<string[]>((resolve, reject) => {
+    getSyncFileList(): Promise<{ pathList: string[]; cb: () => void }> {
+      return new Promise<{ pathList: string[]; cb: () => void }>((resolve, reject) => {
         const div = document.createElement('div');
         document.body.append(div);
         const instance = new SyncFileList();
@@ -182,14 +185,10 @@ export default Vue.extend({
           });
         });
 
-        instance.$on('path-list', (pathList: string[]) => {
-          resolve(pathList);
+        instance.$on('path-list', (payload: { pathList: string[]; cb: () => void }) => {
+          resolve(payload);
         });
       });
-    },
-
-    revert() {
-      (this.$refs.ref_task as any)[0].revert();
     },
   },
 });
