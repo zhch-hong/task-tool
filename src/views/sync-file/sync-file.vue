@@ -2,7 +2,7 @@
   <div>
     <v-toolbar>
       <v-btn small tile style="margin-right: 20px" @click="doingSync">同步数据</v-btn>
-      <v-btn small tile @click="undoSync">取消同步</v-btn>
+      <v-btn small tile @click="undoSync">关闭同步</v-btn>
       <template #extension>
         <v-tabs v-model="activePane">
           <v-tab v-for="(value, key) of jsonMap" :key="key">

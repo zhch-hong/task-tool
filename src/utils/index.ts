@@ -4,11 +4,7 @@
  * @param col
  * @param id
  */
-function deleteExisting(
-  list: Record<string, string>[],
-  col: string,
-  value: number | string
-) {
+function deleteExisting(list: Record<string, string>[], col: string, value: number | string) {
   const index = list.findIndex((item) => {
     return item[col].toString() === value.toString();
   });
@@ -56,12 +52,7 @@ function stringify(params: any) {
 }
 
 export { getSheet } from './likeSheet';
-export {
-  readFileText,
-  writeFileText,
-  readFileBinary,
-  writeFileBinary,
-} from '@/utils/fileSystem';
+export { readFileText, writeFileText, readFileBinary, writeFileBinary } from '@/utils/fileSystem';
 export { getTreeDataDefault } from './filtFileTree';
 export { propertySlice } from './propertySlice';
 export { sheet2json, workbook2map } from './sheetToJson';
@@ -70,3 +61,4 @@ export { updateBase, updateProcess, updateSource } from './writeTask';
 export { readExcelToMap, writeMapToExcel } from './xlsxIO';
 export { writeChanged } from './write-changed';
 export { stringify, parseString2Number, deleteExisting };
+export { workspanceExcel } from './workspace-excel';
