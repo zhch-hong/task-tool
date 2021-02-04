@@ -17,6 +17,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import XLSX from 'xlsx';
+import { remote } from 'electron';
 import { excel2json } from './scripts/excel2json';
 import { SyncFileModule } from '@/store/modules/sync-file';
 import { WorkspacedModule } from '@/store/modules/workspaced';
@@ -24,6 +25,8 @@ import { closeSync } from '@/menu/Edit/SyncFile';
 
 import TableView from './components/TableView.vue';
 import WorkspaceExcel from '@/components/WorkspaceExcel.vue';
+
+const { dialog, getCurrentWindow } = remote;
 
 export default Vue.extend({
   name: 'SyncFile',
@@ -111,6 +114,13 @@ export default Vue.extend({
       this.$nextTick(async () => {
         this.clickFile(this.activePath);
         await this.$nextTick();
+        const win = getCurrentWindow();
+        win.focus();
+        dialog.showMessageBoxSync(win, {
+          title: '提示',
+          message: '同步完成',
+          type: 'info',
+        });
         closeSync();
       });
     },
