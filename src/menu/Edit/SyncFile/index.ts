@@ -55,6 +55,8 @@ const ComponentClass = Vue.extend({
             domProps: { innerText: '确定' },
             on: {
               click: () => {
+                if (!excelPath) return;
+
                 obser.visible = false;
                 router.push(`/sync-file/${excelPath}`);
               },
