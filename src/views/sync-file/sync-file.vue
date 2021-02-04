@@ -1,98 +1,118 @@
 <template>
-  <div>
-    <v-toolbar>
-      <v-btn small tile style="margin-right: 20px" @click="doingSync">同步数据</v-btn>
-      <v-btn small tile @click="undoSync">关闭同步</v-btn>
-      <template #extension>
-        <v-tabs v-model="activePane">
-          <v-tab v-for="(value, key) of jsonMap" :key="key">
-            {{ key }}
-          </v-tab>
-        </v-tabs>
-      </template>
-    </v-toolbar>
-    <v-tabs-items v-model="activePane">
-      <v-tab-item v-for="(value, key) of jsonMap" :key="key">
-        <TableView :ref="'ref_' + key" :columns="value.columns" :data="value.data" />
-      </v-tab-item>
-    </v-tabs-items>
+  <div class="sync-file">
+    <div class="tree-view">
+      <WorkspaceExcel @click-file="clickFile" />
+    </div>
+    <div class="sheet-tabs">
+      <div class="tabs-warp">
+        <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
+          <el-tab-pane v-for="(value, key) of data" :key="key" :label="key" lazy>
+            <TableView :ref="key" :columns="value.columns" :data="value.data" />
+          </el-tab-pane>
+        </el-tabs>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
 import Vue from 'vue';
 import XLSX from 'xlsx';
-
 import { excel2json } from './scripts/excel2json';
-import { ViewResizeModule } from '@/store/modules/veiw-resize';
+import { SyncFileModule } from '@/store/modules/sync-file';
+import { WorkspacedModule } from '@/store/modules/workspaced';
+import { closeSync } from '@/menu/Edit/SyncFile';
 
 import TableView from './components/TableView.vue';
-import SyncFileList from './components/SyncFileList.vue';
+import WorkspaceExcel from '@/components/WorkspaceExcel.vue';
 
 export default Vue.extend({
-  name: 'sync-file',
+  name: 'SyncFile',
 
   components: {
     TableView,
-  },
-
-  props: {
-    path: String,
+    WorkspaceExcel,
   },
 
   data() {
     return {
-      activePane: 0,
-      jsonMap: {} as Record<string, Record<string, Array<Record<string | number, any>>>>,
+      data: {} as Record<PropertyKey, any>,
+      activeName: '0',
+      activePath: '',
     };
   },
 
   computed: {
-    tabPaneHeight(): string {
-      return ViewResizeModule.windowHeight - 200 + 'px';
+    pathList(): string[] {
+      return SyncFileModule.pathList;
     },
   },
 
-  created(): void {
-    const map = excel2json(this.path);
-    const object: Record<string, Record<string, Array<Record<string | number, any>>>> = {};
-    map.forEach((value, key) => {
-      object[key] = value;
-    });
+  watch: {
+    /**
+     * 当点击同步文件时，会向vuex中提交勾选的文件路径
+     * 这里便进行同步操作
+     */
+    pathList: {
+      deep: true,
+      handler(list: string[]) {
+        if (list.length === 0) return;
 
-    this.$nextTick(() => {
-      this.jsonMap = object;
-    });
+        this.startSync(list);
+      },
+    },
   },
 
   methods: {
-    doingSync(): void {
-      this.getSyncFileList()
-        .then(({ pathList, cb }) => {
-          const map = new Map<string, Map<string, Record<'o' | 'n', any>>>();
-          const object = this.$refs;
-          for (const key in object) {
-            if (Object.prototype.hasOwnProperty.call(object, key)) {
-              const element = object[key] as any;
-              const records = (element[0] as any).getUpdateRecords();
-              map.set(key.substring(4), records);
-            }
-          }
-
-          pathList.forEach((path) => this.syncingFile(path, map));
-
-          cb();
-
-          this.$alert('文件同步完成').finally(() => {
-            this.undoSync();
-          });
-        })
-        .catch(() => {
-          //
-        });
+    handleClick(name: string): void {
+      // console.log(name);
     },
 
-    undoSync(): void {
-      this.$router.back();
+    async clickFile(path: string): Promise<void> {
+      this.data = {};
+      await this.$nextTick();
+      this.activeName = '0';
+      this.activePath = path;
+      const map = excel2json(path);
+      const object: Record<string, Record<string, Array<Record<string | number, any>>>> = {};
+      map.forEach((value, key) => {
+        object[key] = value;
+      });
+
+      this.data = object;
+
+      const split = path.split('\\');
+      const fileName = split[split.length - 1];
+      SyncFileModule.setFileName(fileName);
+    },
+
+    startSync(pathList: string[]): void {
+      const map = new Map<string, Map<string, Record<'o' | 'n', any>>>();
+      const object = this.$refs;
+
+      for (const key in object) {
+        if (Object.prototype.hasOwnProperty.call(object, key)) {
+          const element = object[key] as any;
+          const records = (element[0] as any).getUpdateRecords();
+          map.set(key, records);
+        }
+      }
+
+      pathList.forEach((path) => this.syncingFile(path, map));
+
+      // 更新WorkspacedModule中的数据
+      const iterator = WorkspacedModule.readedPathList();
+      for (const ite of iterator) {
+        if (pathList.includes(ite)) {
+          WorkspacedModule.UpdateWorkbookmap({ path: ite });
+        }
+      }
+
+      // 更新表格数据
+      this.$nextTick(async () => {
+        this.clickFile(this.activePath);
+        await this.$nextTick();
+        closeSync();
+      });
     },
 
     syncingFile(path: string, records: Map<string, Map<string, Record<'o' | 'n', any>>>) {
@@ -167,32 +187,26 @@ export default Vue.extend({
 
       XLSX.writeFile(workbook, path);
     },
-
-    getSyncFileList(): Promise<{ pathList: string[]; cb: () => void }> {
-      return new Promise<{ pathList: string[]; cb: () => void }>((resolve, reject) => {
-        const div = document.createElement('div');
-        document.body.append(div);
-        const instance = new SyncFileList();
-
-        const path: string = this.$route.params.path;
-        const split = path.split('\\');
-        instance.fileName = split[split.length - 1];
-
-        instance.$mount(div);
-
-        instance.$on('close', () => {
-          instance.$el.remove();
-          instance.$nextTick(() => {
-            instance.$destroy();
-            reject();
-          });
-        });
-
-        instance.$on('path-list', (payload: { pathList: string[]; cb: () => void }) => {
-          resolve(payload);
-        });
-      });
-    },
   },
 });
 </script>
+<style lang="scss" scoped>
+div.sync-file {
+  height: 100%;
+  display: flex;
+  & > div.tree-view {
+    width: 400px;
+    box-shadow: 0 0 1px 0 #cce4ff;
+  }
+  & > div.sheet-tabs {
+    flex-grow: 1;
+    position: relative;
+    & > div.tabs-warp {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+    }
+  }
+}
+</style>

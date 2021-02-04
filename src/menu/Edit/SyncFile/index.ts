@@ -1,19 +1,17 @@
 import Vue from 'vue';
-import router from '@/router';
 import { Button, Dialog } from 'element-ui';
+import { SyncFileModule } from '@/store/modules/sync-file';
 
-import WorkspaceExcel from './WorkspaceExcel.vue';
+import SyncFileList from './SyncFileList.vue';
 
-let excelPath = '';
-
-const obser = Vue.observable({ visible: false });
+const obser = Vue.observable({ visible: false, loading: false });
 const ComponentClass = Vue.extend({
   render(h) {
     return h(
       Dialog,
       {
         props: {
-          title: '打开文件',
+          title: '同步文件',
           visible: obser.visible,
           closeOnClickModal: false,
         },
@@ -29,20 +27,12 @@ const ComponentClass = Vue.extend({
         },
       },
       [
-        h(WorkspaceExcel, {
-          on: {
-            'open-excel': (path: string) => {
-              obser.visible = false;
-              router.push(`/sync-file/${path}`);
-            },
-
-            'click-file': (path: string) => {
-              excelPath = path;
-            },
-          },
+        h(SyncFileList, {
+          ref: 'SyncFileList',
         }),
         h('template', { slot: 'footer' }, [
           h(Button, {
+            props: { size: 'small' },
             domProps: { innerText: '取消' },
             on: {
               click: () => {
@@ -51,14 +41,16 @@ const ComponentClass = Vue.extend({
             },
           }),
           h(Button, {
-            props: { type: 'primary' },
-            domProps: { innerText: '确定' },
+            props: { icon: 'el-icon-refresh', size: 'small', loading: obser.loading, type: 'primary' },
+            domProps: { innerText: '开始同步' },
+
             on: {
               click: () => {
-                if (!excelPath) return;
-
-                obser.visible = false;
-                router.push(`/sync-file/${excelPath}`);
+                const pathList: string[] = (instance.$refs.SyncFileList as any).submit();
+                if (pathList.length === 0) {
+                  return;
+                }
+                SyncFileModule.setPathList(pathList);
               },
             },
           }),
@@ -75,4 +67,8 @@ instance.$mount(div);
 
 export function syncFile() {
   obser.visible = true;
+}
+
+export function closeSync() {
+  obser.visible = false;
 }

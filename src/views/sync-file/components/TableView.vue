@@ -21,9 +21,7 @@
     ></vxe-table-column>
     <vxe-table-column width="80" align="center">
       <template #default="{ row }">
-        <v-btn small dark icon color="#409EFF" @click="$refs.xTable.revertData(row)"
-          ><v-icon small>el-icon-refresh-left</v-icon></v-btn
-        >
+        <el-button size="mini" @click="$refs.xTable.revertData(row)" icon="el-icon-refresh-left"></el-button>
       </template>
     </vxe-table-column>
   </vxe-table>
@@ -59,7 +57,7 @@ export default Vue.extend({
 
   computed: {
     tableHeight(): string {
-      return ViewResizeModule.windowHeight - 142 + 'px';
+      return ViewResizeModule.windowHeight - 71 + 'px';
     },
   },
 

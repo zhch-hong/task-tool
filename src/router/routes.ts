@@ -45,10 +45,15 @@ const routes: RouteConfig[] = [
     component: Layout,
     children: [{ path: '', component: TemplateManage }],
   },
+  // {
+  //   path: '/sync-file/:path',
+  //   component: SyncFile,
+  //   props: true,
+  // },
   {
-    path: '/sync-file/:path',
-    component: SyncFile,
-    props: true,
+    path: '/sync-file',
+    component: Layout,
+    children: [{ path: '', component: SyncFile }],
   },
 ];
 

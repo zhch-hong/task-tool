@@ -10,6 +10,7 @@
       <el-menu-item-group title="任务配置工具">
         <el-menu-item index="/edit-file">编辑文件</el-menu-item>
         <el-menu-item index="/edit-task">编辑任务</el-menu-item>
+        <el-menu-item index="/sync-file">文件同步</el-menu-item>
       </el-menu-item-group>
       <el-menu-item-group title="工具配置">
         <el-menu-item index="/file-manage">文件管理</el-menu-item>

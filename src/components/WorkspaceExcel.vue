@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="workspace-excel">
     <el-input v-model="searchKey" clearable placeholder="输入文件名搜索" prefix-icon="el-icon-search"></el-input>
-    <el-divider></el-divider>
+
     <div class="scrollbar">
-      <el-scrollbar style="height: 100%" wrapStyle="overflow-x: hidden;">
+      <div class="scrollbar-abs">
         <el-tree
           ref="tree"
           :data="treeData"
@@ -29,7 +29,7 @@
             </div>
           </template>
         </el-tree>
-      </el-scrollbar>
+      </div>
     </div>
   </div>
 </template>
@@ -83,7 +83,7 @@ export default Vue.extend({
 
     nodeDblclick(data: Record<string, any>): void {
       const path: string = data.path;
-      this.$emit('open-excel', path);
+      // this.$emit('open-excel', path);
     },
 
     filterNode(value: string, data: Record<string, any>): boolean {
@@ -109,7 +109,21 @@ export default Vue.extend({
 });
 </script>
 <style lang="scss" scoped>
-div.scrollbar {
-  height: 50vh;
+div.workspace-excel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  div.scrollbar {
+    flex-grow: 1;
+
+    position: relative;
+    div.scrollbar-abs {
+      position: absolute;
+      top: 4px;
+      bottom: 0;
+      width: 100%;
+      overflow: auto;
+    }
+  }
 }
 </style>

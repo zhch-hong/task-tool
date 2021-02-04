@@ -14,7 +14,6 @@ import './plugins/vxe-table';
 import './plugins/progress-bar';
 import './plugins/vue-notification';
 import './plugins/custom-electron-titlebar';
-import vuetify from './plugins/vuetify';
 
 import '@/asserts/initAppConfigFile';
 
@@ -27,7 +26,6 @@ Vue.config.productionTip = false;
 const app = new Vue({
   router,
   store,
-  vuetify,
   render: (h) => h(App),
 }).$mount('#app');
 
