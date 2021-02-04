@@ -18,6 +18,10 @@ body {
 .el-menu {
   border-right: none;
 }
+.el-menu-item {
+  height: 46px;
+  line-height: 46px;
+}
 
 /* Dialog */
 .el-dialog__title {

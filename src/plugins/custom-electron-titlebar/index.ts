@@ -76,7 +76,8 @@ const menu = Menu.buildFromTemplate([
 ]);
 
 const titlebar = new Titlebar({
-  backgroundColor: Color.fromHex('#ececec'),
+  backgroundColor: Color.fromHex('#21252B'),
+  itemBackgroundColor: Color.fromHex('#2C313A'),
   icon: './icon_36.png',
   menu: menu,
 });

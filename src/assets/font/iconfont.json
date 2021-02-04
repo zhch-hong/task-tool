@@ -6,6 +6,27 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "1262233",
+      "name": "tasks",
+      "font_class": "tasks",
+      "unicode": "e715",
+      "unicode_decimal": 59157
+    },
+    {
+      "icon_id": "7685094",
+      "name": "file",
+      "font_class": "file",
+      "unicode": "e6f7",
+      "unicode_decimal": 59127
+    },
+    {
+      "icon_id": "19698214",
+      "name": "edit_relationship",
+      "font_class": "edit_relationship",
+      "unicode": "e722",
+      "unicode_decimal": 59170
+    },
+    {
       "icon_id": "980422",
       "name": "edit",
       "font_class": "edit",
