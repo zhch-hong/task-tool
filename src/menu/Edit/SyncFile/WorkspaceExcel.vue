@@ -1,31 +1,41 @@
 <template>
-  <div class="scrollbar">
-    <el-scrollbar style="height: 100%" wrapStyle="overflow-x: hidden;">
-      <el-tree
-        ref="tree"
-        :data="treeData"
-        :highlight-current="true"
-        style="user-select: none"
-        node-key="path"
-        @node-click="nodeClick"
-      >
-        <template #default="{ data, node }">
-          <div v-if="!statLabel(data)">
-            <i v-if="!node.expanded" class="iconfont icon-folder" style="margin-right: 4px; color: #ffc800"></i>
-            <i v-if="node.expanded" class="iconfont icon-049-folder-open" style="margin-right: 4px; color: #ffc800"></i>
-            <span>{{ node.label }}</span>
-          </div>
-          <div v-else @dblclick.prevent.stop="nodeDblclick(data)">
-            <i class="iconfont icon-Microsoft-Excel" style="margin-right: 4px; color: #008000"></i>
-            <span :title="titlePath(data)">{{ node.label }}</span>
-          </div>
-        </template>
-      </el-tree>
-    </el-scrollbar>
+  <div>
+    <el-input v-model="searchKey" clearable placeholder="输入文件名搜索" prefix-icon="el-icon-search"></el-input>
+    <el-divider></el-divider>
+    <div class="scrollbar">
+      <el-scrollbar style="height: 100%" wrapStyle="overflow-x: hidden;">
+        <el-tree
+          ref="tree"
+          :data="treeData"
+          :highlight-current="true"
+          :filter-node-method="filterNode"
+          style="user-select: none"
+          node-key="path"
+          @node-click="nodeClick"
+        >
+          <template #default="{ data, node }">
+            <div v-if="!statLabel(data)">
+              <i v-if="!node.expanded" class="iconfont icon-folder" style="margin-right: 4px; color: #ffc800"></i>
+              <i
+                v-if="node.expanded"
+                class="iconfont icon-049-folder-open"
+                style="margin-right: 4px; color: #ffc800"
+              ></i>
+              <span>{{ node.label }}</span>
+            </div>
+            <div v-else @dblclick.prevent.stop="nodeDblclick(data)">
+              <i class="iconfont icon-Microsoft-Excel" style="margin-right: 4px; color: #008000"></i>
+              <span :title="titlePath(data)">{{ node.label }}</span>
+            </div>
+          </template>
+        </el-tree>
+      </el-scrollbar>
+    </div>
   </div>
 </template>
 <script lang="ts">
 import fs from 'fs';
+import path from 'path';
 import Vue from 'vue';
 import { workspanceExcel } from '@/utils';
 
@@ -34,9 +44,21 @@ export default Vue.extend({
 
   data() {
     return {
+      searchKey: '',
       excelPath: '',
       treeData: [] as Array<Record<string, any>>,
+      searchTimer: null as number | null,
     };
+  },
+
+  watch: {
+    searchKey(value: string): void {
+      if (this.searchTimer) {
+        clearTimeout(this.searchTimer);
+      }
+
+      this.searchTimer = window.setTimeout(this.$refs.tree.filter, 500, value);
+    },
   },
 
   mounted() {
@@ -64,6 +86,16 @@ export default Vue.extend({
       this.$emit('open-excel', path);
     },
 
+    filterNode(value: string, data: Record<string, any>): boolean {
+      if (!value) return true;
+
+      const _path = data.path;
+
+      if (typeof path === 'undefined' || _path === '') return true;
+
+      return data.label.includes(value) && (path.extname(_path) === '.xls' || path.extname(_path) === '.xlsx');
+    },
+
     statLabel(data: Record<string, any>): boolean {
       if (!data.label) throw new Error('节点必须有label属性');
 
@@ -78,6 +110,6 @@ export default Vue.extend({
 </script>
 <style lang="scss" scoped>
 div.scrollbar {
-  height: 55vh;
+  height: 50vh;
 }
 </style>
