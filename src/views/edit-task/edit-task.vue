@@ -1,13 +1,7 @@
 <template>
   <div id="edit-task">
     <div style="margin-bottom: 10px">
-      <el-button
-        :loading="loading"
-        @click="handleSave"
-        title="Ctrl+S"
-        type="primary"
-        >保存任务</el-button
-      >
+      <el-button :loading="loading" @click="handleSave" title="Ctrl+S" type="primary">保存任务</el-button>
       <el-button @click="$router.push('/edit-file')">返回</el-button>
     </div>
     <div style="flex: 1; overflow: auto">
@@ -90,11 +84,7 @@ export default Vue.extend({
     this.getNocontaminated();
   },
 
-  async beforeRouteLeave(
-    to: Route,
-    from: Route,
-    next: NavigationGuardNext
-  ): Promise<void> {
+  async beforeRouteLeave(to: Route, from: Route, next: NavigationGuardNext): Promise<void> {
     (this.$refs.baseDataRef as any).submit();
     (this.$refs.progressDataRef as any).submit();
     (this.$refs.sourceDataRef as any).submit();
@@ -104,8 +94,10 @@ export default Vue.extend({
     const newData = JSON.stringify(this.taskData);
 
     if (!(oldData.startsWith(newData) && oldData.endsWith(newData))) {
-      const { dialog } = remote;
-      const response = dialog.showMessageBoxSync({
+      const { dialog, getCurrentWindow } = remote;
+      const win = getCurrentWindow();
+      win.focus();
+      const response = dialog.showMessageBoxSync(win, {
         title: '数据变动',
         message: '检测到数据已经改动，并尚未保存，离开将丢弃数据',
         type: 'warning',
@@ -161,52 +153,30 @@ export default Vue.extend({
         const workbookMap = await WorkspacedModule.bookMapByPath(path);
 
         const taskList = workbookMap.get('task') as Record<string, string>[];
-        const taskJson = taskList.find(
-          (item) => item.id.toString() === id.toString()
-        ) as Record<string, string>;
+        const taskJson = taskList.find((item) => item.id.toString() === id.toString()) as Record<string, string>;
         this.baseData = taskJson;
 
         this.setPropTemplate(taskJson);
 
         const { process_id } = taskJson;
-        const processList = workbookMap.get('process_data') as Record<
-          string,
-          string
-        >[];
-        const processJson = processList.find(
-          (item) => item.process_id === process_id
-        ) as Record<string, string>;
+        const processList = workbookMap.get('process_data') as Record<string, string>[];
+        const processJson = processList.find((item) => item.process_id === process_id) as Record<string, string>;
         this.processData = processJson;
 
         const { source_id, awards } = processJson;
 
-        const awardList = workbookMap.get('award_data') as Record<
-          string,
-          string
-        >[];
+        const awardList = workbookMap.get('award_data') as Record<string, string>[];
         this.awardData = awards.split(',').map((award_id) => {
           return awardList.filter((award) => award.award_id == award_id);
         });
 
-        const sourceList = workbookMap.get('source') as Record<
-          string,
-          string
-        >[];
-        this.sourceData = sourceList.filter(
-          (source) => source.source_id === source_id
-        );
+        const sourceList = workbookMap.get('source') as Record<string, string>[];
+        this.sourceData = sourceList.filter((source) => source.source_id === source_id);
 
-        const conditionList = workbookMap.get('condition') as Record<
-          string,
-          string
-        >[];
-        this.conditionData = this.sourceData.map(
-          (source: Record<string, string>) => {
-            return conditionList.filter(
-              (condition) => condition.condition_id === source.condition_id
-            );
-          }
-        );
+        const conditionList = workbookMap.get('condition') as Record<string, string>[];
+        this.conditionData = this.sourceData.map((source: Record<string, string>) => {
+          return conditionList.filter((condition) => condition.condition_id === source.condition_id);
+        });
       }
     },
 

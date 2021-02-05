@@ -108,7 +108,8 @@ export default Vue.extend({
       for (const key in object) {
         if (Object.prototype.hasOwnProperty.call(object, key)) {
           const element = object[key] as any;
-          if (Array.isArray(object)) {
+
+          if (Array.isArray(element)) {
             const el = element[0];
             if (el && typeof el.getUpdateRecords === 'function') {
               const records = el.getUpdateRecords();
