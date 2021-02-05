@@ -1,9 +1,10 @@
+import router from '@/router';
 import { remote } from 'electron';
 import { Titlebar, Color } from 'custom-electron-titlebar';
 import { ComponentInstanceModule } from '@/store/modules/component-instance';
 import { about, options, syncFile } from '@/menu';
 
-const { app, dialog, Menu } = remote;
+const { Menu } = remote;
 
 const menu = Menu.buildFromTemplate([
   {
@@ -22,6 +23,8 @@ const menu = Menu.buildFromTemplate([
         label: '添加任务',
         accelerator: 'Ctrl+N',
         click: () => {
+          if (router.currentRoute.path !== '/edit-file') return;
+
           const ins = ComponentInstanceModule.instance('EditFile');
           if (ins) ins.createTask();
         },
@@ -30,6 +33,8 @@ const menu = Menu.buildFromTemplate([
         label: '删除任务',
         accelerator: 'Ctrl+R',
         click: () => {
+          if (router.currentRoute.path !== '/edit-file') return;
+
           const ins = ComponentInstanceModule.instance('EditFile');
           if (ins) ins.deleteTask();
         },
@@ -38,6 +43,8 @@ const menu = Menu.buildFromTemplate([
         label: '拷贝任务',
         accelerator: 'Ctrl+C',
         click: () => {
+          if (router.currentRoute.path !== '/edit-file') return;
+
           const ins = ComponentInstanceModule.instance('EditFile');
           if (ins) ins.copySelection();
         },
@@ -46,6 +53,8 @@ const menu = Menu.buildFromTemplate([
         label: '粘贴任务',
         accelerator: 'Ctrl+V',
         click: () => {
+          if (router.currentRoute.path !== '/edit-file') return;
+
           const ins = ComponentInstanceModule.instance('EditFile');
           if (ins) ins.pasteTask();
         },
@@ -54,13 +63,19 @@ const menu = Menu.buildFromTemplate([
         label: '复制任务',
         accelerator: 'Ctrl+D',
         click: () => {
+          if (router.currentRoute.path !== '/edit-file') return;
+
           const ins = ComponentInstanceModule.instance('EditFile');
           if (ins) ins.doubleTask();
         },
       },
       {
         label: '同步文件',
-        click: syncFile,
+        click: () => {
+          if (router.currentRoute.path !== '/sync-file') return;
+
+          syncFile();
+        },
       },
     ],
   },
