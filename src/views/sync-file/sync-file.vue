@@ -108,8 +108,19 @@ export default Vue.extend({
       for (const key in object) {
         if (Object.prototype.hasOwnProperty.call(object, key)) {
           const element = object[key] as any;
-          const records = (element[0] as any).getUpdateRecords();
-          map.set(key, records);
+          if (Array.isArray(object)) {
+            const el = element[0];
+            if (el && typeof el.getUpdateRecords === 'function') {
+              const records = el.getUpdateRecords();
+              map.set(key, records);
+            }
+          } else {
+            const el = element;
+            if (el && typeof el.getUpdateRecords === 'function') {
+              const records = el.getUpdateRecords();
+              map.set(key, records);
+            }
+          }
         }
       }
 

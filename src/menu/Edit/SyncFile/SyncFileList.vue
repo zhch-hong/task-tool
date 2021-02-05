@@ -71,7 +71,6 @@ export default Vue.extend({
   },
 
   mounted() {
-    console.log('mounted');
     this.getTreeData();
   },
 
