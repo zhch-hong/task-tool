@@ -14,22 +14,19 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 let win: BrowserWindow | null;
 
 // Scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged([
-  { scheme: 'app', privileges: { secure: true, standard: true } },
-]);
+protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
 
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    width: 1536,
-    height: 864,
+    width: 1632,
+    height: 918,
     titleBarStyle: 'hidden',
     frame: false,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: (process.env
-        .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
+      nodeIntegration: (process.env.ELECTRON_NODE_INTEGRATION as unknown) as boolean,
       enableRemoteModule: true,
     },
   });

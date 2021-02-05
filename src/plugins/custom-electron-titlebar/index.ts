@@ -70,6 +70,9 @@ const menu = Menu.buildFromTemplate([
         },
       },
       {
+        type: 'separator',
+      },
+      {
         label: '同步文件',
         click: () => {
           if (router.currentRoute.path !== '/sync-file') return;

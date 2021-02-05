@@ -26,6 +26,11 @@ body {
   opacity: 0.2;
 }
 
+/* custom-electron-titlebar */
+.menubar-menu-container {
+  overflow-y: visible;
+}
+
 /* Menu */
 .el-menu {
   border-right: none;
