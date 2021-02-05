@@ -1,39 +1,41 @@
 import Vue from 'vue';
-import { app } from '@/main';
-import Options from './index.vue';
+import { Dialog } from 'element-ui';
 
-let mounted = false;
+import StorageDir from './components/StorageDir.vue';
+import WorkDir from './components/WorkDir.vue';
+
+const obser = Vue.observable({ visible: false });
+const ComponentClass = Vue.extend({
+  render(h) {
+    return h(
+      Dialog,
+      {
+        props: {
+          title: '选项',
+          visible: obser.visible,
+          closeOnClickModal: false,
+        },
+
+        on: {
+          'update:visible': (visible: boolean) => {
+            obser.visible = visible;
+          },
+
+          close: () => {
+            obser.visible = false;
+          },
+        },
+      },
+      [h(StorageDir), h(WorkDir)]
+    );
+  },
+});
+
+const instance = new ComponentClass();
+const div = document.createElement('div');
+document.body.append(div);
+instance.$mount(div);
 
 export function options() {
-  if (mounted) return;
-
-  let visible = true;
-
-  const div = document.createElement('div');
-  document.body.append(div);
-
-  const vnode = app.$createElement(Options, {
-    props: {
-      visible: visible,
-    },
-
-    on: {
-      'update:visible': () => {
-        visible = false;
-        Vue.nextTick(() => {
-          ins.$el.remove();
-          ins.$destroy();
-          mounted = false;
-        });
-      },
-    },
-  });
-
-  const ins = new Vue({
-    render: () => vnode,
-  });
-
-  ins.$mount(div).$nextTick(() => {
-    mounted = true;
-  });
+  obser.visible = true;
 }
