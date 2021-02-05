@@ -2,9 +2,9 @@
   <nav id="nav">
     <el-menu
       :default-active="$route.path"
-      text-color="#b3b3b3"
-      active-text-color="#fff"
-      background-color="#2c323a"
+      text-color="#606266"
+      active-text-color="#303133"
+      background-color="#f2f2f3"
       router
     >
       <el-menu-item-group title="任务配置工具">
@@ -23,6 +23,6 @@
 </template>
 <style lang="scss">
 #nav {
-  background-color: #2c323a;
+  background-color: #f2f2f3;
 }
 </style>

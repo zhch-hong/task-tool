@@ -5,7 +5,7 @@
     </div>
     <div class="sheet-tabs">
       <div class="tabs-warp">
-        <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
+        <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
           <el-tab-pane v-for="(value, key) of data" :key="key" :label="key" lazy>
             <TableView :ref="key" :columns="value.columns" :data="value.data" />
           </el-tab-pane>
@@ -117,8 +117,8 @@ export default Vue.extend({
         const win = getCurrentWindow();
         win.focus();
         dialog.showMessageBoxSync(win, {
-          title: '提示',
-          message: '同步完成',
+          title: '同步完成',
+          message: '更新的单元格数据已全部同步至所选文件',
           type: 'info',
         });
         closeSync();

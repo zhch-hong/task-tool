@@ -1,60 +1,43 @@
 <template>
-  <div
-    class="tree"
-    @mouseenter="dirButtons = true"
-    @mouseleave="dirButtons = false"
-  >
+  <div class="tree" @mouseenter="dirButtons = true" @mouseleave="dirButtons = false">
     <div class="activing">
       <span class="work-dir" :title="workDir">{{ workDir }}</span>
       <div v-show="dirButtons">
-        <i
-          class="el-icon-refresh refresh-tree"
-          title="刷新目录"
-          @click="refresh"
-        ></i>
+        <i class="el-icon-refresh refresh-tree" title="刷新目录" @click="refresh"></i>
       </div>
     </div>
     <div class="tree-warp">
       <div class="scrollbar">
-        <el-scrollbar style="height: 100%" wrapStyle="overflow-x: hidden;">
-          <el-tree
-            ref="tree"
-            :data="treeData"
-            :props="defaultProps"
-            :highlight-current="true"
-            :default-expanded-keys="defaultExpandedKeys"
-            :auto-expand-parent="false"
-            :current-node-key="currentNodeKey"
-            style="user-select: none"
-            node-key="path"
-            @node-click="nodeClick"
-            @node-expand="nodeExpand"
-            @node-collapse="nodeCollapse"
-          >
-            <template #default="{ data, node }">
-              <div v-if="!statLabel(data)">
-                <i
-                  v-if="!node.expanded"
-                  class="iconfont icon-folder"
-                  style="margin-right: 4px; color: #ffc800"
-                ></i>
-                <i
-                  v-if="node.expanded"
-                  class="iconfont icon-049-folder-open"
-                  style="margin-right: 4px; color: #ffc800"
-                ></i>
-                <span>{{ node.label }}</span>
-              </div>
-              <div v-else>
-                <i
-                  class="iconfont icon-Microsoft-Excel"
-                  style="margin-right: 4px; color: #008000"
-                ></i>
-                <span :title="titlePath(data)">{{ node.label }}</span>
-              </div>
-            </template>
-          </el-tree>
-        </el-scrollbar>
+        <el-tree
+          ref="tree"
+          :data="treeData"
+          :props="defaultProps"
+          :highlight-current="true"
+          :default-expanded-keys="defaultExpandedKeys"
+          :auto-expand-parent="false"
+          :current-node-key="currentNodeKey"
+          style="user-select: none"
+          node-key="path"
+          @node-click="nodeClick"
+          @node-expand="nodeExpand"
+          @node-collapse="nodeCollapse"
+        >
+          <template #default="{ data, node }">
+            <div v-if="!statLabel(data)">
+              <i v-if="!node.expanded" class="iconfont icon-folder" style="margin-right: 4px; color: #ffc800"></i>
+              <i
+                v-if="node.expanded"
+                class="iconfont icon-049-folder-open"
+                style="margin-right: 4px; color: #ffc800"
+              ></i>
+              <span>{{ node.label }}</span>
+            </div>
+            <div v-else>
+              <i class="iconfont icon-Microsoft-Excel" style="margin-right: 4px; color: #008000"></i>
+              <span :title="titlePath(data)">{{ node.label }}</span>
+            </div>
+          </template>
+        </el-tree>
       </div>
     </div>
   </div>
@@ -64,7 +47,7 @@ import { statSync } from 'fs';
 import { getUserconfig } from '@/asserts/userconfig';
 import { getTreeDataDefault, writeFileText } from '@/utils';
 import { TreeData } from 'element-ui/types/tree';
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import { dirConfigPath, workDir } from '@/asserts/dir-config';
 import { ActiveFileModule } from '@/store/modules/active-file';
 import { FileTreeModule } from '@/store/modules/file-tree';
@@ -155,7 +138,7 @@ div.tree {
       left: 0;
       height: 100%;
       width: 100%;
-      overflow: hidden;
+      overflow: auto;
     }
   }
 }

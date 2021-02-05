@@ -7,7 +7,7 @@
     show-header-overflow="title"
     :height="tableHeight"
     :data="tableData"
-    :edit-config="{ trigger: 'click', mode: 'cell', showStatus: true }"
+    :edit-config="{ trigger: 'click', mode: 'cell', showStatus: true, icon: 'none' }"
     @edit-closed="editClosed"
     @edit-actived="editActived"
   >
