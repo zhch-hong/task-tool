@@ -3,7 +3,7 @@
     <div class="tree-view">
       <WorkspaceExcel @click-file="clickFile" />
     </div>
-    <div class="sheet-tabs">
+    <div ref="SheetTabs" class="sheet-tabs">
       <div class="tabs-warp">
         <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
           <el-tab-pane v-for="(value, key) of data" :key="key" :label="key" lazy>
@@ -22,6 +22,7 @@ import { excel2json } from './scripts/excel2json';
 import { SyncFileModule } from '@/store/modules/sync-file';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import { closeSync } from '@/menu/Edit/SyncFile';
+import { Loading } from 'element-ui';
 
 import TableView from './components/TableView.vue';
 import WorkspaceExcel from '@/components/WorkspaceExcel.vue';
@@ -72,20 +73,32 @@ export default Vue.extend({
 
     async clickFile(path: string): Promise<void> {
       this.data = {};
-      await this.$nextTick();
-      this.activeName = '0';
-      this.activePath = path;
-      const map = excel2json(path);
-      const object: Record<string, Record<string, Array<Record<string | number, any>>>> = {};
-      map.forEach((value, key) => {
-        object[key] = value;
+      const loading = Loading.service({
+        target: this.$refs.SheetTabs as HTMLDivElement,
+        lock: true,
+        text: '正在加载',
+        spinner: 'el-icon-loading',
+        customClass: 'custom-loading-class',
       });
+      await this.$nextTick();
+      setTimeout(() => {
+        this.activeName = '0';
+        this.activePath = path;
+        const map = excel2json(path);
+        const object: Record<string, Record<string, Array<Record<string | number, any>>>> = {};
+        map.forEach((value, key) => {
+          object[key] = value;
+        });
 
-      this.data = object;
+        this.data = object;
 
-      const split = path.split('\\');
-      const fileName = split[split.length - 1];
-      SyncFileModule.setFileName(fileName);
+        const split = path.split('\\');
+        const fileName = split[split.length - 1];
+        SyncFileModule.setFileName(fileName);
+        setTimeout(() => {
+          this.$nextTick(() => loading.close());
+        }, 500);
+      }, 100);
     },
 
     startSync(pathList: string[]): void {

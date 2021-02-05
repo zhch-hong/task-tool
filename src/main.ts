@@ -11,7 +11,6 @@ import store from './store';
 
 import './plugins/element-ui';
 import './plugins/vxe-table';
-import './plugins/progress-bar';
 import './plugins/vue-notification';
 import './plugins/custom-electron-titlebar';
 

@@ -55,3 +55,16 @@ body {
 .el-tabs--border-card > .el-tabs__content {
   padding: 0;
 }
+
+/* Loading */
+.custom-loading-class {
+  background: #fff;
+  .el-loading-spinner {
+    i.el-icon-loading {
+      font-size: 26px;
+    }
+    .el-loading-text {
+      font-size: 14px;
+    }
+  }
+}
