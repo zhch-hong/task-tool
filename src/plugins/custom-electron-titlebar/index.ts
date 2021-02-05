@@ -14,6 +14,16 @@ const menu = Menu.buildFromTemplate([
         label: '选项',
         click: options,
       },
+      {
+        type: 'separator',
+      },
+      {
+        label: '退出',
+        click: () => {
+          const { app } = remote;
+          app.quit();
+        },
+      },
     ],
   },
   {
