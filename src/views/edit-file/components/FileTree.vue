@@ -2,43 +2,37 @@
   <div class="tree" @mouseenter="dirButtons = true" @mouseleave="dirButtons = false">
     <div class="activing">
       <span class="work-dir" :title="workDir">{{ workDir }}</span>
-      <div v-show="dirButtons">
-        <i class="el-icon-refresh refresh-tree" title="刷新目录" @click="refresh"></i>
+      <div v-show="dirButtons" class="refresh-tree">
+        <i class="el-icon-refresh" title="刷新目录" @click="refresh"></i>
       </div>
     </div>
-    <div class="tree-warp">
-      <div class="scrollbar">
-        <el-tree
-          ref="tree"
-          :data="treeData"
-          :props="defaultProps"
-          :highlight-current="true"
-          :default-expanded-keys="defaultExpandedKeys"
-          :auto-expand-parent="false"
-          :current-node-key="currentNodeKey"
-          style="user-select: none"
-          node-key="path"
-          @node-click="nodeClick"
-          @node-expand="nodeExpand"
-          @node-collapse="nodeCollapse"
-        >
-          <template #default="{ data, node }">
-            <div v-if="!statLabel(data)">
-              <i v-if="!node.expanded" class="iconfont icon-folder" style="margin-right: 4px; color: #ffc800"></i>
-              <i
-                v-if="node.expanded"
-                class="iconfont icon-049-folder-open"
-                style="margin-right: 4px; color: #ffc800"
-              ></i>
-              <span>{{ node.label }}</span>
-            </div>
-            <div v-else>
-              <i class="iconfont icon-Microsoft-Excel" style="margin-right: 4px; color: #008000"></i>
-              <span :title="titlePath(data)">{{ node.label }}</span>
-            </div>
-          </template>
-        </el-tree>
-      </div>
+    <div class="scrollbar">
+      <el-tree
+        ref="tree"
+        :data="treeData"
+        :props="defaultProps"
+        :highlight-current="true"
+        :default-expanded-keys="defaultExpandedKeys"
+        :auto-expand-parent="false"
+        :current-node-key="currentNodeKey"
+        style="position: absolute; user-select: none"
+        node-key="path"
+        @node-click="nodeClick"
+        @node-expand="nodeExpand"
+        @node-collapse="nodeCollapse"
+      >
+        <template #default="{ data, node }">
+          <div v-if="!statLabel(data)">
+            <i v-if="!node.expanded" class="iconfont icon-folder" style="margin-right: 4px; color: #ffc800"></i>
+            <i v-if="node.expanded" class="iconfont icon-049-folder-open" style="margin-right: 4px; color: #ffc800"></i>
+            <span>{{ node.label }}</span>
+          </div>
+          <div v-else>
+            <i class="iconfont icon-Microsoft-Excel" style="margin-right: 4px; color: #008000"></i>
+            <span :title="titlePath(data)">{{ node.label }}</span>
+          </div>
+        </template>
+      </el-tree>
     </div>
   </div>
 </template>
@@ -126,42 +120,35 @@ export default class FileTree extends Vue {
 </script>
 <style lang="scss" scoped>
 div.tree {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  div.tree-warp {
-    flex-grow: 1;
+  position: relative;
+  div.activing {
     position: relative;
-    div.scrollbar {
+    height: 30px;
+    line-height: 30px;
+    & > span.work-dir {
+      display: inline-block;
+      width: 80%;
+      cursor: default;
+      user-select: none;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    div.refresh-tree {
       position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      overflow: auto;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
     }
   }
-}
-div.activing {
-  display: flex;
-  align-items: center;
-  height: 30px;
-  padding: 0 8px;
-  background-color: #ececec;
-  justify-content: space-between;
-  & > span.work-dir {
-    display: inline-block;
-    width: 60%;
-    cursor: default;
-    user-select: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  i.refresh-tree,
-  i.el-icon-folder-remove,
-  i.el-icon-folder-add {
-    cursor: pointer;
+
+  div.scrollbar {
+    position: absolute;
+    top: 30px;
+    bottom: 0;
+    width: 100%;
+    overflow: auto;
   }
 }
 </style>

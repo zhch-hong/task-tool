@@ -1,8 +1,6 @@
 <template>
   <div class="edit-file">
-    <div class="outline">
-      <FileTree @update:table="refreshTable" />
-    </div>
+    <FileTree @update:table="refreshTable" />
     <div class="content">
       <div class="position">
         <vxe-table
@@ -539,23 +537,13 @@ export default Vue.extend({
 </script>
 <style lang="scss" scoped>
 div.edit-file {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
   height: 100%;
   display: flex;
-  overflow: hidden;
-  & > div.outline {
-    width: 300px;
-  }
   & > div.content {
     flex-grow: 1;
     position: relative;
     & > div.position {
       position: absolute;
-      top: 0;
-      left: 0;
       width: 100%;
       height: 100%;
     }
