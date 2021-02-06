@@ -1,12 +1,13 @@
 <template>
-  <div class="tree" @mouseenter="dirButtons = true" @mouseleave="dirButtons = false">
+  <div ref="FileTree" class="tree" @mouseenter="dirButtons = true" @mouseleave="dirButtons = false">
+    <div class="resize" @mousedown.prevent.stop="resizeMousedown($event)" @mouseup="resizeMouseup"></div>
     <div class="activing">
       <span class="work-dir" :title="workDir">{{ workDir }}</span>
       <div v-show="dirButtons" class="refresh-tree">
         <i class="el-icon-refresh" title="刷新目录" @click="refresh"></i>
       </div>
     </div>
-    <div class="scrollbar">
+    <div ref="ScrollBar" class="scrollbar">
       <el-tree
         ref="tree"
         :data="treeData"
@@ -116,11 +117,49 @@ export default class FileTree extends Vue {
   titlePath(data: TreeMeta): string {
     return data.path;
   }
+
+  resizeMousedown(event: MouseEvent): void {
+    const LW = (this.$refs.FileTree as HTMLDivElement).clientWidth;
+    document.onmousemove = (mEvent: MouseEvent) => {
+      if (mEvent.pageX > event.pageX) {
+        const diff = mEvent.pageX - event.pageX;
+        (this.$refs.FileTree as HTMLDivElement).style.width = LW + diff + 'px';
+      }
+      if (mEvent.pageX < event.pageX) {
+        const diff = event.pageX - mEvent.pageX;
+        (this.$refs.FileTree as HTMLDivElement).style.width = LW - diff + 'px';
+      }
+    };
+  }
+
+  resizeMouseup(): void {
+    document.onmousemove = null;
+
+    // this.$emit('render-table');
+
+    const ScrollBar = this.$refs.ScrollBar as HTMLDivElement;
+
+    if (ScrollBar.clientWidth >= ScrollBar.scrollWidth) {
+      (this.$refs.tree as any).$el.style.position = 'relative';
+    } else {
+      (this.$refs.tree as any).$el.style.position = 'absolute';
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
 div.tree {
   position: relative;
+  div.resize {
+    position: absolute;
+    height: 100%;
+    width: 5px;
+    top: 0;
+    right: 0;
+    background-color: transparent;
+    cursor: ew-resize;
+    z-index: 10;
+  }
   div.activing {
     position: relative;
     height: 30px;

@@ -1,9 +1,10 @@
 <template>
   <div class="edit-file">
-    <FileTree @update:table="refreshTable" />
+    <FileTree @update:table="refreshTable" @render-table="$refs.vxeTable.recalculate()" />
     <div class="content">
       <div class="position">
         <vxe-table
+          ref="vxeTable"
           :data="tableData"
           :height="tableHeight"
           :highlight-current-row="true"
@@ -19,7 +20,6 @@
           @keydown="tableKeydown"
           row-id="uuid"
           show-overflow="title"
-          ref="vxeTable"
         >
           <vxe-table-column type="seq" width="60"></vxe-table-column>
           <vxe-table-column type="checkbox" width="60" align="center"></vxe-table-column>
