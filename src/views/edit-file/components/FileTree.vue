@@ -151,7 +151,7 @@ export default class FileTree extends Vue {
 <style lang="scss" scoped>
 div.tree {
   position: relative;
-  min-width: 200px;
+  min-width: 300px;
   max-width: 500px;
   div.resize {
     position: absolute;

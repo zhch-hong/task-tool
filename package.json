@@ -2,6 +2,7 @@
   "name": "electron-excel",
   "version": "0.1.12",
   "private": true,
+  "main": "background.js",
   "scripts": {
     "serve": "vue-cli-service electron:serve",
     "build": "vue-cli-service electron:build",
@@ -10,7 +11,6 @@
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
-  "main": "background.js",
   "dependencies": {
     "core-js": "^3.8.1",
     "custom-electron-titlebar": "^3.2.6",

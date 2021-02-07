@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <notifications group="app" />
     <router-view></router-view>
   </div>
 </template>
@@ -13,9 +14,7 @@ export default Vue.extend({
   mounted(): void {
     ViewResizeModule.resetWindowHeight();
 
-    window.addEventListener('resize', () =>
-      ViewResizeModule.resetWindowHeight()
-    );
+    window.addEventListener('resize', () => ViewResizeModule.resetWindowHeight());
 
     window.addEventListener('beforeunload', (event) => {
       if (ChangedMapModule.changedMap.size !== 0) {

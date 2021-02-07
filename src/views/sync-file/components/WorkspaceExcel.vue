@@ -134,8 +134,9 @@ export default Vue.extend({
 <style lang="scss" scoped>
 div.workspace-excel {
   position: relative;
-  min-width: 200px;
+  min-width: 300px;
   max-width: 500px;
+  box-shadow: 0 0 1px 0 #999999;
   div.resize {
     position: absolute;
     height: 100%;
