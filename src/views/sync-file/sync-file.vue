@@ -1,8 +1,7 @@
 <template>
   <div class="sync-file">
-    <div class="tree-view">
-      <WorkspaceExcel @click-file="clickFile" />
-    </div>
+    <WorkspaceExcel @click-file="clickFile" />
+
     <div ref="SheetTabs" class="sheet-tabs">
       <div class="tabs-warp">
         <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
@@ -25,7 +24,7 @@ import { closeSync } from '@/menu/Edit/SyncFile';
 import { Loading } from 'element-ui';
 
 import TableView from './components/TableView.vue';
-import WorkspaceExcel from '@/components/WorkspaceExcel.vue';
+import WorkspaceExcel from './components/WorkspaceExcel.vue';
 
 const { dialog, getCurrentWindow } = remote;
 
@@ -229,18 +228,14 @@ export default Vue.extend({
 div.sync-file {
   height: 100%;
   display: flex;
-  & > div.tree-view {
-    width: 400px;
-    box-shadow: 0 0 1px 0 #cce4ff;
-  }
   & > div.sheet-tabs {
     flex-grow: 1;
     position: relative;
-    & > div.tabs-warp {
+    div.tabs-warp {
       position: absolute;
       width: 100%;
       height: 100%;
-      overflow: auto;
+      overflow: hidden;
     }
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <div ref="FileTree" class="tree" @mouseenter="dirButtons = true" @mouseleave="dirButtons = false">
-    <div class="resize" @mousedown.prevent.stop="resizeMousedown($event)" @mouseup="resizeMouseup"></div>
+    <div ref="Resize" class="resize" @mousedown.prevent.stop="resizeMousedown($event)"></div>
     <div class="activing">
       <span class="work-dir" :title="workDir">{{ workDir }}</span>
       <div v-show="dirButtons" class="refresh-tree">
@@ -130,26 +130,29 @@ export default class FileTree extends Vue {
         (this.$refs.FileTree as HTMLDivElement).style.width = LW - diff + 'px';
       }
     };
-  }
 
-  resizeMouseup(): void {
-    document.onmousemove = null;
-
-    // this.$emit('render-table');
-
-    const ScrollBar = this.$refs.ScrollBar as HTMLDivElement;
-
-    if (ScrollBar.clientWidth >= ScrollBar.scrollWidth) {
-      (this.$refs.tree as any).$el.style.position = 'relative';
-    } else {
-      (this.$refs.tree as any).$el.style.position = 'absolute';
-    }
+    document.addEventListener(
+      'mouseup',
+      () => {
+        document.onmousemove = null;
+        this.$emit('render-table');
+        const ScrollBar = this.$refs.ScrollBar as HTMLDivElement;
+        if (ScrollBar.clientWidth >= ScrollBar.scrollWidth) {
+          (this.$refs.tree as any).$el.style.position = 'relative';
+        } else {
+          (this.$refs.tree as any).$el.style.position = 'absolute';
+        }
+      },
+      { once: true }
+    );
   }
 }
 </script>
 <style lang="scss" scoped>
 div.tree {
   position: relative;
+  min-width: 200px;
+  max-width: 500px;
   div.resize {
     position: absolute;
     height: 100%;
