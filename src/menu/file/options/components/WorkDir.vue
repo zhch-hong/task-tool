@@ -18,7 +18,7 @@ import { remote } from 'electron';
 import { readFileSync, writeFileSync, statSync } from 'fs';
 import { workDir, dirConfigPath } from '@/asserts/dir-config';
 
-const { app, dialog } = remote;
+const { app, dialog, getCurrentWindow } = remote;
 
 export default Vue.extend({
   name: 'WorkDir',
@@ -45,7 +45,9 @@ export default Vue.extend({
 
   methods: {
     setWorkDir(): void {
-      const response = dialog.showOpenDialogSync({
+      const win = getCurrentWindow();
+      win.focus();
+      const response = dialog.showOpenDialogSync(win, {
         title: '请选择工作目录',
         properties: ['openDirectory'],
         defaultPath: this.path,
@@ -58,14 +60,14 @@ export default Vue.extend({
     },
 
     relaunch(): void {
-      const config: Record<string, string> = JSON.parse(
-        readFileSync(dirConfigPath).toString()
-      );
+      const config: Record<string, string> = JSON.parse(readFileSync(dirConfigPath).toString());
       config.workDir = this.path;
       writeFileSync(dirConfigPath, Buffer.from(JSON.stringify(config)));
 
       setTimeout(() => {
-        dialog.showMessageBoxSync({
+        const win = getCurrentWindow();
+        win.focus();
+        dialog.showMessageBoxSync(win, {
           title: '重启软件',
           message: '需要重启软件以生效',
           type: 'info',

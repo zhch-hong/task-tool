@@ -3,18 +3,17 @@ import { userInfo } from 'os';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { remote } from 'electron';
 
-const { app, dialog } = remote;
+const { app, dialog, getCurrentWindow } = remote;
 
-const dirConfigPath = resolve(
-  app.getPath('userData'),
-  `${userInfo().username}_config.json`
-);
+const dirConfigPath = resolve(app.getPath('userData'), `${userInfo().username}_config.json`);
 
 let workDir = '';
 let configDir = '';
 
 export function setWorkDir(path?: string): string {
-  const response = dialog.showOpenDialogSync({
+  const win = getCurrentWindow();
+  win.focus();
+  const response = dialog.showOpenDialogSync(win, {
     title: '请选择工作目录',
     buttonLabel: '设为工作目录',
     defaultPath: path,
@@ -29,7 +28,9 @@ export function setWorkDir(path?: string): string {
 }
 
 export function setConfigDir(path?: string): string {
-  const response = dialog.showOpenDialogSync({
+  const win = getCurrentWindow();
+  win.focus();
+  const response = dialog.showOpenDialogSync(win, {
     title: '请选择配置存储路径',
     properties: ['openDirectory'],
     defaultPath: path,
@@ -54,9 +55,7 @@ if (!existsSync(dirConfigPath)) {
     })
   );
 } else {
-  const config: Record<string, string> = JSON.parse(
-    readFileSync(dirConfigPath).toString()
-  );
+  const config: Record<string, string> = JSON.parse(readFileSync(dirConfigPath).toString());
 
   if (!config.workDir) {
     workDir = setWorkDir();
