@@ -19,7 +19,7 @@ import { readFileSync, writeFileSync, statSync } from 'fs';
 import { exec } from 'child_process';
 import { configDir, dirConfigPath } from '@/asserts/dir-config';
 
-const { app, dialog } = remote;
+const { app, dialog, getCurrentWindow } = remote;
 
 export default Vue.extend({
   name: 'StorageDir',
@@ -46,7 +46,9 @@ export default Vue.extend({
 
   methods: {
     setConfigDir(): void {
-      const response = dialog.showOpenDialogSync({
+      const win = getCurrentWindow();
+      win.focus();
+      const response = dialog.showOpenDialogSync(win, {
         title: '请选择配置存储路径',
         properties: ['openDirectory'],
         defaultPath: this.path,
@@ -59,30 +61,27 @@ export default Vue.extend({
     },
 
     relaunch(): void {
-      const config: Record<string, string> = JSON.parse(
-        readFileSync(dirConfigPath).toString()
-      );
+      const config: Record<string, string> = JSON.parse(readFileSync(dirConfigPath).toString());
       config.configDir = this.path;
       writeFileSync(dirConfigPath, Buffer.from(JSON.stringify(config)));
 
-      exec(
-        `xcopy /e ${configDir}\\app_config\\ ${this.path}\\app_config\\`,
-        (error) => {
-          if (error) throw error;
-          exec(`rmdir /s /q ${configDir}\\app_config`, (errorⅡ) => {
-            if (errorⅡ) throw errorⅡ;
-            dialog.showMessageBoxSync({
-              title: '重启软件',
-              message: '需要重启软件以生效',
-              type: 'info',
-            });
-            setTimeout(() => {
-              app.relaunch();
-              app.quit();
-            }, 1000);
+      exec(`xcopy /e ${configDir}\\app_config\\ ${this.path}\\app_config\\`, (error) => {
+        if (error) throw error;
+        exec(`rmdir /s /q ${configDir}\\app_config`, (errorⅡ) => {
+          if (errorⅡ) throw errorⅡ;
+          const win = getCurrentWindow();
+          win.focus();
+          dialog.showMessageBoxSync(win, {
+            title: '重启软件',
+            message: '需要重启软件以生效',
+            type: 'info',
           });
-        }
-      );
+          setTimeout(() => {
+            app.relaunch();
+            app.quit();
+          }, 1000);
+        });
+      });
     },
   },
 });
