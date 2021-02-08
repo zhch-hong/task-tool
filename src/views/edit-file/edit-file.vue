@@ -61,6 +61,7 @@ import { ChangedMapModule } from '@/store/modules/changed-map';
 import { ViewResizeModule } from '@/store/modules/veiw-resize';
 import { deleteExisting } from '@/utils';
 import { KeyboardEventModule } from '@/store/modules/keyboard-event';
+import { Loading } from 'element-ui';
 
 export default Vue.extend({
   name: 'EditFile',
@@ -146,41 +147,60 @@ export default Vue.extend({
       this.$router.push('/edit-task');
     },
 
-    async refreshTable(): Promise<void> {
-      const path = ActiveFileModule.path;
+    refreshTable(): void {
+      console.log('refresh table');
+      console.trace();
 
-      if (!path) {
-        this.readLastExcel();
-        return;
-      }
+      const loading = Loading.service({
+        target: (this.$refs.vxeTable as Vue).$el as HTMLDivElement,
+        lock: true,
+        text: '正在加载',
+        spinner: 'el-icon-loading',
+        customClass: 'custom-loading-class',
+      });
 
-      const workbookMap = await WorkspacedModule.bookMapByPath(path);
+      setTimeout(async () => {
+        await this.$nextTick();
 
-      const taskList = workbookMap.get('task');
+        const path = ActiveFileModule.path;
 
-      if (taskList) {
-        try {
-          this.tableData = cloneDeep(taskList);
-
-          if (this.$refs.vxeTable) {
-            (this.$refs.vxeTable as Table).updateData().then(() => {
-              if (this.afterRefreshTable) {
-                this.afterRefreshTable()
-                  .then(() => (this.afterRefreshTable = null))
-                  .catch(() => {
-                    //
-                  });
-              }
-            });
-          }
-        } catch (error) {
-          this.$notify.warning({
-            title: '刷新数据失败',
-            message: 'this.$refs.vxeTable is undefined',
-            position: 'bottom-right',
-          });
+        if (!path) {
+          loading.close();
+          this.readLastExcel();
+          return;
         }
-      }
+
+        const workbookMap = await WorkspacedModule.bookMapByPath(path);
+
+        const taskList = workbookMap.get('task');
+
+        if (taskList) {
+          try {
+            this.tableData = cloneDeep(taskList);
+
+            await this.$nextTick();
+
+            loading.close();
+
+            // 表格刷新数后需要做的操作
+            if (this.$refs.vxeTable) {
+              (this.$refs.vxeTable as Table).updateData().then(() => {
+                if (this.afterRefreshTable) {
+                  this.afterRefreshTable()
+                    .then(() => (this.afterRefreshTable = null))
+                    .catch(() => {
+                      //
+                    });
+                }
+              });
+            }
+          } catch (error) {
+            //
+          }
+        } else {
+          loading.close();
+        }
+      }, 150);
     },
 
     updateRow(index: number): void {
