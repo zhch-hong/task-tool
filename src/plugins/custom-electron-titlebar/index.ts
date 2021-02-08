@@ -2,7 +2,7 @@ import router from '@/router';
 import { remote } from 'electron';
 import { Titlebar, Color } from 'custom-electron-titlebar';
 import { ComponentInstanceModule } from '@/store/modules/component-instance';
-import { about, options, syncFile } from '@/menu';
+import { about, options, syncFile, redo, undo } from '@/menu';
 
 const { Menu } = remote;
 
@@ -29,6 +29,27 @@ const menu = Menu.buildFromTemplate([
   {
     label: '编辑',
     submenu: [
+      {
+        label: '撤销',
+        accelerator: 'Ctrl+Z',
+        click: undo,
+      },
+      {
+        label: '恢复',
+        accelerator: 'Ctrl+Y',
+        click: redo,
+      },
+      {
+        label: '同步文件',
+        click: () => {
+          if (router.currentRoute.path !== '/sync-file') return;
+
+          syncFile();
+        },
+      },
+      {
+        type: 'separator',
+      },
       {
         label: '添加任务',
         accelerator: 'Ctrl+N',
@@ -77,17 +98,6 @@ const menu = Menu.buildFromTemplate([
 
           const ins = ComponentInstanceModule.instance('EditFile');
           if (ins) ins.doubleTask();
-        },
-      },
-      {
-        type: 'separator',
-      },
-      {
-        label: '同步文件',
-        click: () => {
-          if (router.currentRoute.path !== '/sync-file') return;
-
-          syncFile();
         },
       },
     ],

@@ -16,7 +16,7 @@
         :default-expanded-keys="defaultExpandedKeys"
         :auto-expand-parent="false"
         :current-node-key="currentNodeKey"
-        style="position: absolute; user-select: none"
+        style="user-select: none"
         node-key="path"
         @node-click="nodeClick"
         @node-expand="nodeExpand"

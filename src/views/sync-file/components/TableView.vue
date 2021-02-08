@@ -19,11 +19,6 @@
       :min-width="200"
       :edit-render="{ name: 'input' }"
     ></vxe-table-column>
-    <vxe-table-column width="80" align="center">
-      <template #default="{ row }">
-        <el-button size="mini" @click="$refs.xTable.revertData(row)" icon="el-icon-refresh-left"></el-button>
-      </template>
-    </vxe-table-column>
   </vxe-table>
 </template>
 <script lang="ts">
@@ -49,9 +44,9 @@ export default Vue.extend({
   data() {
     return {
       tableData: [] as Record<PropertyKey, string>[],
-      editCellValue: '',
+      editBeforeValue: '',
       editRecords: new Map<string, Record<'o' | 'n', any>>(),
-      activeRow: {} as Record<string, any>,
+      sourceCellValue: '',
     };
   },
 
@@ -72,36 +67,35 @@ export default Vue.extend({
       return this.editRecords;
     },
 
-    editClosed(payload: Record<string, any>) {
-      const rowIndex = payload.rowIndex as number;
-      const columnIndex = payload.columnIndex as number;
-
-      const property = payload.column.property as string;
-      const row = payload.row as Record<string, any>;
+    editActived(payload: Record<string, any>) {
+      // 用于撤销/恢复
+      const row: Record<string, any> = payload.row;
+      const property: string = payload.column.property;
       const value = row[property];
+      this.editBeforeValue = value;
 
-      if (value != this.editCellValue) {
-        this.editRecords.set(JSON.stringify({ r: rowIndex, c: columnIndex }), { o: this.editCellValue, n: value });
-      } else {
-        this.editRecords.delete(JSON.stringify({ r: rowIndex, c: columnIndex }));
-      }
-
-      this.activeRow = payload.row;
+      const rowIndex: number = payload.rowIndex;
+      const columnIndex: number = payload.columnIndex;
+      const mapValue = this.findExist({ r: rowIndex, c: columnIndex });
+      this.sourceCellValue = mapValue ? mapValue.o : value;
     },
 
-    editActived(payload: Record<string, any>) {
-      const property = payload.column.property as string;
-      const row = payload.row as Record<string, any>;
+    editClosed(payload: Record<string, any>) {
+      // 用于撤销/恢复
+      const row: Record<string, any> = payload.row;
+      const property: string = payload.column.property;
       const value = row[property];
-      const rowIndex = payload.rowIndex as number;
-      const columnIndex = payload.columnIndex as number;
+      if (value != this.editBeforeValue) {
+        this.$emit('undo', { row, property, value, oldValue: this.editBeforeValue });
+      }
 
-      const mapValue = this.findExist({ r: rowIndex, c: columnIndex });
-
-      if (mapValue) {
-        this.editCellValue = mapValue.o;
+      // 用于记录哪些单元格被修改了
+      const rowIndex: number = payload.rowIndex;
+      const columnIndex: number = payload.columnIndex;
+      if (value != this.sourceCellValue) {
+        this.editRecords.set(JSON.stringify({ r: rowIndex, c: columnIndex }), { o: this.sourceCellValue, n: value });
       } else {
-        this.editCellValue = value;
+        this.editRecords.delete(JSON.stringify({ r: rowIndex, c: columnIndex }));
       }
     },
 
