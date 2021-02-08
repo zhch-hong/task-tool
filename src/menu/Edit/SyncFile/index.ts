@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import router from '@/router';
 import { Button, Dialog } from 'element-ui';
 import { SyncFileModule } from '@/store/modules/sync-file';
 
@@ -66,6 +67,8 @@ document.body.append(div);
 instance.$mount(div);
 
 export function syncFile() {
+  if (router.currentRoute.path !== '/sync-file') return;
+
   obser.visible = true;
 }
 

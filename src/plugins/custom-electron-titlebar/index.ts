@@ -1,8 +1,6 @@
-import router from '@/router';
 import { remote } from 'electron';
 import { Titlebar, Color } from 'custom-electron-titlebar';
-import { ComponentInstanceModule } from '@/store/modules/component-instance';
-import { about, options, syncFile, redo, undo } from '@/menu';
+import { about, options, syncFile, redo, undo, createTask, deleteTask, copyTask, pasteTask, doubleTask } from '@/menu';
 
 const { Menu } = remote;
 
@@ -41,11 +39,7 @@ const menu = Menu.buildFromTemplate([
       },
       {
         label: '同步文件',
-        click: () => {
-          if (router.currentRoute.path !== '/sync-file') return;
-
-          syncFile();
-        },
+        click: syncFile,
       },
       {
         type: 'separator',
@@ -53,52 +47,27 @@ const menu = Menu.buildFromTemplate([
       {
         label: '添加任务',
         accelerator: 'Ctrl+N',
-        click: () => {
-          if (router.currentRoute.path !== '/edit-file') return;
-
-          const ins = ComponentInstanceModule.instance('EditFile');
-          if (ins) ins.createTask();
-        },
+        click: createTask,
       },
       {
         label: '删除任务',
         accelerator: 'Ctrl+R',
-        click: () => {
-          if (router.currentRoute.path !== '/edit-file') return;
-
-          const ins = ComponentInstanceModule.instance('EditFile');
-          if (ins) ins.deleteTask();
-        },
+        click: deleteTask,
       },
       {
         label: '拷贝任务',
         accelerator: 'Ctrl+C',
-        click: () => {
-          if (router.currentRoute.path !== '/edit-file') return;
-
-          const ins = ComponentInstanceModule.instance('EditFile');
-          if (ins) ins.copySelection();
-        },
+        click: copyTask,
       },
       {
         label: '粘贴任务',
         accelerator: 'Ctrl+V',
-        click: () => {
-          if (router.currentRoute.path !== '/edit-file') return;
-
-          const ins = ComponentInstanceModule.instance('EditFile');
-          if (ins) ins.pasteTask();
-        },
+        click: pasteTask,
       },
       {
         label: '复制任务',
         accelerator: 'Ctrl+D',
-        click: () => {
-          if (router.currentRoute.path !== '/edit-file') return;
-
-          const ins = ComponentInstanceModule.instance('EditFile');
-          if (ins) ins.doubleTask();
-        },
+        click: doubleTask,
       },
     ],
   },

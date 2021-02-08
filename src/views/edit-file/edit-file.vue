@@ -46,11 +46,8 @@ import { cloneDeep } from 'lodash';
 import { InterceptorKeydownParams, RowInfo, Table } from 'vxe-table';
 import { bind, unbind } from 'mousetrap';
 import { v4 as uuid } from 'uuid';
-
 import { readLastFile } from '@/asserts/lastOpenFile';
-
 import { WorkspacedModule } from '@/store/modules/workspaced';
-import { ComponentInstanceModule } from '@/store/modules/component-instance';
 import {
   getLostAwardId,
   getLostConditionId,
@@ -63,6 +60,7 @@ import { ActiveFileModule } from '@/store/modules/active-file';
 import { ChangedMapModule } from '@/store/modules/changed-map';
 import { ViewResizeModule } from '@/store/modules/veiw-resize';
 import { deleteExisting } from '@/utils';
+import { KeyboardEventModule } from '@/store/modules/keyboard-event';
 
 export default Vue.extend({
   name: 'EditFile',
@@ -90,9 +88,11 @@ export default Vue.extend({
     },
   },
 
-  async mounted(): Promise<void> {
-    ComponentInstanceModule.addInstance({ name: 'EditFile', ins: this });
+  created() {
+    this.registerKeyboard();
+  },
 
+  async mounted(): Promise<void> {
     this.afterRefreshTable = this.setTableScroll;
     // 这里加上$nextTick，不然路由跳转的等待时间会大大加长，表格渲染很慢，暂时不知道什么原因
     await this.$nextTick();
@@ -110,11 +110,28 @@ export default Vue.extend({
 
   beforeRouteLeave(to, from, next): void {
     this.unBindKeyboard();
+    this.unregisterKeyboard();
     this.storageTableScroll();
     next();
   },
 
   methods: {
+    registerKeyboard(): void {
+      KeyboardEventModule.registerKeyboard({ key: 'f5', handles: [this.refreshTable] });
+      KeyboardEventModule.registerKeyboard({ key: 'ctrl+n', handles: [this.createTask] });
+      KeyboardEventModule.registerKeyboard({ key: 'ctrl+r', handles: [this.deleteTask] });
+      KeyboardEventModule.registerKeyboard({ key: 'ctrl+c', handles: [this.copySelection] });
+      KeyboardEventModule.registerKeyboard({ key: 'ctrl+v', handles: [this.pasteTask] });
+      KeyboardEventModule.registerKeyboard({ key: 'ctrl+d', handles: [this.doubleTask] });
+    },
+    unregisterKeyboard(): void {
+      KeyboardEventModule.unregisterKeyboard('f5');
+      KeyboardEventModule.unregisterKeyboard('ctrl+n');
+      KeyboardEventModule.unregisterKeyboard('ctrl+r');
+      KeyboardEventModule.unregisterKeyboard('ctrl+c');
+      KeyboardEventModule.unregisterKeyboard('ctrl+v');
+      KeyboardEventModule.unregisterKeyboard('ctrl+d');
+    },
     readLastExcel(): void {
       readLastFile()
         .then(() => {
