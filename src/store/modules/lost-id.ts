@@ -1,12 +1,6 @@
-import {
-  Action,
-  getModule,
-  Module,
-  Mutation,
-  VuexModule,
-} from 'vuex-module-decorators';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import { SheetName, WorkbookMap } from '@/shims-cust';
-import { Notification } from 'element-ui';
+import Vue from 'vue';
 import store from '@/store';
 
 function getLostid(map: WorkbookMap, name: SheetName, key: string) {
@@ -14,11 +8,11 @@ function getLostid(map: WorkbookMap, name: SheetName, key: string) {
   const sheetName = name;
   const sheet = workbook.get(sheetName);
   if (!sheet) {
-    Notification({
-      title: '获取工作表失败',
-      message: `workbookMap中不存在${name}`,
+    Vue.notify({
+      group: 'app',
       type: 'error',
-      position: 'bottom-right',
+      title: `无效的${name}表`,
+      text: `请检查该文件的配置表是否完备`,
     });
     throw new Error();
   }
