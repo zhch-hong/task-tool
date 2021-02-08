@@ -1,12 +1,6 @@
 <template>
   <div ref="FileTree" class="tree" @mouseenter="dirButtons = true" @mouseleave="dirButtons = false">
     <div ref="Resize" class="resize" @mousedown.prevent.stop="resizeMousedown($event)"></div>
-    <div class="activing">
-      <span class="work-dir" :title="workDir">{{ workDir }}</span>
-      <div v-show="dirButtons" class="refresh-tree">
-        <i class="el-icon-refresh" title="刷新目录" @click="refresh"></i>
-      </div>
-    </div>
     <div ref="ScrollBar" class="scrollbar">
       <el-tree
         ref="tree"
@@ -43,7 +37,7 @@ import { getUserconfig } from '@/asserts/userconfig';
 import { getTreeDataDefault, writeFileText } from '@/utils';
 import { TreeData } from 'element-ui/types/tree';
 import { Component, Vue } from 'vue-property-decorator';
-import { dirConfigPath, workDir } from '@/asserts/dir-config';
+import { dirConfigPath } from '@/asserts/dir-config';
 import { ActiveFileModule } from '@/store/modules/active-file';
 import { FileTreeModule } from '@/store/modules/file-tree';
 import { Tree } from 'element-ui';
@@ -62,8 +56,6 @@ export default class FileTree extends Vue {
     label: 'label',
     path: 'path',
   };
-  workDir = workDir;
-  dirButtons = false;
   defaultExpandedKeys = cloneDeep(FileTreeModule.expandedKeys);
   currentNodeKey = ActiveFileModule.path;
 
@@ -163,32 +155,10 @@ div.tree {
     cursor: ew-resize;
     z-index: 10;
   }
-  div.activing {
-    position: relative;
-    height: 30px;
-    line-height: 30px;
-    & > span.work-dir {
-      display: inline-block;
-      width: 80%;
-      cursor: default;
-      user-select: none;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    div.refresh-tree {
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-    }
-  }
 
   div.scrollbar {
     position: absolute;
-    top: 30px;
-    bottom: 0;
+    height: 100%;
     width: 100%;
     overflow: auto;
   }
