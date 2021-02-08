@@ -148,9 +148,6 @@ export default Vue.extend({
     },
 
     refreshTable(): void {
-      console.log('refresh table');
-      console.trace();
-
       const loading = Loading.service({
         target: (this.$refs.vxeTable as Vue).$el as HTMLDivElement,
         lock: true,

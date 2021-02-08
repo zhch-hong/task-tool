@@ -23,6 +23,7 @@ import { WorkspacedModule } from '@/store/modules/workspaced';
 import { closeSync } from '@/menu/Edit/SyncFile';
 import { Loading } from 'element-ui';
 import { KeyboardEventModule } from '@/store/modules/keyboard-event';
+import { syncFile } from '@/menu/Edit/SyncFile';
 
 import TableView from './components/TableView.vue';
 import WorkspaceExcel from './components/WorkspaceExcel.vue';
@@ -73,6 +74,7 @@ export default Vue.extend({
 
     KeyboardEventModule.registerKeyboard({ key: 'ctrl+z', handles: [this.undo] });
     KeyboardEventModule.registerKeyboard({ key: 'ctrl+y', handles: [this.redo] });
+    KeyboardEventModule.registerKeyboard({ key: 'ctrl+t', handles: [syncFile] });
   },
 
   beforeRouteLeave(to, from, next): void {
@@ -80,6 +82,7 @@ export default Vue.extend({
 
     KeyboardEventModule.unregisterKeyboard('ctrl+z');
     KeyboardEventModule.unregisterKeyboard('ctrl+y');
+    KeyboardEventModule.unregisterKeyboard('ctrl+t');
 
     next();
   },
@@ -312,11 +315,13 @@ export default Vue.extend({
         },
         'keypress'
       );
+      bind('ctrl+t', syncFile, 'keypress');
     },
 
     unBindKeyboard(): void {
       unbind('ctrl+z', 'keypress');
       unbind('ctrl+y', 'keypress');
+      unbind('ctrl+t', 'keypress');
     },
   },
 });

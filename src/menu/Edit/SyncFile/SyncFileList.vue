@@ -78,7 +78,14 @@ export default Vue.extend({
     getTreeData() {
       if (!this.fileName) return;
 
-      this.treeData = getTreeData(workDir, [this.fileName]);
+      const data = [
+        {
+          label: workDir,
+          path: workDir,
+          children: getTreeData(workDir, [this.fileName]),
+        },
+      ];
+      this.treeData = data;
     },
 
     statLabel(data: TreeMeta): boolean {

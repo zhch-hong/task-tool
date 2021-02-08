@@ -39,6 +39,7 @@ const menu = Menu.buildFromTemplate([
       },
       {
         label: '同步文件',
+        accelerator: 'Ctrl+T',
         click: syncFile,
       },
       {
