@@ -2,7 +2,7 @@ import { remote } from 'electron';
 import { Titlebar, Color } from 'custom-electron-titlebar';
 import { about, options, syncFile, redo, undo, createTask, deleteTask, copyTask, pasteTask, doubleTask } from '@/menu';
 
-const { Menu } = remote;
+const { Menu, getCurrentWindow } = remote;
 
 const menu = Menu.buildFromTemplate([
   {
@@ -15,6 +15,7 @@ const menu = Menu.buildFromTemplate([
       {
         type: 'separator',
       },
+
       {
         label: '退出',
         click: () => {
@@ -75,6 +76,15 @@ const menu = Menu.buildFromTemplate([
   {
     label: '帮助',
     submenu: [
+      {
+        label: '重新加载',
+        click: () => {
+          getCurrentWindow().reload();
+        },
+      },
+      {
+        type: 'separator',
+      },
       {
         label: '关于',
         click: about,
