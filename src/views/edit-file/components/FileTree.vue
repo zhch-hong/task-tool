@@ -150,7 +150,7 @@ div.tree {
     height: 100%;
     width: 5px;
     top: 0;
-    right: 0;
+    right: -4px;
     background-color: transparent;
     cursor: ew-resize;
     z-index: 10;
