@@ -2,17 +2,9 @@
   <div>
     <el-table :data="tableData">
       <el-table-column label="奖励名称" prop="award_name"></el-table-column>
-      <el-table-column
-        label="财富类型"
-        prop="asset_type"
-        :formatter="assetTypeFormat"
-      ></el-table-column>
+      <el-table-column label="财富类型" prop="asset_type" :formatter="assetTypeFormat"></el-table-column>
       <el-table-column label="数量" prop="asset_count"></el-table-column>
-      <el-table-column
-        v-if="rewardType === 'random'"
-        label="权重"
-        prop="get_weight"
-      ></el-table-column>
+      <el-table-column v-if="rewardType === 'random'" label="权重" prop="get_weight"></el-table-column>
       <el-table-column label="广播" prop="broadcast_content"></el-table-column>
       <el-table-column label="邮件" prop="is_send_email"></el-table-column>
       <el-table-column>
@@ -43,8 +35,8 @@ import { configDir } from '@/asserts/dir-config';
 
 const path = resolve(configDir, 'app_config', 'input-manage.json');
 
-const inputList: Record<string, any>[] = readFileText(path);
-const assetData = inputList.find((item) => item.value === 'asset');
+const inputList: Record<string, any>[] | undefined = readFileText(path);
+const assetData = inputList ? inputList.find((item) => item.value === 'asset') : null;
 let assetList: Record<string, string>[] = [];
 if (assetData) {
   assetList = assetData.select;
@@ -92,11 +84,7 @@ export default class RewardTable extends Vue {
     this.tableData.splice(index, 1);
   }
 
-  assetTypeFormat(
-    row: Record<string, any>,
-    column: Record<string, any>,
-    value: string
-  ): string {
+  assetTypeFormat(row: Record<string, any>, column: Record<string, any>, value: string): string {
     const res = assetList.find((item) => item.value === value);
     if (res) return res.name;
     return value;

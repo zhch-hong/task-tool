@@ -19,9 +19,7 @@
       @delete-sourceitem="deleteSourceitem(index)"
       @submit-itemdata="(o) => emitSourceList.push(o)"
     />
-    <el-button style="margin-top: 10px" @click="appendSourceItem"
-      >添加来源</el-button
-    >
+    <el-button style="margin-top: 10px" @click="appendSourceItem">添加来源</el-button>
   </fieldset>
 </template>
 <script lang="ts">
@@ -37,8 +35,8 @@ import TemplateOption from './TemplateOption.vue';
 import { configDir } from '@/asserts/dir-config';
 
 const filePath = resolve(configDir, 'app_config', 'source-manage.json');
-const sourcetypeList: Record<string, any>[] = readFileText(filePath)[0]
-  .children;
+const readContent = readFileText(filePath);
+const sourcetypeList: Record<string, any>[] = readContent ? readFileText(filePath)[0].children : [];
 
 @Component({
   components: {
@@ -49,10 +47,7 @@ const sourcetypeList: Record<string, any>[] = readFileText(filePath)[0]
 export default class SourceData extends Vue {
   @Prop() template?: string;
   @Prop({ type: Array, required: true }) sourceData!: Record<string, string>[];
-  @Prop({ type: Array, required: true }) conditionData!: Record<
-    string,
-    string
-  >[][];
+  @Prop({ type: Array, required: true }) conditionData!: Record<string, string>[][];
 
   sourceList = this.sourceData;
   sourcetypeList = sourcetypeList;
@@ -98,9 +93,7 @@ export default class SourceData extends Vue {
     this.conditionData.push(...data.condition);
   }
 
-  async updateTemplate(
-    method: (data: Record<string, any>) => void
-  ): Promise<void> {
+  async updateTemplate(method: (data: Record<string, any>) => void): Promise<void> {
     this.isEmit = true;
     await this.$nextTick();
     method(cloneDeep(this.emitSourceList));
@@ -109,9 +102,7 @@ export default class SourceData extends Vue {
     this.emitSourceList = [];
   }
 
-  async saveTemplate(
-    method: (data: Record<string, any>) => void
-  ): Promise<void> {
+  async saveTemplate(method: (data: Record<string, any>) => void): Promise<void> {
     this.isEmit = true;
     await this.$nextTick();
     method(cloneDeep(this.emitSourceList));

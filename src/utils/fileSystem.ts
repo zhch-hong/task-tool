@@ -1,6 +1,6 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { Notification } from 'element-ui';
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer } from 'electron';
 
 export function writeFileText(path: string, data: any): void {
   try {
@@ -19,15 +19,13 @@ export function writeFileText(path: string, data: any): void {
 
 export function readFileText(path: string): any {
   try {
-    if (!path) {
+    if (!path || !existsSync(path)) {
       throw new Error();
     }
 
     const buf = readFileSync(path);
     return JSON.parse(buf.toString());
   } catch (error) {
-    const { dialog } = remote;
-    dialog.showErrorBox(error.name, error.stack);
     ipcRenderer.send('runtime-error', error);
   }
 }

@@ -53,10 +53,10 @@ function watchFile() {
   });
 }
 
-watchFile();
-
 export function getTreeDataDefault(): TreeMeta[] {
   if (dataMemory) return dataMemory;
+
+  watchFile();
 
   const array: Record<string, string>[] = readFileText(path);
 

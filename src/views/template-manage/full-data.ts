@@ -41,9 +41,7 @@ function treedataMap(pathList: string[]): Promise<Record<string, any>> {
             const baseidMap = uuidMap[baseid];
 
             if (baseidMap) {
-              const res = baseidMap.find(
-                (item: Record<string, any>) => item.name === path
-              );
+              const res = baseidMap.find((item: Record<string, any>) => item.name === path);
               if (res) {
                 res.children.push({
                   uuid: uuid(),
@@ -87,9 +85,7 @@ function treedataMap(pathList: string[]): Promise<Record<string, any>> {
             const processidMap = uuidMap[processid];
 
             if (processidMap) {
-              const res = processidMap.find(
-                (item: Record<string, any>) => item.name === path
-              );
+              const res = processidMap.find((item: Record<string, any>) => item.name === path);
               if (res) {
                 res.children.push({
                   uuid: uuid(),
@@ -133,9 +129,7 @@ function treedataMap(pathList: string[]): Promise<Record<string, any>> {
             const sourceidMap = uuidMap[sourceid];
 
             if (sourceidMap) {
-              const res = sourceidMap.find(
-                (item: Record<string, any>) => item.name === path
-              );
+              const res = sourceidMap.find((item: Record<string, any>) => item.name === path);
               if (res) {
                 res.children.push({
                   uuid: uuid(),
@@ -193,11 +187,8 @@ export async function fullData() {
 
   const uuidList: string[] = [];
 
-  const path = resolve(
-    resolve(configDir, 'app_config'),
-    `template-manage.json`
-  );
-  const object: Record<string, Record<string, any>[]> = readFileText(path);
+  const path = resolve(resolve(configDir, 'app_config'), `template-manage.json`);
+  const object: Record<string, Record<string, any>[]> = readFileText(path) || {};
   for (const key in object) {
     if (Object.prototype.hasOwnProperty.call(object, key)) {
       const element = object[key];
