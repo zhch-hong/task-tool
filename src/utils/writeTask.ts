@@ -1,44 +1,25 @@
 import store from '@/store';
-import { WorkbookMap } from '@/shims-cust';
+import { WorkbookMap } from '@/shims-type';
 import { assign } from 'lodash';
 import { deleteExisting } from '.';
-import {
-  LostIdModule,
-  getLostAwardId,
-  getLostConditionId,
-} from '@/store/modules/lost-id';
+import { LostIdModule, getLostAwardId, getLostConditionId } from '@/store/modules/lost-id';
 
-function getProcessId(
-  workbookMap: WorkbookMap,
-  taskid: string | number
-): string | undefined {
+function getProcessId(workbookMap: WorkbookMap, taskid: string | number): string | undefined {
   const taskList = workbookMap.get('task') as Record<string, string>[];
   const task = taskList.find((t) => t.id.toString() === taskid.toString());
   if (task) return task.process_id.toString();
 }
 
-function getSourceId(
-  workbookMap: WorkbookMap,
-  taskid: string | number
-): string | undefined {
+function getSourceId(workbookMap: WorkbookMap, taskid: string | number): string | undefined {
   const process_id = getProcessId(workbookMap, taskid);
   if (process_id) {
-    const processList = workbookMap.get('process_data') as Record<
-      string,
-      string
-    >[];
-    const process = processList.find(
-      (p) => p.process_id.toString() === process_id
-    );
+    const processList = workbookMap.get('process_data') as Record<string, string>[];
+    const process = processList.find((p) => p.process_id.toString() === process_id);
     if (process) return process.source_id.toString();
   }
 }
 
-function updateBase(
-  workbookMap: WorkbookMap,
-  taskid: string | number,
-  data: Record<string, any>
-) {
+function updateBase(workbookMap: WorkbookMap, taskid: string | number, data: Record<string, any>) {
   taskid = taskid.toString();
 
   const taskList = workbookMap.get('task') as Record<string, string>[];
@@ -48,17 +29,10 @@ function updateBase(
   }
 }
 
-function updateProcess(
-  workbookMap: WorkbookMap,
-  taskid: string | number,
-  data: Record<string, any>
-) {
+function updateProcess(workbookMap: WorkbookMap, taskid: string | number, data: Record<string, any>) {
   const lostAwardid = getLostAwardId();
 
-  const processList = workbookMap.get('process_data') as Record<
-    string,
-    string
-  >[];
+  const processList = workbookMap.get('process_data') as Record<string, string>[];
   const awardList = workbookMap.get('award_data') as Record<string, string>[];
 
   const process: Record<string, string> = data.process;
@@ -67,9 +41,7 @@ function updateProcess(
   // 将award_data表中原有的奖励数据删除
   const processid = getProcessId(workbookMap, taskid);
   if (processid) {
-    const oldProcess = processList.find(
-      (p) => p.process_id.toString() === processid
-    );
+    const oldProcess = processList.find((p) => p.process_id.toString() === processid);
     if (oldProcess) {
       oldProcess.awards.split(',').forEach((id) => {
         if (id !== '-1') deleteExisting(awardList, 'award_id', id);
@@ -100,45 +72,28 @@ function updateProcess(
       else process.awards += `${_awardid}`;
     });
 
-    const index = processList.findIndex(
-      (p) => p.process_id.toString() === processid
-    );
+    const index = processList.findIndex((p) => p.process_id.toString() === processid);
     if (index !== -1) processList.splice(index, 1, process);
   }
 }
 
-function updateSource(
-  workbookMap: WorkbookMap,
-  taskid: string | number,
-  data: Record<string, any>
-) {
+function updateSource(workbookMap: WorkbookMap, taskid: string | number, data: Record<string, any>) {
   const sourceList = workbookMap.get('source') as Record<string, string>[];
-  const conditionList = workbookMap.get('condition') as Record<
-    string,
-    string
-  >[];
+  const conditionList = workbookMap.get('condition') as Record<string, string>[];
   const source_id = getSourceId(workbookMap, taskid);
   if (source_id) {
-    const filterSource = sourceList.filter(
-      (s) => s.source_id.toString() === source_id
-    );
+    const filterSource = sourceList.filter((s) => s.source_id.toString() === source_id);
     const filterCondition = filterSource.map((s) => s.condition_id);
 
-    filterSource.forEach((s) =>
-      deleteExisting(sourceList, 'source_id', source_id)
-    );
-    filterCondition.forEach((id) =>
-      deleteExisting(conditionList, 'condition_id', id)
-    );
+    filterSource.forEach((s) => deleteExisting(sourceList, 'source_id', source_id));
+    filterCondition.forEach((id) => deleteExisting(conditionList, 'condition_id', id));
 
     data.source.forEach((s: Record<string, string>, i: number) => {
       const condition_id = getLostConditionId();
       s.source_id = source_id;
       s.condition_id = condition_id;
 
-      data.condition[i].forEach(
-        (c: Record<string, string>) => (c.condition_id = condition_id)
-      );
+      data.condition[i].forEach((c: Record<string, string>) => (c.condition_id = condition_id));
       conditionList.push(...data.condition[i]);
     });
 

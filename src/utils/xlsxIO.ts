@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { Workbook, Worksheet } from 'exceljs';
-import { WorkbookMap } from '@/shims-cust';
+import { WorkbookMap } from '@/shims-type';
 import { workbook2map } from './sheetToJson';
 import { parseString2Number } from '@/utils';
 import { getSheet } from './likeSheet';
@@ -19,13 +19,7 @@ function addTemplateCol(sheet: Worksheet) {
   if (array.includes('|base_temp|任务数据')) return;
 
   const count = sheet.columnCount + 1;
-  sheet.spliceColumns(
-    count,
-    0,
-    ['|base_temp|任务数据'],
-    ['|process_temp|进度数据'],
-    ['|source_temp|来源数据']
-  );
+  sheet.spliceColumns(count, 0, ['|base_temp|任务数据'], ['|process_temp|进度数据'], ['|source_temp|来源数据']);
 }
 
 /**
@@ -46,11 +40,7 @@ function descriptionColumn(sheet: Worksheet) {
  * @param json
  * @param sheet
  */
-function jsonToSheet(
-  workbook: Workbook,
-  json: Record<string, string>[],
-  sheet?: Worksheet
-) {
+function jsonToSheet(workbook: Workbook, json: Record<string, string>[], sheet?: Worksheet) {
   if (sheet) {
     const sheetName = sheet.name;
     const columns = sheet.columns;
@@ -136,15 +126,9 @@ function _writeMapToExcel(workbookMap: WorkbookMap, path?: string) {
     setColumnKey(workbook);
 
     const taskList = workbookMap.get('task') as Record<string, string>[];
-    const processList = workbookMap.get('process_data') as Record<
-      string,
-      string
-    >[];
+    const processList = workbookMap.get('process_data') as Record<string, string>[];
     const sourceList = workbookMap.get('source') as Record<string, string>[];
-    const conditionList = workbookMap.get('condition') as Record<
-      string,
-      string
-    >[];
+    const conditionList = workbookMap.get('condition') as Record<string, string>[];
     const awardList = workbookMap.get('award_data') as Record<string, string>[];
 
     const newWorkbook = new Workbook();

@@ -2,7 +2,7 @@ import store from '@/store';
 import { MessageBox } from 'element-ui';
 
 import { deleteExisting, stringify } from '@/utils';
-import { WorkbookMap } from '@/shims-cust';
+import { WorkbookMap } from '@/shims-type';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import {
   LostIdModule,
@@ -33,9 +33,7 @@ function validateTaskid(id?: string): Promise<void> {
         if (list) {
           if (activeModel === 'create') {
             if (id) {
-              const task = list.find(
-                (item) => item.id.toString() === id.toString()
-              );
+              const task = list.find((item) => item.id.toString() === id.toString());
               if (task) {
                 MessageBox({
                   title: '重复任务ID',
@@ -58,9 +56,7 @@ function validateTaskid(id?: string): Promise<void> {
               if (id.toString() === updateTaskid.toString()) {
                 resolve();
               } else {
-                const task = list.find(
-                  (item) => item.id.toString() === id.toString()
-                );
+                const task = list.find((item) => item.id.toString() === id.toString());
                 if (task) {
                   MessageBox({
                     title: '重复任务ID',
@@ -121,33 +117,19 @@ export async function writeExcel(data: Record<string, any>) {
     .catch();
 }
 
-function writeBase(
-  workbookMap: WorkbookMap,
-  data: Record<string, any>,
-  template: Record<string, string | undefined>
-) {
+function writeBase(workbookMap: WorkbookMap, data: Record<string, any>, template: Record<string, string | undefined>) {
   const taskList = workbookMap.get('task') as Record<string, string>[];
   const { baseTempid, processTempid, sourceTempid } = template;
 
   if (activeModel === 'update') {
     lostProcessid = data.process_id;
 
-    const index = taskList.findIndex(
-      (item) => item.id.toString() === updateTaskid.toString()
-    );
+    const index = taskList.findIndex((item) => item.id.toString() === updateTaskid.toString());
     if (index !== -1) {
-      data['base_temp'] =
-        typeof baseTempid === 'undefined'
-          ? taskList[index].base_temp || null
-          : baseTempid;
+      data['base_temp'] = typeof baseTempid === 'undefined' ? taskList[index].base_temp || null : baseTempid;
       data['process_temp'] =
-        typeof processTempid === 'undefined'
-          ? taskList[index].process_temp || null
-          : processTempid;
-      data['source_temp'] =
-        typeof sourceTempid === 'undefined'
-          ? taskList[index].source_temp || null
-          : sourceTempid;
+        typeof processTempid === 'undefined' ? taskList[index].process_temp || null : processTempid;
+      data['source_temp'] = typeof sourceTempid === 'undefined' ? taskList[index].source_temp || null : sourceTempid;
 
       taskList.splice(index, 1, data);
     }
@@ -175,9 +157,7 @@ function writeProgress(workbookMap: WorkbookMap, data: Record<string, any>) {
     processArray.push(item.process);
     const awards: Record<string, string>[] = item.awards;
     if (awards.length !== 0) {
-      const old = awards.find(
-        (awa) => typeof awa.award_id !== 'undefined' && awa.award_id !== ''
-      );
+      const old = awards.find((awa) => typeof awa.award_id !== 'undefined' && awa.award_id !== '');
       if (old) {
         awards.forEach((awa) => (awa.award_id = old.award_id));
         item.award_id = old.award_id;
@@ -201,34 +181,23 @@ function writeProgress(workbookMap: WorkbookMap, data: Record<string, any>) {
   process.process = processArray.join(',');
   process.awards = awardArray.join(',');
 
-  const processList = workbookMap.get('process_data') as Record<
-    string,
-    string
-  >[];
+  const processList = workbookMap.get('process_data') as Record<string, string>[];
   if (activeModel === 'create') {
     process.process_id = lostProcessid;
     process.source_id = lostSourceid;
     processList.push(process);
   } else {
     lostSourceid = process.source_id;
-    const index = processList.findIndex(
-      (proc) => proc.process_id.toString() === process.process_id.toString()
-    );
+    const index = processList.findIndex((proc) => proc.process_id.toString() === process.process_id.toString());
     if (index !== -1) {
       processList.splice(index, 1, process);
     }
   }
 }
 
-function writeSource(
-  workbookMap: WorkbookMap,
-  data: Record<string, any>[]
-): void {
+function writeSource(workbookMap: WorkbookMap, data: Record<string, any>[]): void {
   const sourceList = workbookMap.get('source') as Record<string, string>[];
-  const conditionList = workbookMap.get('condition') as Record<
-    string,
-    string
-  >[];
+  const conditionList = workbookMap.get('condition') as Record<string, string>[];
 
   deleteExisting(sourceList, 'source_id', lostSourceid);
 
@@ -238,13 +207,9 @@ function writeSource(
   data.forEach((item) => {
     if (item.source.source_id) delSourceid = item.source.source_id;
 
-    const condition = item.condition.find(
-      (cond: Record<string, string | number>) => {
-        return (
-          typeof cond.condition_id !== 'undefined' && cond.condition_id !== ''
-        );
-      }
-    );
+    const condition = item.condition.find((cond: Record<string, string | number>) => {
+      return typeof cond.condition_id !== 'undefined' && cond.condition_id !== '';
+    });
     if (condition) {
       delConditionid.push(condition.condition_id);
     }
@@ -282,10 +247,7 @@ function writeSource(
       condition_id = '0';
     } else {
       conditionArray.find((condItem) => {
-        if (
-          typeof condItem.condition_id !== 'undefined' &&
-          condItem.condition_id !== ''
-        ) {
+        if (typeof condItem.condition_id !== 'undefined' && condItem.condition_id !== '') {
           condition_id = condItem.condition_id;
           return true;
         }

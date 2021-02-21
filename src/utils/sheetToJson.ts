@@ -1,4 +1,4 @@
-import { SheetName, WorkbookMap } from '@/shims-cust';
+import { SheetName, WorkbookMap } from '@/shims-type';
 import { Workbook, Worksheet } from 'exceljs';
 import { v4 as uuid } from 'uuid';
 
@@ -7,9 +7,7 @@ export function sheet2json(sheet: Worksheet): Record<string, string>[] {
   if (!column.key) sheet = setColumnKey(sheet);
 
   const array: Record<string, string>[] = [];
-  const keys = sheet.columns
-    .map((column) => column.key)
-    .filter((v) => typeof v === 'string');
+  const keys = sheet.columns.map((column) => column.key).filter((v) => typeof v === 'string');
 
   sheet.eachRow((row, rowIndex) => {
     if (rowIndex > 1) {
@@ -21,11 +19,7 @@ export function sheet2json(sheet: Worksheet): Record<string, string>[] {
           if (typeof cell.value === 'boolean') {
             object[k] = cell.value;
           } else {
-            if (
-              k === 'base_temp' ||
-              k === 'process_temp' ||
-              k === 'source_temp'
-            ) {
+            if (k === 'base_temp' || k === 'process_temp' || k === 'source_temp') {
               object[k] = cell.text.split('|')[0];
             } else {
               object[k] = cell.text || '';
@@ -35,8 +29,7 @@ export function sheet2json(sheet: Worksheet): Record<string, string>[] {
       });
       keys.forEach((property) => {
         if (property) {
-          if (!Object.prototype.hasOwnProperty.call(object, property))
-            object[property] = '';
+          if (!Object.prototype.hasOwnProperty.call(object, property)) object[property] = '';
         }
       });
       array.push(object);

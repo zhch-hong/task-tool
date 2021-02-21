@@ -1,5 +1,5 @@
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import { SheetName, WorkbookMap } from '@/shims-cust';
+import { SheetName, WorkbookMap } from '@/shims-type';
 import Vue from 'vue';
 import store from '@/store';
 

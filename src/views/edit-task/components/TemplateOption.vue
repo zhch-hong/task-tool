@@ -7,19 +7,14 @@
       @change="templateChange"
       clearable
     >
-      <el-option
-        v-for="temp in templateList"
-        :key="temp.uuid"
-        :label="temp.name"
-        :value="temp.uuid"
-      ></el-option>
+      <el-option v-for="temp in templateList" :key="temp.uuid" :label="temp.name" :value="temp.uuid"></el-option>
     </el-select>
     <el-button v-if="templateValue" @click="onclickUpdate">更新模板</el-button>
     <el-button @click="onclickSave">保存模板</el-button>
   </div>
 </template>
 <script lang="ts">
-import { TemplateType } from '@/shims-cust';
+import { TemplateType } from '@/shims-type';
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
@@ -149,9 +144,7 @@ export default class TemplateOption extends Vue {
   }
 
   updateTemplate(data: any): void {
-    const index = this.templateList.findIndex(
-      (temp) => temp.uuid === this.templateValue
-    );
+    const index = this.templateList.findIndex((temp) => temp.uuid === this.templateValue);
     if (index !== -1) {
       const object = this.writeTempBefore(data);
       if (object) {

@@ -62,3 +62,4 @@ export { readExcelToMap, writeMapToExcel } from './xlsxIO';
 export { writeChanged } from './write-changed';
 export { stringify, parseString2Number, deleteExisting };
 export { workspanceExcel } from './workspace-excel';
+export { openInExcel, revealInFileExplorer } from './reveal-file-way';

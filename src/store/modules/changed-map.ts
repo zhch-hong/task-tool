@@ -1,11 +1,5 @@
-import {
-  Action,
-  getModule,
-  Module,
-  Mutation,
-  VuexModule,
-} from 'vuex-module-decorators';
-import { WorkbookMap } from '@/shims-cust';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
+import { WorkbookMap } from '@/shims-type';
 import { WorkspacedModule } from './workspaced';
 import { writeChanged } from '@/utils';
 import store from '@/store';

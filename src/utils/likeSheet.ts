@@ -1,11 +1,8 @@
 import { Workbook, Worksheet } from 'exceljs';
 import { Notification } from 'element-ui';
-import { SheetName } from '@/shims-cust';
+import { SheetName } from '@/shims-type';
 
-export function getSheet(
-  workbook: Workbook,
-  sheetName: SheetName
-): Worksheet | undefined {
+export function getSheet(workbook: Workbook, sheetName: SheetName): Worksheet | undefined {
   let index = -1;
   workbook.eachSheet((sheet, id) => {
     if (sheet.name.split('|')[0] === sheetName) index = id;
