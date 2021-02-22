@@ -3,7 +3,7 @@
     <WorkspaceExcel @click-file="clickFile" />
     <div ref="SheetTabs" class="sheet-tabs">
       <div class="tabs-warp">
-        <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
+        <el-tabs v-model="activeName" type="border-card">
           <el-tab-pane v-for="(value, key) of data" :key="key" :label="key" :name="key" lazy>
             <TableView :ref="key" :columns="value.columns" :data="value.data" @undo="addUndo" />
           </el-tab-pane>
@@ -43,6 +43,7 @@ export default Vue.extend({
       data: {} as Record<PropertyKey, any>,
       activeName: '',
       activePath: '',
+      activeVueComponent: null as Vue | null,
       undoMap: new Map<string, Array<Record<string, any>>>(),
       redoMap: new Map<string, Array<Record<string, any>>>(),
     };
@@ -67,6 +68,22 @@ export default Vue.extend({
         this.startSync(list);
       },
     },
+
+    activeName: {
+      immediate: true,
+      handler(value?: string) {
+        if (typeof value === 'undefined') return;
+
+        this.$nextTick(() => {
+          const ref = this.$refs[value] as Vue[] | undefined;
+
+          if (ref) {
+            const vue = ref[0];
+            this.activeVueComponent = vue;
+          }
+        });
+      },
+    },
   },
 
   created() {
@@ -75,6 +92,46 @@ export default Vue.extend({
     KeyboardEventModule.registerKeyboard({ key: 'ctrl+z', handles: [this.undo] });
     KeyboardEventModule.registerKeyboard({ key: 'ctrl+y', handles: [this.redo] });
     KeyboardEventModule.registerKeyboard({ key: 'ctrl+t', handles: [syncFile] });
+    KeyboardEventModule.registerKeyboard({
+      key: 'f3',
+      handles: [
+        () => {
+          if (this.activeVueComponent) {
+            (this.activeVueComponent as any).findNext();
+          }
+        },
+      ],
+    });
+    KeyboardEventModule.registerKeyboard({
+      key: 'shift+f3',
+      handles: [
+        () => {
+          if (this.activeVueComponent) {
+            (this.activeVueComponent as any).findPrev();
+          }
+        },
+      ],
+    });
+    KeyboardEventModule.registerKeyboard({
+      key: 'ctrl+f',
+      handles: [
+        () => {
+          if (this.activeVueComponent) {
+            (this.activeVueComponent as any).showSearch = true;
+          }
+        },
+      ],
+    });
+    KeyboardEventModule.registerKeyboard({
+      key: 'esc',
+      handles: [
+        () => {
+          if (this.activeVueComponent) {
+            (this.activeVueComponent as any).showSearch = false;
+          }
+        },
+      ],
+    });
   },
 
   beforeRouteLeave(to, from, next): void {
@@ -83,15 +140,15 @@ export default Vue.extend({
     KeyboardEventModule.unregisterKeyboard('ctrl+z');
     KeyboardEventModule.unregisterKeyboard('ctrl+y');
     KeyboardEventModule.unregisterKeyboard('ctrl+t');
+    KeyboardEventModule.unregisterKeyboard('f3');
+    KeyboardEventModule.unregisterKeyboard('shift+f3');
+    KeyboardEventModule.unregisterKeyboard('ctrl+f');
+    KeyboardEventModule.unregisterKeyboard('esc');
 
     next();
   },
 
   methods: {
-    handleClick(name: string): void {
-      // console.log(name);
-    },
-
     async clickFile(path: string): Promise<void> {
       this.data = {};
       const loading = Loading.service({
@@ -316,12 +373,60 @@ export default Vue.extend({
         'keypress'
       );
       bind('ctrl+t', syncFile, 'keypress');
+      bind(
+        'f3',
+        () => {
+          if (this.activeVueComponent) {
+            (this.activeVueComponent as any).findNext();
+          }
+
+          return false;
+        },
+        'keydown'
+      );
+      bind(
+        'shift+f3',
+        () => {
+          if (this.activeVueComponent) {
+            (this.activeVueComponent as any).findPrev();
+          }
+
+          return false;
+        },
+        'keydown'
+      );
+      bind(
+        'ctrl+f',
+        () => {
+          if (this.activeVueComponent) {
+            (this.activeVueComponent as any).showSearch = true;
+          }
+
+          return false;
+        },
+        'keydown'
+      );
+      bind(
+        'esc',
+        () => {
+          if (this.activeVueComponent) {
+            (this.activeVueComponent as any).showSearch = false;
+          }
+
+          return false;
+        },
+        'keydown'
+      );
     },
 
     unBindKeyboard(): void {
       unbind('ctrl+z', 'keypress');
       unbind('ctrl+y', 'keypress');
       unbind('ctrl+t', 'keypress');
+      unbind('f3', 'keydown');
+      unbind('shift+f3', 'keydown');
+      unbind('ctrl+f', 'keydown');
+      unbind('esc', 'keydown');
     },
   },
 });

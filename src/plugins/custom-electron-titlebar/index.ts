@@ -1,6 +1,20 @@
 import { remote } from 'electron';
 import { Titlebar, Color } from 'custom-electron-titlebar';
-import { about, options, syncFile, redo, undo, createTask, deleteTask, copyTask, pasteTask, doubleTask } from '@/menu';
+import {
+  about,
+  options,
+  syncFile,
+  redo,
+  undo,
+  createTask,
+  deleteTask,
+  copyTask,
+  pasteTask,
+  doubleTask,
+  find,
+  findNext,
+  findPrev,
+} from '@/menu';
 
 const { Menu, getCurrentWindow } = remote;
 
@@ -70,6 +84,24 @@ const menu = Menu.buildFromTemplate([
         label: '复制任务',
         accelerator: 'Ctrl+D',
         click: doubleTask,
+      },
+      {
+        type: 'separator',
+      },
+      {
+        label: '查找',
+        accelerator: 'Ctrl+F',
+        click: find,
+      },
+      {
+        label: '查找上一个',
+        accelerator: 'Shift+F3',
+        click: findPrev,
+      },
+      {
+        label: '查找下一个',
+        accelerator: 'F3',
+        click: findNext,
       },
     ],
   },

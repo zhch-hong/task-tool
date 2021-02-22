@@ -1,13 +1,15 @@
 <template>
   <div style="position: relative">
-    <div class="search">
-      <el-input v-model="searchKey" size="small" @input="find" clearable>
-        <template #suffix>
-          <i class="suffix el-icon-top" title="上一个" @click="findPrev"></i>
-          <i class="suffix el-icon-bottom" title="下一个" @click="findNext"></i>
-        </template>
-      </el-input>
-    </div>
+    <transition name="fade">
+      <div v-if="showSearch" class="search">
+        <input v-model="searchKey" ref="SearchInput" class="mousetrap" type="text" @input="find" />
+        <div class="suffix-slot">
+          <span class="find-count">{{ currentPointer }}/{{ findResult.length }}</span>
+          <i class="suffix el-icon-top" style="margin-right: 4px" title="上一个（Shif+F3）" @click="findPrev"></i>
+          <i class="suffix el-icon-bottom" title="下一个（F3）" @click="findNext"></i>
+        </div>
+      </div>
+    </transition>
     <vxe-table
       ref="xTable"
       border
@@ -39,7 +41,7 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue';
 import { cloneDeep } from 'lodash';
-import { RowInfo, Table } from 'vxe-table';
+import { Table } from 'vxe-table';
 import { ViewResizeModule } from '@/store/modules/veiw-resize';
 
 export default Vue.extend({
@@ -63,7 +65,8 @@ export default Vue.extend({
       tableData: [] as Record<PropertyKey, string>[],
       editBeforeValue: '',
       searchKey: '',
-      findIndex: 0,
+      showSearch: false,
+      findIndex: null as number | null,
       findResult: [] as Array<Record<string, any>>,
       editRecords: new Map<string, Record<'o' | 'n', any>>(),
       sourceCellValue: '',
@@ -74,6 +77,33 @@ export default Vue.extend({
     tableHeight(): string {
       return ViewResizeModule.windowHeight - 71 + 'px';
     },
+
+    currentPointer(): number {
+      if (this.findIndex === null) {
+        return 0;
+      } else {
+        return this.findIndex + 1;
+      }
+    },
+  },
+
+  watch: {
+    showSearch: {
+      handler(value: boolean) {
+        if (!value) {
+          this.findResult = [];
+          this.findIndex = null;
+          this.searchKey = '';
+          (this.$refs.xTable as Table).clearSelected();
+        } else {
+          this.$nextTick(() => {
+            setTimeout(() => {
+              (this.$refs.SearchInput as HTMLInputElement).focus();
+            }, 800);
+          });
+        }
+      },
+    },
   },
 
   mounted() {
@@ -83,14 +113,13 @@ export default Vue.extend({
   },
 
   methods: {
-    getUpdateRecords() {
+    getUpdateRecords(): Map<string, Record<'o' | 'n', any>> {
       return this.editRecords;
     },
 
     editActived(payload: Record<string, any>) {
       // 用于撤销/恢复
       const row: Record<string, any> = payload.row;
-      console.log(row);
 
       const property: string = payload.column.property;
       const value = row[property];
@@ -119,6 +148,9 @@ export default Vue.extend({
       } else {
         this.editRecords.delete(JSON.stringify({ r: rowIndex, c: columnIndex }));
       }
+
+      // 修改单元格的值后，重置查找
+      this.find();
     },
 
     findExist(address: { r: number; c: number }) {
@@ -126,8 +158,11 @@ export default Vue.extend({
     },
 
     find() {
+      this.findIndex = null;
+
       if (!this.searchKey) {
         this.findResult = [];
+        (this.$refs.xTable as Table).clearSelected();
         return;
       }
 
@@ -137,33 +172,67 @@ export default Vue.extend({
         for (const key in rowInfo) {
           if (Object.prototype.hasOwnProperty.call(rowInfo, key)) {
             const element: string = rowInfo[key];
-            if (element && element.toString().includes(this.searchKey)) {
+            if (element && element.toString().includes(this.searchKey) && key !== '_XID') {
               findResult.push({ row: rowInfo, field: key });
             }
           }
         }
       });
       this.findResult = findResult;
+
+      // 搜索完成后默认选中第一个
+      if (this.findResult.length !== 0) {
+        this.findIndex = 0;
+        const info = this.findResult[this.findIndex];
+
+        if (info) {
+          (this.$refs.xTable as Table).scrollToRow(info.row, info.field).then(() => {
+            (this.$refs.xTable as Table).scrollToColumn(info.field).then(() => {
+              (this.$refs.xTable as Table).setSelectCell(info.row, info.field);
+            });
+          });
+        }
+      }
     },
 
     findPrev() {
-      const prev = this.findIndex--;
-      const index = prev % this.findResult.length;
-      const info = this.findResult[index];
-      if (info) {
-        (this.$refs.xTable as Table).setSelectCell(info.row, info.field);
+      if (this.findIndex === null) return;
+
+      this.findIndex--;
+
+      if (this.findIndex < 0) {
+        this.findIndex = this.findResult.length - 1;
       }
-      // this.findIndex--;
+
+      const info = this.findResult[this.findIndex];
+
+      if (info) {
+        (this.$refs.xTable as Table).scrollToRow(info.row, info.field).then(() => {
+          (this.$refs.xTable as Table).scrollToColumn(info.field).then(() => {
+            (this.$refs.xTable as Table).setSelectCell(info.row, info.field);
+          });
+        });
+      }
     },
 
     findNext() {
-      const next = this.findIndex++;
-      const index = next % this.findResult.length;
-      const info = this.findResult[index];
-      if (info) {
-        (this.$refs.xTable as Table).setSelectCell(info.row, info.field);
+      if (this.findIndex === null) return;
+
+      this.findIndex++;
+
+      if (this.findIndex > this.findResult.length - 1) {
+        this.findIndex = 0;
       }
-      // this.findIndex++;
+
+      const info = this.findResult[this.findIndex];
+
+      if (info) {
+        (this.$refs.xTable as Table).scrollToRow(info.row, info.field).then(() => {
+          (this.$refs.xTable as Table).scrollToColumn(info.field).then(() => {
+            (this.$refs.xTable as Table).setSelectCell(info.row, info.field);
+          });
+        });
+      }
     },
   },
 });
@@ -171,20 +240,43 @@ export default Vue.extend({
 <style lang="scss" scoped>
 div.search {
   position: absolute;
-  top: 32px;
+  top: 30px;
   right: 0;
   z-index: 4;
-  i.suffix {
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
-    margin: 0 2px;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 6px 0;
-    &:hover {
-      background-color: #f2f2f2;
+  display: flex;
+  align-items: center;
+  background-color: #eaeaeb;
+  padding: 0 10px;
+  box-shadow: 0 0 8px 2px rgba(0, 0, 0, 0.16);
+  input.mousetrap {
+    border: none;
+    outline: none;
+  }
+  div.suffix-slot {
+    height: 100%;
+
+    i.suffix {
+      cursor: pointer;
+      font-size: 16px;
+      padding: 6px 0;
+      &:hover {
+        background-color: #f2f2f2;
+      }
+    }
+
+    span.find-count {
+      user-select: none;
+      margin: 0 6px;
     }
   }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 500ms, transform, 500ms;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+  transform: translateX(100%);
 }
 </style>

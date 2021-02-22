@@ -8,3 +8,6 @@ export { deleteTask } from './Edit/DeleteTask';
 export { copyTask } from './Edit/CopyTask';
 export { pasteTask } from './Edit/Paste';
 export { doubleTask } from './Edit/DoubleTask';
+export { find } from './Edit/Find';
+export { findNext } from './Edit/FindNext';
+export { findPrev } from './Edit/FindPrev';
