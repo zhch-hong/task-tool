@@ -232,9 +232,7 @@ export default Vue.extend({
       });
     },
 
-    _syncingFile(path: string, records: Map<string, Map<string, Record<'o' | 'n', any>>>) {
-      console.log(arguments);
-
+    async syncingFile(path: string, records: Map<string, Map<string, Record<'o' | 'n', any>>>) {
       const columns = [
         'A',
         'B',
@@ -263,66 +261,26 @@ export default Vue.extend({
         'Y',
         'Z',
       ];
-      const workbook = XLSX.readFile(path);
-      records.forEach((recordMap, sheetName) => {
-        const sheet = workbook.Sheets[sheetName];
-        if (sheet) {
-          recordMap.forEach((value, address) => {
-            const _address = JSON.parse(address);
-            const cellAddress = columns[_address.c] + (_address.r + 2);
-            const cell: XLSX.CellObject = sheet[cellAddress];
-            console.log(cell);
 
-            if (!cell) {
-              const ref = sheet['!ref'];
-
-              if (ref) {
-                const range = XLSX.utils.decode_range(ref);
-
-                if (range.e.c < _address.c + 1) {
-                  range.e.c = _address.c + 1;
-                }
-
-                if (range.e.r < _address.r + 2) {
-                  range.e.r = _address.r + 2;
-                }
-
-                sheet['!ref'] = XLSX.utils.encode_range(range);
-                sheet[cellAddress] = {
-                  h: value.n.toString(),
-                  t: 's',
-                  v: value.n.toString(),
-                  w: value.n.toString(),
-                };
-              }
-            } else {
-              cell.h = value.n.toString();
-              cell.t = 's';
-              cell.v = value.n.toString();
-              cell.w = value.n.toString();
-            }
-          });
-        }
-      });
-
-      XLSX.writeFile(workbook, path);
-    },
-
-    async syncingFile(path: string, records: Map<string, Map<string, Record<'o' | 'n', any>>>) {
-      const buffer = fs.readFileSync(path);
+      const rBuffer = fs.readFileSync(path);
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(buffer);
+      await workbook.xlsx.load(rBuffer);
 
       records.forEach((recordMap, sheetName) => {
         const sheet = workbook.getWorksheet(sheetName);
-        console.log(sheet.getRow(0).getCell(1).value, sheet.getRow(1).getCell(2).value);
 
         if (sheet) {
           recordMap.forEach((value, address) => {
-            const _address = JSON.parse(address);
+            const _address: Record<string, number> = JSON.parse(address);
+            const cellAddress = columns[_address.c] + (_address.r + 2);
+            const cell = sheet.getCell(cellAddress);
+            cell.value = value.n;
           });
         }
       });
+
+      const wBuffer = await workbook.xlsx.writeBuffer();
+      fs.writeFileSync(path, new Uint8Array(wBuffer));
     },
 
     addUndo(payload: Record<string, any>): void {
