@@ -15,13 +15,16 @@
 <script lang="ts">
 import Vue from 'vue';
 import XLSX from 'xlsx';
+import fs from 'fs';
+import ExcelJS from 'exceljs';
 import { remote } from 'electron';
 import { bind, unbind } from 'mousetrap';
+import { Loading } from 'element-ui';
+
 import { excel2json } from './scripts/excel2json';
 import { SyncFileModule } from '@/store/modules/sync-file';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import { closeSync } from '@/menu/Edit/SyncFile';
-import { Loading } from 'element-ui';
 import { KeyboardEventModule } from '@/store/modules/keyboard-event';
 import { syncFile } from '@/menu/Edit/SyncFile';
 
@@ -229,7 +232,9 @@ export default Vue.extend({
       });
     },
 
-    syncingFile(path: string, records: Map<string, Map<string, Record<'o' | 'n', any>>>) {
+    _syncingFile(path: string, records: Map<string, Map<string, Record<'o' | 'n', any>>>) {
+      console.log(arguments);
+
       const columns = [
         'A',
         'B',
@@ -266,6 +271,7 @@ export default Vue.extend({
             const _address = JSON.parse(address);
             const cellAddress = columns[_address.c] + (_address.r + 2);
             const cell: XLSX.CellObject = sheet[cellAddress];
+            console.log(cell);
 
             if (!cell) {
               const ref = sheet['!ref'];
@@ -300,6 +306,23 @@ export default Vue.extend({
       });
 
       XLSX.writeFile(workbook, path);
+    },
+
+    async syncingFile(path: string, records: Map<string, Map<string, Record<'o' | 'n', any>>>) {
+      const buffer = fs.readFileSync(path);
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(buffer);
+
+      records.forEach((recordMap, sheetName) => {
+        const sheet = workbook.getWorksheet(sheetName);
+        console.log(sheet.getRow(0).getCell(1).value, sheet.getRow(1).getCell(2).value);
+
+        if (sheet) {
+          recordMap.forEach((value, address) => {
+            const _address = JSON.parse(address);
+          });
+        }
+      });
     },
 
     addUndo(payload: Record<string, any>): void {

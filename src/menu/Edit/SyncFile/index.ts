@@ -67,9 +67,7 @@ document.body.append(div);
 instance.$mount(div);
 
 export function syncFile() {
-  console.log(1);
   if (router.currentRoute.path !== '/sync-file') return;
-  console.log(2);
 
   obser.visible = true;
 }
