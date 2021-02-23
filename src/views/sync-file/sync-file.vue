@@ -207,32 +207,40 @@ export default Vue.extend({
         }
       }
 
-      pathList.forEach((path) => this.syncingFile(path, map));
+      const promiseIterable: Array<Promise<void>> = [];
 
-      // 更新WorkspacedModule中的数据
-      const iterator = WorkspacedModule.readedPathList();
-      for (const ite of iterator) {
-        if (pathList.includes(ite)) {
-          WorkspacedModule.UpdateWorkbookmap({ path: ite });
-        }
-      }
+      pathList.forEach((path) => promiseIterable.push(this.syncingFile(path, map)));
 
-      // 更新表格数据
-      this.$nextTick(async () => {
-        this.clickFile(this.activePath);
-        await this.$nextTick();
-        const win = getCurrentWindow();
-        win.focus();
-        dialog.showMessageBoxSync(win, {
-          title: '同步完成',
-          message: '更新的单元格数据已全部同步至所选文件',
-          type: 'info',
+      Promise.all(promiseIterable)
+        .then(() => {
+          // 更新WorkspacedModule中的数据
+          const iterator = WorkspacedModule.readedPathList();
+          for (const ite of iterator) {
+            if (pathList.includes(ite)) {
+              WorkspacedModule.UpdateWorkbookmap({ path: ite });
+            }
+          }
+
+          // 更新表格数据
+          this.$nextTick(async () => {
+            this.clickFile(this.activePath);
+            await this.$nextTick();
+            const win = getCurrentWindow();
+            win.focus();
+            dialog.showMessageBoxSync(win, {
+              title: '同步完成',
+              message: '更新的单元格数据已全部同步至所选文件',
+              type: 'info',
+            });
+            closeSync();
+          });
+        })
+        .catch(() => {
+          //
         });
-        closeSync();
-      });
     },
 
-    async syncingFile(path: string, records: Map<string, Map<string, Record<'o' | 'n', any>>>) {
+    async syncingFile(path: string, records: Map<string, Map<string, Record<'o' | 'n', any>>>): Promise<void> {
       const columns = [
         'A',
         'B',
