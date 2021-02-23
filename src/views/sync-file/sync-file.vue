@@ -274,7 +274,10 @@ export default Vue.extend({
             const _address: Record<string, number> = JSON.parse(address);
             const cellAddress = columns[_address.c] + (_address.r + 2);
             const cell = sheet.getCell(cellAddress);
-            cell.value = value.n;
+
+            if (cell) {
+              cell.value = value.n;
+            }
           });
         }
       });
