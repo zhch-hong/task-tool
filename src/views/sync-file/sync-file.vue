@@ -14,7 +14,6 @@
 </template>
 <script lang="ts">
 import Vue from 'vue';
-import XLSX from 'xlsx';
 import fs from 'fs';
 import ExcelJS from 'exceljs';
 import { remote } from 'electron';

@@ -5,7 +5,7 @@ import { SyncFileModule } from '@/store/modules/sync-file';
 
 import SyncFileList from './SyncFileList.vue';
 
-const obser = Vue.observable({ visible: false, loading: false });
+const obser = Vue.observable({ visible: false, loading: false, syncText: '开始同步', disabled: false });
 const ComponentClass = Vue.extend({
   render(h) {
     return h(
@@ -42,16 +42,28 @@ const ComponentClass = Vue.extend({
             },
           }),
           h(Button, {
-            props: { icon: 'el-icon-refresh', size: 'small', loading: obser.loading, type: 'primary' },
-            domProps: { innerText: '开始同步' },
+            props: {
+              icon: 'el-icon-refresh',
+              size: 'small',
+              loading: obser.loading,
+              type: 'primary',
+              disabled: obser.disabled,
+            },
+            domProps: { innerText: obser.syncText },
 
             on: {
               click: () => {
-                const pathList: string[] = (instance.$refs.SyncFileList as any).submit();
-                if (pathList.length === 0) {
-                  return;
-                }
-                SyncFileModule.setPathList(pathList);
+                obser.syncText = '正在同步...';
+                obser.disabled = true;
+                Vue.nextTick(() => {
+                  const pathList: string[] = (instance.$refs.SyncFileList as any).submit();
+                  if (pathList.length === 0) {
+                    obser.syncText = '开始同步';
+                    obser.disabled = false;
+                    return;
+                  }
+                  SyncFileModule.setPathList(pathList);
+                });
               },
             },
           }),
@@ -74,4 +86,6 @@ export function syncFile() {
 
 export function closeSync() {
   obser.visible = false;
+  obser.syncText = '开始同步';
+  obser.disabled = false;
 }
