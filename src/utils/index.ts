@@ -4,15 +4,20 @@
  * @param col
  * @param id
  */
-function deleteExisting(list: Record<string, string>[], col: string, value: number | string) {
-  const index = list.findIndex((item) => {
-    return item[col].toString() === value.toString();
-  });
-
+function deleteExisting(
+  list: Record<string, string>[],
+  col: string,
+  value: number | string
+): Array<Record<string, any>> {
+  const index = list.findIndex((item) => item[col] == value);
+  const deleteList: Array<Record<string, any>> = [];
   if (index !== -1) {
-    list.splice(index, 1);
-    deleteExisting(list, col, value);
+    const element = list.splice(index, 1);
+    deleteList.push(element);
+    return deleteExisting(list, col, value).concat(...deleteList);
   }
+
+  return deleteList;
 }
 
 /**

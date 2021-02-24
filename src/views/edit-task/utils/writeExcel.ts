@@ -172,7 +172,16 @@ function writeProgress(workbookMap: WorkbookMap, data: Record<string, any>) {
 
       // award_data表
       if (activeModel === 'update') {
-        deleteExisting(awardList, 'award_id', item.award_id);
+        const list = deleteExisting(awardList, 'award_id', item.award_id);
+
+        // 设置样式
+        list.forEach((item) => {
+          const asset_type = item.asset_type;
+          const award = awards.find((award) => award.asset_type === asset_type);
+          if (award) {
+            award['_style'] = item._style;
+          }
+        });
       }
       awardList.push(...awards);
     }
@@ -203,7 +212,7 @@ function writeSource(workbookMap: WorkbookMap, data: Record<string, any>[]): voi
   const sourceList = workbookMap.get('source') as Record<string, string>[];
   const conditionList = workbookMap.get('condition') as Record<string, string>[];
 
-  deleteExisting(sourceList, 'source_id', lostSourceid);
+  // deleteExisting(sourceList, 'source_id', lostSourceid);
 
   // 将source工作表和condition工作表中旧的数据删除
   let delSourceid: string | number = '';
@@ -218,12 +227,18 @@ function writeSource(workbookMap: WorkbookMap, data: Record<string, any>[]): voi
       delConditionid.push(condition.condition_id);
     }
   });
+
+  const deleteSource: Record<string, any>[] = [];
   if (delSourceid !== '') {
-    deleteExisting(sourceList, 'source_id', delSourceid);
+    const list = deleteExisting(sourceList, 'source_id', delSourceid);
+    deleteSource.push(...list);
   }
+
+  const deleteCondition: Record<string, any>[] = [];
   if (delConditionid.length !== 0) {
     delConditionid.forEach((id) => {
-      deleteExisting(conditionList, 'condition_id', id);
+      const list = deleteExisting(conditionList, 'condition_id', id);
+      deleteCondition.push(...list);
     });
   }
 
@@ -239,12 +254,12 @@ function writeSource(workbookMap: WorkbookMap, data: Record<string, any>[]): voi
 
   data.forEach((sourceItem: Record<string, any>) => {
     const source: Record<string, string> = sourceItem.source;
+    const conditionArray: Record<string, string>[] = sourceItem.condition;
 
     // 来源的条件列表，包含原有的和新增的
     // 从条件列表中查找是否有包含condition_id的条件
     // 如果找到，则它是该来源原有的条件，那么就取它的condition_id赋值给该来源的其他条件
     // 如果没有找到，则说明该来源的所有条件都是新增的，则从缺失的id池中取一个，赋给该来源的所有条件
-    const conditionArray: Record<string, string>[] = sourceItem.condition;
     let condition_id = '';
     if (conditionArray.length === 0) {
       // 如果条件列表的长度为0，说明该来源没有任何条件，那么就将该来源的condition_id置为0
@@ -262,6 +277,7 @@ function writeSource(workbookMap: WorkbookMap, data: Record<string, any>[]): voi
 
     source.source_id = source_id;
     source.condition_id = condition_id;
+
     sourceList.push(source);
 
     conditionArray.forEach((cond) => (cond.condition_id = condition_id));
