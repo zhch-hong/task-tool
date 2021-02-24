@@ -1,6 +1,6 @@
 import store from '@/store';
 import { WorkbookMap } from '@/shims-type';
-import { assign } from 'lodash';
+import _ from 'lodash';
 import { deleteExisting } from '.';
 import { LostIdModule, getLostAwardId, getLostConditionId } from '@/store/modules/lost-id';
 
@@ -20,12 +20,10 @@ function getSourceId(workbookMap: WorkbookMap, taskid: string | number): string 
 }
 
 function updateBase(workbookMap: WorkbookMap, taskid: string | number, data: Record<string, any>) {
-  taskid = taskid.toString();
-
   const taskList = workbookMap.get('task') as Record<string, string>[];
-  const index = taskList.findIndex((t) => t.id.toString() === taskid);
+  const index = taskList.findIndex((t) => t.id == taskid);
   if (index !== -1) {
-    assign(taskList[index], data);
+    _.assign(taskList[index], data);
   }
 }
 
@@ -39,12 +37,16 @@ function updateProcess(workbookMap: WorkbookMap, taskid: string | number, data: 
   const awards: Record<string, string>[][] = data.awards;
 
   // 将award_data表中原有的奖励数据删除
+  const deleteAward: Record<string, any>[] = [];
   const processid = getProcessId(workbookMap, taskid);
   if (processid) {
-    const oldProcess = processList.find((p) => p.process_id.toString() === processid);
+    const oldProcess = processList.find((p) => p.process_id == processid);
     if (oldProcess) {
       oldProcess.awards.split(',').forEach((id) => {
-        if (id !== '-1') deleteExisting(awardList, 'award_id', id);
+        if (id !== '-1') {
+          const list = deleteExisting(awardList, 'award_id', id);
+          deleteAward.push(...list);
+        }
       });
     }
   }
@@ -62,6 +64,16 @@ function updateProcess(workbookMap: WorkbookMap, taskid: string | number, data: 
         _awardid = awardid;
         item.forEach((aw) => (aw.award_id = _awardid));
 
+        // 设置样式
+        deleteAward.forEach((delItem) => {
+          const asset_type = delItem.asset_type;
+          // award_id会有多个，而他们的award_id都是相同的，只有asset_type不同，所以使用asset_type查找
+          const res = item.find((_award) => _award.asset_type === asset_type);
+          if (res) {
+            res['_style'] = delItem._style;
+          }
+        });
+
         awardList.push(...item);
       } else {
         // 如果奖励列表数组长度为0，说明该阶段没有奖励，奖励id使用-1表示没有奖励
@@ -72,8 +84,13 @@ function updateProcess(workbookMap: WorkbookMap, taskid: string | number, data: 
       else process.awards += `${_awardid}`;
     });
 
-    const index = processList.findIndex((p) => p.process_id.toString() === processid);
-    if (index !== -1) processList.splice(index, 1, process);
+    const index = processList.findIndex((p) => p.process_id == processid);
+    if (index !== -1) {
+      // 设置样式
+      process['_style'] = processList[index]._style;
+
+      processList.splice(index, 1, process);
+    }
   }
 }
 
@@ -85,8 +102,17 @@ function updateSource(workbookMap: WorkbookMap, taskid: string | number, data: R
     const filterSource = sourceList.filter((s) => s.source_id.toString() === source_id);
     const filterCondition = filterSource.map((s) => s.condition_id);
 
-    filterSource.forEach((s) => deleteExisting(sourceList, 'source_id', source_id));
-    filterCondition.forEach((id) => deleteExisting(conditionList, 'condition_id', id));
+    const deleteSource: Record<string, any>[] = [];
+    const deleteCondition: Record<string, any>[] = [];
+
+    filterSource.forEach((s) => {
+      const list = deleteExisting(sourceList, 'source_id', source_id);
+      deleteSource.push(...list);
+    });
+    filterCondition.forEach((id) => {
+      const list = deleteExisting(conditionList, 'condition_id', id);
+      deleteCondition.push(...list);
+    });
 
     data.source.forEach((s: Record<string, string>, i: number) => {
       const condition_id = getLostConditionId();
@@ -94,7 +120,25 @@ function updateSource(workbookMap: WorkbookMap, taskid: string | number, data: R
       s.condition_id = condition_id;
 
       data.condition[i].forEach((c: Record<string, string>) => (c.condition_id = condition_id));
+
+      // 设置样式
+      deleteCondition.forEach((cdt) => {
+        const name = cdt.condition_name;
+        const res = data.condition[i].find((_cdt: any) => _cdt.condition_name === name);
+        if (res) {
+          res['_style'] = cdt._style;
+        }
+      });
+
       conditionList.push(...data.condition[i]);
+    });
+
+    // 设置样式
+    deleteSource.forEach((src) => {
+      const res = data.source.find((_src: any) => _src.source_type === src.source_type);
+      if (res) {
+        res['_style'] = src._style;
+      }
     });
 
     sourceList.push(...data.source);

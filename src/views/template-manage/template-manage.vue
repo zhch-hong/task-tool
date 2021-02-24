@@ -1,10 +1,6 @@
 <template>
   <div style="margin: 20px; width: 500px">
-    <el-input
-      v-model="filterText"
-      style="width: 400px; margin-bottom: 20px"
-      placeholder="输入关键字进行过滤"
-    >
+    <el-input v-model="filterText" style="width: 400px; margin-bottom: 20px" placeholder="输入关键字进行过滤">
     </el-input>
     <el-tree
       :data="treedata"
@@ -15,20 +11,12 @@
       show-checkbox
     >
       <template #default="{ data, node }">
-        <NodeItem
-          :tree-node="node"
-          :tree-data="data"
-          @remove="deleteTemplate(data, node)"
-        >
+        <NodeItem :tree-node="node" :tree-data="data" @remove="deleteTemplate(data, node)">
           <span style="user-select: none">{{ nameSlice(data) }}</span>
         </NodeItem>
       </template>
     </el-tree>
-    <el-button
-      :loading="loading"
-      type="primary"
-      style="margin-top: 20px"
-      @click="getCheckedNodes"
+    <el-button :loading="loading" type="primary" style="margin-top: 20px" @click="getCheckedNodes"
       >应用模板数据</el-button
     >
   </div>
@@ -39,13 +27,7 @@ import { resolve } from 'path';
 import { Tree } from 'element-ui';
 import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { fullData } from './full-data';
-import {
-  readFileText,
-  updateBase,
-  updateProcess,
-  updateSource,
-  writeFileText,
-} from '@/utils';
+import { readFileText, updateBase, updateProcess, updateSource, writeFileText } from '@/utils';
 import { ChangedMapModule } from '@/store/modules/changed-map';
 import { NProgress } from '@/plugins/nprogress';
 import nProgress from 'nprogress';
@@ -108,9 +90,7 @@ export default class TemplateManage extends Vue {
 
     if (data.type !== 'task') {
       if (data.type === 'path') {
-        const b = data.children.some((item: Record<string, string>) =>
-          item.name.includes(value)
-        );
+        const b = data.children.some((item: Record<string, string>) => item.name.includes(value));
         return b;
       }
       return true;
@@ -185,10 +165,7 @@ export default class TemplateManage extends Vue {
     const type = node.parent?.data.value;
     if (typeof type === 'undefined') return;
 
-    const path = resolve(
-      resolve(configDir, 'app_config'),
-      `template-manage.json`
-    );
+    const path = resolve(resolve(configDir, 'app_config'), `template-manage.json`);
     const object: Record<string, Record<string, any>[]> = readFileText(path);
 
     const index = object[type].findIndex((el) => el.uuid === templateId);
@@ -219,16 +196,12 @@ export default class TemplateManage extends Vue {
     });
   }
 
-  async clearTemplateId(
-    path: string,
-    type: string,
-    list: string[]
-  ): Promise<void> {
+  async clearTemplateId(path: string, type: string, list: string[]): Promise<void> {
     const map = await WorkspacedModule.bookMapByPath(path);
     const taskList = map.get('task')!;
 
     list.forEach((id) => {
-      const task = taskList.find((t) => t.id === id);
+      const task = taskList.find((t) => t.id == id);
       if (task) {
         Object.assign(task, { [type]: null });
       }
