@@ -1,4 +1,4 @@
-import { remote } from 'electron';
+import Electron, { remote } from 'electron';
 import { Titlebar, Color } from 'custom-electron-titlebar';
 import {
   about,
@@ -17,6 +17,30 @@ import {
 } from '@/menu';
 
 const { Menu, getCurrentWindow } = remote;
+
+const HelpMeu: Electron.MenuItemConstructorOptions[] =
+  process.env.NODE_ENV === 'production'
+    ? [
+        {
+          label: '关于',
+          click: about,
+        },
+      ]
+    : [
+        {
+          label: '重新加载',
+          click: () => {
+            getCurrentWindow().reload();
+          },
+        },
+        {
+          type: 'separator',
+        },
+        {
+          label: '关于',
+          click: about,
+        },
+      ];
 
 const menu = Menu.buildFromTemplate([
   {
@@ -107,21 +131,7 @@ const menu = Menu.buildFromTemplate([
   },
   {
     label: '帮助',
-    submenu: [
-      {
-        label: '重新加载',
-        click: () => {
-          getCurrentWindow().reload();
-        },
-      },
-      {
-        type: 'separator',
-      },
-      {
-        label: '关于',
-        click: about,
-      },
-    ],
+    submenu: HelpMeu,
   },
 ]);
 
