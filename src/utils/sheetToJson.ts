@@ -3,15 +3,16 @@ import { Workbook, Worksheet } from 'exceljs';
 import { v4 as uuid } from 'uuid';
 
 export function sheet2json(sheet: Worksheet): Record<string, string>[] {
+  // 判断列是否设置了key，如果第一列有，那么所有列都有
   const column = sheet.getColumn(1);
   if (!column.key) sheet = setColumnKey(sheet);
 
-  const array: Record<string, string>[] = [];
   const keys = sheet.columns.map((column) => column.key).filter((v) => typeof v === 'string');
 
+  const array: Record<string, string>[] = [];
   sheet.eachRow((row, rowIndex) => {
     if (rowIndex > 1) {
-      const object: Record<string, any> = { uuid: uuid() };
+      const object: Record<string, any> = { uuid: uuid(), _style: {} };
       row.eachCell((cell, colIndex) => {
         // 这里的colIndex是从1开始的，所以数组取值需要减1
         const k = keys[colIndex - 1];
@@ -25,6 +26,9 @@ export function sheet2json(sheet: Worksheet): Record<string, string>[] {
               object[k] = cell.text || '';
             }
           }
+
+          // 记录每个单元格（字段值）的样式
+          object['_style'][k] = cell.style;
         }
       });
       keys.forEach((property) => {

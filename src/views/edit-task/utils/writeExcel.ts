@@ -124,12 +124,14 @@ function writeBase(workbookMap: WorkbookMap, data: Record<string, any>, template
   if (activeModel === 'update') {
     lostProcessid = data.process_id;
 
-    const index = taskList.findIndex((item) => item.id.toString() === updateTaskid.toString());
+    const index = taskList.findIndex((item) => item.id == updateTaskid);
     if (index !== -1) {
       data['base_temp'] = typeof baseTempid === 'undefined' ? taskList[index].base_temp || null : baseTempid;
       data['process_temp'] =
         typeof processTempid === 'undefined' ? taskList[index].process_temp || null : processTempid;
       data['source_temp'] = typeof sourceTempid === 'undefined' ? taskList[index].source_temp || null : sourceTempid;
+      // 设置样式
+      data['_style'] = taskList[index]._style;
 
       taskList.splice(index, 1, data);
     }
@@ -190,6 +192,8 @@ function writeProgress(workbookMap: WorkbookMap, data: Record<string, any>) {
     lostSourceid = process.source_id;
     const index = processList.findIndex((proc) => proc.process_id.toString() === process.process_id.toString());
     if (index !== -1) {
+      // 设置样式
+      process['_style'] = processList[index]._style;
       processList.splice(index, 1, process);
     }
   }

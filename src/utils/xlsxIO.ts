@@ -57,8 +57,27 @@ function jsonToSheet(workbook: Workbook, json: Record<string, string>[], sheet?:
     worksheet.columns = columns.slice(0, firstRow.length);
     worksheet.addRow(firstRow);
     json.forEach((item) => parseString2Number(item));
-    worksheet.addRows(json);
+    const rows = worksheet.addRows(json);
 
+    worksheet.getRow(1).eachCell((cell, index) => {
+      const head = cell.toString();
+      const key = head.split('|')[0];
+      const name = head.split('|')[1];
+      if (key || name) {
+        const column = worksheet.getColumn(index);
+        column.key = key || name;
+      }
+    });
+
+    rows.forEach((row, index) => {
+      const rowJson: Record<string, any> = json[index];
+      row.eachCell({ includeEmpty: true }, (cell) => {
+        const key = worksheet.getColumn(cell.col).key;
+        if (key && rowJson && rowJson._style) {
+          cell.style = rowJson._style[key];
+        }
+      });
+    });
     columnOrderFill(worksheet);
   }
 }
