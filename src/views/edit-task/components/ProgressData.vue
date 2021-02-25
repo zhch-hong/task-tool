@@ -11,12 +11,8 @@
     />
     <el-form label-width="100px">
       <el-form-item label="奖励方式">
-        <el-radio v-model="processForm.get_award_type" label="nor"
-          >普通</el-radio
-        >
-        <el-radio v-model="processForm.get_award_type" label="random"
-          >随机</el-radio
-        >
+        <el-radio v-model="processForm.get_award_type" label="nor">普通</el-radio>
+        <el-radio v-model="processForm.get_award_type" label="random">随机</el-radio>
       </el-form-item>
       <el-form-item label="循环最后阶段">
         <el-switch v-model="lastLoop"> </el-switch>
@@ -25,12 +21,7 @@
         <el-input v-model.trim="processForm.pre_add_process"> </el-input>
       </el-form-item>
     </el-form>
-    <ProgressLine
-      ref="progressLine"
-      :process="process"
-      :awards="awards"
-      :reward-type="processForm.get_award_type"
-    />
+    <ProgressLine ref="progressLine" :process="process" :awards="awards" :reward-type="processForm.get_award_type" />
   </fieldset>
 </template>
 <script lang="ts">

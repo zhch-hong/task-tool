@@ -18,6 +18,7 @@ import { TemplateType } from '@/shims-type';
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
+import { cloneDeep } from 'lodash';
 
 import { readFileText, writeFileText } from '@/utils';
 import store from '@/electron-store';
@@ -66,8 +67,9 @@ export default class TemplateOption extends Vue {
 
   templateChange(value: string): void {
     const temp = this.templateList.find((temp) => temp.uuid === value);
+
     if (temp) {
-      this.$emit('template-data', temp.data);
+      this.$emit('template-data', cloneDeep(temp.data));
       this.$emit('template-uuid', value + '|' + temp.name);
     } else {
       this.$emit('template-uuid', '');
