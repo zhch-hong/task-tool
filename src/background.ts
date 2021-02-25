@@ -101,7 +101,10 @@ app.on('activate', () => {
 app.on('ready', async () => {
   initFile();
 
-  autoUpdater.checkForUpdates();
+  // 生产环境自动更新
+  if (process.env.NODE_ENV === 'production') {
+    autoUpdater.checkForUpdates();
+  }
 
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
