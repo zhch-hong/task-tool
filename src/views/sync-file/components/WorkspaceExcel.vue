@@ -11,6 +11,7 @@
         style="user-select: none"
         node-key="path"
         @node-click="nodeClick"
+        @node-contextmenu="nodeContextmenu"
       >
         <template #default="{ data, node }">
           <div v-if="!statLabel(data)">
@@ -31,7 +32,7 @@
 import fs from 'fs';
 import path from 'path';
 import Vue from 'vue';
-import { workspanceExcel } from '@/utils';
+import { contextmenu, workspanceExcel } from '@/utils';
 
 export default Vue.extend({
   name: 'WorkspaceExcel',
@@ -127,6 +128,10 @@ export default Vue.extend({
         },
         { once: true }
       );
+    },
+
+    nodeContextmenu(event: MouseEvent, data: any): void {
+      contextmenu(data.path);
     },
   },
 });

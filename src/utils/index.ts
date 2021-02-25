@@ -69,3 +69,4 @@ export { stringify, parseString2Number, deleteExisting };
 export { workspanceExcel } from './workspace-excel';
 export { openInExcel, revealInFileExplorer } from './reveal-file-way';
 export { readLastFile } from './lastOpenFile';
+export { contextmenu } from './tree-contextmenu';

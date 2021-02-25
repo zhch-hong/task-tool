@@ -33,10 +33,8 @@
   </div>
 </template>
 <script lang="ts">
-import path from 'path';
 import { statSync } from 'fs';
-import { nativeImage, remote } from 'electron';
-import { getTreeDataDefault, openInExcel, revealInFileExplorer } from '@/utils';
+import { contextmenu, getTreeDataDefault } from '@/utils';
 import { Component, Vue } from 'vue-property-decorator';
 import { ActiveFileModule } from '@/store/modules/active-file';
 import { FileTreeModule } from '@/store/modules/file-tree';
@@ -44,15 +42,11 @@ import { Tree } from 'element-ui';
 import { TreeData } from 'element-ui/types/tree';
 import { cloneDeep } from 'lodash';
 
-import ExcelIcon from '@/assets/contextmenu_icon/icons8-microsoft-excel-2019-21.png';
-import FolderIcon from '@/assets/contextmenu_icon/icons8-folder-21.png';
 import store from '@/electron-store';
 
 interface TreeMeta extends TreeData {
   path: string;
 }
-
-const { Menu, MenuItem } = remote;
 
 @Component
 export default class FileTree extends Vue {
@@ -145,34 +139,7 @@ export default class FileTree extends Vue {
   }
 
   nodeContextmenu(event: MouseEvent, data: TreeMeta): void {
-    const menu = new Menu();
-    const folderIcon = nativeImage.createFromDataURL(FolderIcon);
-    menu.append(
-      new MenuItem({
-        label: '在资源管理器中展示',
-        icon: folderIcon,
-        click: function () {
-          revealInFileExplorer(data.path);
-        },
-      })
-    );
-
-    // menu.append(new MenuItem({ type: 'separator' }));
-
-    if (path.extname(data.path) === '.xlsx' || path.extname(data.path) === '.xls') {
-      const excelIcon = nativeImage.createFromDataURL(ExcelIcon);
-      menu.append(
-        new MenuItem({
-          label: '通过Excel打开',
-          icon: excelIcon,
-          click: function () {
-            openInExcel(data.path);
-          },
-        })
-      );
-    }
-
-    menu.popup();
+    contextmenu(data.path);
   }
 }
 </script>
