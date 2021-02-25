@@ -13,7 +13,7 @@
     "serve": "vue-cli-service electron:serve",
     "build": "vue-cli-service electron:build",
     "lint": "vue-cli-service lint",
-    "build:pub": "vue-cli-service electron:build -p always",
+    "build:pub": "vue-cli-service electron:build -- -p always",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
