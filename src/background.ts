@@ -4,6 +4,7 @@ import { app, protocol, BrowserWindow } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 
+import store from '@/electron-store';
 import { autoUpdater } from '@/ipcMain/upgrade';
 import '@/ipcMain/log';
 
@@ -19,10 +20,19 @@ let win: BrowserWindow | null;
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
 
 function createWindow() {
+  const size = store.get('windowSize') as number[] | string;
+
+  let width = 1632,
+    height = 918;
+  if (Array.isArray(size)) {
+    width = size[0];
+    height = size[1];
+  }
+
   // Create the browser window.
   win = new BrowserWindow({
-    width: 1632,
-    height: 918,
+    width,
+    height,
     titleBarStyle: 'hidden',
     frame: false,
     webPreferences: {
@@ -32,6 +42,8 @@ function createWindow() {
       enableRemoteModule: true,
     },
   });
+
+  if (size === 'maximized') win.maximize();
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
@@ -47,6 +59,23 @@ function createWindow() {
 
   win.on('closed', () => {
     win = null;
+  });
+
+  win.on('resize', () => {
+    if (win) {
+      if (win.isMaximized()) {
+        store.set('windowSize', 'maximized');
+      } else {
+        const size = win.getSize();
+        store.set('windowSize', size);
+      }
+    }
+  });
+  win.on('resized', () => {
+    if (win) {
+      const size = win.getSize();
+      store.set('windowSize', size);
+    }
   });
 }
 
