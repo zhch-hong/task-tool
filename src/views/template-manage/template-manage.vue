@@ -32,10 +32,11 @@ import { ChangedMapModule } from '@/store/modules/changed-map';
 import { NProgress } from '@/plugins/nprogress';
 import nProgress from 'nprogress';
 
+import store from '@/electron-store';
+
 import NodeItem from './components/NodeItem.vue';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import { cloneDeep } from 'lodash';
-import { configDir, workDir } from '@/asserts/dir-config';
 
 interface TreeMeta extends TreeData {
   uuid: string;
@@ -165,7 +166,7 @@ export default class TemplateManage extends Vue {
     const type = node.parent?.data.value;
     if (typeof type === 'undefined') return;
 
-    const path = resolve(resolve(configDir, 'app_config'), `template-manage.json`);
+    const path = resolve(resolve(store.get('configDir') as string, 'app_config'), `template-manage.json`);
     const object: Record<string, Record<string, any>[]> = readFileText(path);
 
     const index = object[type].findIndex((el) => el.uuid === templateId);
@@ -211,7 +212,7 @@ export default class TemplateManage extends Vue {
   }
 
   nameSlice(data: TreeMeta): string {
-    if (data.type === 'path') return data.name.slice(workDir.length + 1);
+    if (data.type === 'path') return data.name.slice((store.get('workDir') as string).length + 1);
     return data.name;
   }
 }

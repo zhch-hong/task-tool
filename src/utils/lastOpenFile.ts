@@ -1,11 +1,8 @@
-import { getUserconfig } from '@/asserts/userconfig';
+import store from '@/electron-store';
 import { ActiveFileModule } from '@/store/modules/active-file';
 
 export function readLastFile(): Promise<string> {
-  // 从配置文件读取最后一次打开的文件
-  const object: Record<string, string> = getUserconfig();
-
-  const { lastOpenFile } = object;
+  const lastOpenFile = store.get('lastOpenFile') as string | undefined;
 
   if (!lastOpenFile) {
     return Promise.reject();

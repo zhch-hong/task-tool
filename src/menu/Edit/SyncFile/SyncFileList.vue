@@ -24,10 +24,10 @@
 </template>
 <script lang="ts">
 import Vue from 'vue';
+import store from '@/electron-store';
 import { getTreeData } from '@/utils';
 import { TreeData } from 'element-ui/types/tree';
 import { Tree } from 'element-ui';
-import { workDir } from '@/asserts/dir-config';
 import { SyncFileModule } from '@/store/modules/sync-file';
 
 interface TreeMeta extends TreeData {
@@ -77,6 +77,8 @@ export default Vue.extend({
   methods: {
     getTreeData() {
       if (!this.fileName) return;
+
+      const workDir = store.get('workDir') as string;
 
       const data = [
         {

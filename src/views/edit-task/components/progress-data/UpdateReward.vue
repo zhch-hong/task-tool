@@ -1,9 +1,5 @@
 <template>
-  <el-dialog
-    :visible.sync="visiblesync"
-    :close-on-click-modal="false"
-    @closed="closed"
-  >
+  <el-dialog :visible.sync="visiblesync" :close-on-click-modal="false" @closed="closed">
     <el-form ref="rulesForm" :model="form" :rules="rules" label-width="100px">
       <el-form-item label="奖励名称" prop="award_name">
         <el-input v-model="form.award_name"></el-input>
@@ -18,40 +14,22 @@
             :label="option.name"
             :value="option.value"
           >
-            <span style="float: left; margin-right: 20px">{{
-              option.name
-            }}</span>
-            <span style="float: right; color: #8492a6; font-size: 13px">{{
-              option.value
-            }}</span></el-option
+            <span style="float: left; margin-right: 20px">{{ option.name }}</span>
+            <span style="float: right; color: #8492a6; font-size: 13px">{{ option.value }}</span></el-option
           >
         </el-select>
       </el-form-item>
       <el-form-item label="数量" prop="asset_count">
         <el-input v-model="form.asset_count"></el-input>
       </el-form-item>
-      <el-form-item
-        v-if="rewardType === 'random'"
-        label="权重"
-        prop="get_weight"
-      >
+      <el-form-item v-if="rewardType === 'random'" label="权重" prop="get_weight">
         <el-input v-model="form.get_weight"></el-input>
       </el-form-item>
       <el-form-item label="广播">
-        <el-switch
-          v-model="form.broadcast_content"
-          :active-value="1"
-          :inactive-value="0"
-        >
-        </el-switch>
+        <el-switch v-model="form.broadcast_content" :active-value="1" :inactive-value="0"> </el-switch>
       </el-form-item>
       <el-form-item label="邮件">
-        <el-switch
-          v-model="form.is_send_email"
-          :active-value="1"
-          :inactive-value="0"
-        >
-        </el-switch>
+        <el-switch v-model="form.is_send_email" :active-value="1" :inactive-value="0"> </el-switch>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -65,9 +43,10 @@ import { cloneDeep } from 'lodash';
 import { Form } from 'element-ui';
 import { resolve } from 'path';
 
-import DialogFooter from '@/components/DialogFooter.vue';
+import store from '@/electron-store';
 import { readFileText } from '@/utils';
-import { configDir } from '@/asserts/dir-config';
+
+import DialogFooter from '@/components/DialogFooter.vue';
 
 const form: Record<string, any> = {
   award_name: '',
@@ -78,7 +57,7 @@ const form: Record<string, any> = {
   is_send_email: false,
 };
 
-const filePath = resolve(configDir, 'app_config', 'input-manage.json');
+const filePath = resolve(store.get('configDir') as string, 'app_config', 'input-manage.json');
 
 @Component({
   components: { DialogFooter },
@@ -88,10 +67,7 @@ export default class UpdateReward extends Vue {
     rulesForm: Form;
   };
 
-  @Prop({ type: Object, default: () => cloneDeep(form) }) propRow!: Record<
-    string,
-    any
-  >;
+  @Prop({ type: Object, default: () => cloneDeep(form) }) propRow!: Record<string, any>;
   @Prop({ type: String, required: true }) rewardType!: string;
   @PropSync('visible', { type: Boolean, required: true }) visiblesync!: boolean;
 

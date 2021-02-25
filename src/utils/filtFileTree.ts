@@ -2,16 +2,16 @@ import { resolve } from 'path';
 import fs, { readdirSync, statSync } from 'fs';
 import { TreeData } from 'element-ui/types/tree';
 import { readFileText } from './fileSystem';
-import { configDir, workDir } from '@/asserts/dir-config';
+import store from '@/electron-store';
 
 interface TreeMeta extends TreeData {
   path: string;
 }
 
-const path = resolve(resolve(configDir, 'app_config'), 'file-manage.json');
+const path = resolve(resolve(store.get('configDir') as string, 'app_config'), 'file-manage.json');
 let dataMemory: TreeMeta[] | null = null;
 
-export function getTreeData(path: string = workDir, fileList: string[] = []): TreeMeta[] {
+export function getTreeData(path: string = store.get('workDir') as string, fileList: string[] = []): TreeMeta[] {
   const array: TreeMeta[] = [];
   const dirs = readdirSync(path);
   dirs.forEach((dir) => {
@@ -62,7 +62,7 @@ export function getTreeDataDefault(): TreeMeta[] {
 
   const fileList = array.map((item) => item.file);
 
-  dataMemory = getTreeData(workDir, fileList);
+  dataMemory = getTreeData(store.get('workDir') as string, fileList);
 
   return dataMemory;
 }

@@ -36,10 +36,8 @@
 import path from 'path';
 import { statSync } from 'fs';
 import { nativeImage, remote } from 'electron';
-import { getUserconfig } from '@/asserts/userconfig';
-import { getTreeDataDefault, openInExcel, revealInFileExplorer, writeFileText } from '@/utils';
+import { getTreeDataDefault, openInExcel, revealInFileExplorer } from '@/utils';
 import { Component, Vue } from 'vue-property-decorator';
-import { dirConfigPath } from '@/asserts/dir-config';
 import { ActiveFileModule } from '@/store/modules/active-file';
 import { FileTreeModule } from '@/store/modules/file-tree';
 import { Tree } from 'element-ui';
@@ -48,6 +46,7 @@ import { cloneDeep } from 'lodash';
 
 import ExcelIcon from '@/assets/contextmenu_icon/icons8-microsoft-excel-2019-21.png';
 import FolderIcon from '@/assets/contextmenu_icon/icons8-folder-21.png';
+import store from '@/electron-store';
 
 interface TreeMeta extends TreeData {
   path: string;
@@ -78,9 +77,7 @@ export default class FileTree extends Vue {
   }
 
   setLastOpenFilePath(path: string): void {
-    const object = getUserconfig();
-    object.lastOpenFile = path;
-    writeFileText(dirConfigPath, object);
+    store.set('lastOpenFile', path);
   }
 
   nodeClick(data: TreeMeta): void {

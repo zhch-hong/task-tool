@@ -7,9 +7,9 @@
 import { resolve } from 'path';
 import { Component, Vue } from 'vue-property-decorator';
 
-import ConfigTable from './components/ConfigTable.vue';
+import store from '@/electron-store';
 
-import { configDir } from '@/asserts/dir-config';
+import ConfigTable from './components/ConfigTable.vue';
 
 @Component({
   components: {
@@ -17,6 +17,6 @@ import { configDir } from '@/asserts/dir-config';
   },
 })
 export default class FileManage extends Vue {
-  configPath = resolve(configDir, 'app_config', 'file-manage.json');
+  configPath = resolve(store.get('configDir') as string, 'app_config', 'file-manage.json');
 }
 </script>

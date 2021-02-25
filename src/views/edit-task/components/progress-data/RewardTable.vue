@@ -30,10 +30,10 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { resolve } from 'path';
 import { readFileText } from '@/utils';
 
+import store from '@/electron-store';
 import UpdateReward from './UpdateReward.vue';
-import { configDir } from '@/asserts/dir-config';
 
-const path = resolve(configDir, 'app_config', 'input-manage.json');
+const path = resolve(store.get('configDir') as string, 'app_config', 'input-manage.json');
 
 const inputList: Record<string, any>[] | undefined = readFileText(path);
 const assetData = inputList ? inputList.find((item) => item.value === 'asset') : null;

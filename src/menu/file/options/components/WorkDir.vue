@@ -14,9 +14,9 @@
 </template>
 <script lang="ts">
 import Vue from 'vue';
+import store from '@/electron-store';
 import { remote } from 'electron';
-import { readFileSync, writeFileSync, statSync } from 'fs';
-import { workDir, dirConfigPath } from '@/asserts/dir-config';
+import { statSync } from 'fs';
 
 const { app, dialog, getCurrentWindow } = remote;
 
@@ -25,7 +25,7 @@ export default Vue.extend({
 
   data() {
     return {
-      path: workDir,
+      path: store.get('workDir') as string,
     };
   },
 
@@ -37,7 +37,7 @@ export default Vue.extend({
           this.relaunch();
         } else {
           dialog.showErrorBox('无效路径', '该路径无效，请重新选择');
-          this.path = workDir;
+          this.path = store.get('workDir') as string;
         }
       },
     },
@@ -60,9 +60,7 @@ export default Vue.extend({
     },
 
     relaunch(): void {
-      const config: Record<string, string> = JSON.parse(readFileSync(dirConfigPath).toString());
-      config.workDir = this.path;
-      writeFileSync(dirConfigPath, Buffer.from(JSON.stringify(config)));
+      store.set('workDir', this.path);
 
       setTimeout(() => {
         const win = getCurrentWindow();

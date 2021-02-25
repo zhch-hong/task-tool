@@ -1,15 +1,8 @@
 <template>
   <el-select v-model="selectvalue" filterable allow-create>
-    <el-option
-      v-for="opt in options"
-      :key="opt.value"
-      :value="opt.value"
-      :label="opt.name"
-    >
+    <el-option v-for="opt in options" :key="opt.value" :value="opt.value" :label="opt.name">
       <span style="float: left; margin-right: 20px">{{ opt.name }}</span>
-      <span style="float: right; color: #8492a6; font-size: 13px">{{
-        opt.value
-      }}</span></el-option
+      <span style="float: right; color: #8492a6; font-size: 13px">{{ opt.value }}</span></el-option
     >
   </el-select>
 </template>
@@ -17,10 +10,10 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { resolve } from 'path';
 
+import store from '@/electron-store';
 import { readFileText } from '@/utils';
-import { configDir } from '@/asserts/dir-config';
 
-const filePath = resolve(configDir, 'app_config', 'input-manage.json');
+const filePath = resolve(store.get('configDir') as string, 'app_config', 'input-manage.json');
 
 @Component
 export default class TaskEnum extends Vue {

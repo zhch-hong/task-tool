@@ -14,10 +14,10 @@
 </template>
 <script lang="ts">
 import Vue from 'vue';
+import store from '@/electron-store';
 import { remote } from 'electron';
 import { readFileSync, writeFileSync, statSync } from 'fs';
 import { exec } from 'child_process';
-import { configDir, dirConfigPath } from '@/asserts/dir-config';
 
 const { app, dialog, getCurrentWindow } = remote;
 
@@ -26,7 +26,7 @@ export default Vue.extend({
 
   data() {
     return {
-      path: configDir,
+      path: store.get('configDir') as string,
     };
   },
 
@@ -38,7 +38,7 @@ export default Vue.extend({
           this.relaunch();
         } else {
           dialog.showErrorBox('无效路径', '该路径无效，请重新选择');
-          this.path = configDir;
+          this.path = store.get('configDir') as string;
         }
       },
     },
@@ -61,13 +61,11 @@ export default Vue.extend({
     },
 
     relaunch(): void {
-      const config: Record<string, string> = JSON.parse(readFileSync(dirConfigPath).toString());
-      config.configDir = this.path;
-      writeFileSync(dirConfigPath, Buffer.from(JSON.stringify(config)));
+      store.set('configDir', this.path);
 
-      exec(`xcopy /e ${configDir}\\app_config\\ ${this.path}\\app_config\\`, (error) => {
+      exec(`xcopy /e ${store.get('configDir')}\\app_config\\ ${this.path}\\app_config\\`, (error) => {
         if (error) throw error;
-        exec(`rmdir /s /q ${configDir}\\app_config`, (errorⅡ) => {
+        exec(`rmdir /s /q ${store.get('configDir')}\\app_config`, (errorⅡ) => {
           if (errorⅡ) throw errorⅡ;
           const win = getCurrentWindow();
           win.focus();

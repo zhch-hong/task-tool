@@ -41,7 +41,7 @@ import { remote } from 'electron';
 import store from '@/store';
 import { writeExcel } from './utils/writeExcel';
 import { WorkspacedModule } from '@/store/modules/workspaced';
-import { readLastFile } from '@/asserts/lastOpenFile';
+import { readLastFile } from '@/utils';
 import { ActiveFileModule } from '@/store/modules/active-file';
 
 import BaseData from './components/BaseData.vue';

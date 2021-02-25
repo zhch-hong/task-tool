@@ -14,8 +14,6 @@ import './plugins/vxe-table';
 import './plugins/vue-notification';
 import './plugins/custom-electron-titlebar';
 
-import '@/asserts/initAppConfigFile';
-
 import '@/assets/font/iconfont.css';
 
 import './styles/index.scss';

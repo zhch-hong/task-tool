@@ -20,9 +20,9 @@ import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
 
 import { readFileText, writeFileText } from '@/utils';
-import { configDir } from '@/asserts/dir-config';
+import store from '@/electron-store';
 
-const path = resolve(resolve(configDir, 'app_config'), `template-manage.json`);
+const path = resolve(resolve(store.get('configDir') as string, 'app_config'), `template-manage.json`);
 
 function readTemplate(type: TemplateType): Record<string, any>[] {
   const object = readFileText(path);

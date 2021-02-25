@@ -32,9 +32,9 @@ import { readFileText } from '@/utils';
 
 import SourceItem from './source-data/SourceItem.vue';
 import TemplateOption from './TemplateOption.vue';
-import { configDir } from '@/asserts/dir-config';
+import store from '@/electron-store';
 
-const filePath = resolve(configDir, 'app_config', 'source-manage.json');
+const filePath = resolve(store.get('configDir') as string, 'app_config', 'source-manage.json');
 const readContent = readFileText(filePath);
 const sourcetypeList: Record<string, any>[] = readContent ? readFileText(filePath)[0].children : [];
 

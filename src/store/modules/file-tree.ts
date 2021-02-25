@@ -1,28 +1,19 @@
-import {
-  Action,
-  getModule,
-  Module,
-  Mutation,
-  VuexModule,
-} from 'vuex-module-decorators';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from '@/store';
-import { dirConfigPath } from '@/asserts/dir-config';
+import ElectronStore from '@/electron-store';
 import { readFileText, writeFileText } from '@/utils';
 
-const object: Record<PropertyKey, any> = readFileText(dirConfigPath);
-
 function readDefaultExpanedKeys(): string[] {
-  if (typeof object.expandedKeys !== 'undefined') {
-    return object.expandedKeys;
+  const expandedKeys = ElectronStore.get('expandedKeys') as string[];
+  if (typeof expandedKeys !== 'undefined') {
+    return expandedKeys;
   }
 
   return [];
 }
 
 function writeDefaultExpanedKeys(params: string[]) {
-  object.expandedKeys = params;
-
-  writeFileText(dirConfigPath, object);
+  ElectronStore.set('expandedKeys', params);
 }
 
 @Module({ dynamic: true, store, name: 'fileTree' })

@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import store from '@/electron-store';
 
-import { workDir } from '@/asserts/dir-config';
-
-function workspanceExcel(dirPath: string = workDir) {
+function workspanceExcel(dirPath: string = store.get('workDir') as string) {
   const array: Array<Record<string, any>> = [];
   const dirs = fs.readdirSync(dirPath);
   dirs.forEach((dir) => {

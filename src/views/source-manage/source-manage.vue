@@ -18,21 +18,15 @@
           @remove="remove(node, data)"
         >
           <span v-if="data.type === 'root'"
-            ><i class="el-icon-s-promotion" style="margin-right: 2px"></i
-            >{{ node.label }}</span
+            ><i class="el-icon-s-promotion" style="margin-right: 2px"></i>{{ node.label }}</span
           >
           <span v-else-if="data.type === 'source'"
-            ><i class="el-icon-menu" style="margin-right: 2px"></i
-            >{{ node.label }}</span
+            ><i class="el-icon-menu" style="margin-right: 2px"></i>{{ node.label }}</span
           >
           <span v-else-if="data.type === 'condition'"
-            ><i class="el-icon-s-operation" style="margin-right: 2px"></i
-            >{{ node.label }}</span
+            ><i class="el-icon-s-operation" style="margin-right: 2px"></i>{{ node.label }}</span
           >
-          <span v-else
-            ><i class="el-icon-tickets" style="margin-right: 2px"></i
-            >{{ node.label }}</span
-          >
+          <span v-else><i class="el-icon-tickets" style="margin-right: 2px"></i>{{ node.label }}</span>
         </NodeItem>
       </template>
     </el-tree>
@@ -58,18 +52,18 @@ import { TreeData, TreeNode } from 'element-ui/types/tree';
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
 
+import store from '@/electron-store';
 import { readFileText, writeFileText } from '@/utils';
 
 import UpdateNode from './components/UpdateNode.vue';
 import NodeItem from './components/NodeItem.vue';
-import { configDir } from '@/asserts/dir-config';
 
 interface TreeMeta extends TreeData {
   uuid?: string;
   type?: string;
 }
 
-const filePath = resolve(configDir, 'app_config', 'source-manage.json');
+const filePath = resolve(store.get('configDir') as string, 'app_config', 'source-manage.json');
 
 @Component({
   components: {
@@ -168,10 +162,7 @@ export default class SourceManage extends Vue {
     writeFileText(filePath, this.treeData);
   }
 
-  nodeDrop(
-    before: TreeNode<string, TreeMeta>,
-    after: TreeNode<string, TreeMeta>
-  ): void {
+  nodeDrop(before: TreeNode<string, TreeMeta>, after: TreeNode<string, TreeMeta>): void {
     if (before.level === 1 || after.level === 1) {
       this.loadTreeData();
     }

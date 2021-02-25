@@ -15,6 +15,7 @@
     "core-js": "^3.8.3",
     "custom-electron-titlebar": "^3.2.6",
     "electron-log": "^4.3.1",
+    "electron-store": "^7.0.2",
     "electron-updater": "^4.3.5",
     "element-ui": "^2.15.0",
     "exceljs": "^4.2.0",

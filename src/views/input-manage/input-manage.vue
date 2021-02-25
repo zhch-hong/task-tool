@@ -11,11 +11,7 @@
         <tab-item :table-data="assetData" @update-data="updateAsset" />
       </el-tab-pane>
     </el-tabs>
-    <CreateConfig
-      :visible="createConfig"
-      @update:visible="(v) => (createConfig = v)"
-      @submit="appendRow"
-    />
+    <CreateConfig :visible="createConfig" @update:visible="(v) => (createConfig = v)" @submit="appendRow" />
   </div>
 </template>
 <script lang="ts">
@@ -23,13 +19,13 @@ import { Component, Vue } from 'vue-property-decorator';
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
 
+import store from '@/electron-store';
 import { readFileText, writeFileText } from '@/utils';
 
 import TabItem from './components/TabItem.vue';
 import CreateConfig from './components/CreateConfig.vue';
-import { configDir } from '@/asserts/dir-config';
 
-const path = resolve(configDir, 'app_config', 'input-manage.json');
+const path = resolve(store.get('configDir') as string, 'app_config', 'input-manage.json');
 
 @Component({
   components: {
@@ -117,9 +113,7 @@ export default class InputManage extends Vue {
 
   writeFile(): void {
     this.data.forEach((item) => {
-      item.select.forEach(
-        (object: Record<string, string>) => delete object.uuid
-      );
+      item.select.forEach((object: Record<string, string>) => delete object.uuid);
     });
     writeFileText(path, this.data);
   }

@@ -46,7 +46,7 @@ import { cloneDeep } from 'lodash';
 import { InterceptorKeydownParams, RowInfo, Table } from 'vxe-table';
 import { bind, unbind } from 'mousetrap';
 import { v4 as uuid } from 'uuid';
-import { readLastFile } from '@/asserts/lastOpenFile';
+import { readLastFile } from '@/utils';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import {
   getLostAwardId,

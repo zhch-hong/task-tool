@@ -1,14 +1,12 @@
 <template>
-  <span class="explorer-path" :title="path" @click="linkExplorer($event)">{{
-    explorerpath
-  }}</span>
+  <span class="explorer-path" :title="path" @click="linkExplorer($event)">{{ explorerpath }}</span>
 </template>
 <script lang="ts">
+import store from '@/electron-store';
 import { Component, Vue } from 'vue-property-decorator';
 import { shell } from 'electron';
 
 import { ActiveFileModule } from '@/store/modules/active-file';
-import { workDir } from '@/asserts/dir-config';
 
 @Component
 export default class ExplorerPath extends Vue {
@@ -17,7 +15,7 @@ export default class ExplorerPath extends Vue {
   }
 
   get explorerpath(): string {
-    return this.path.slice(workDir.length + 1);
+    return this.path.slice((store.get('workDir') as string).length + 1);
   }
 
   linkExplorer(event: MouseEvent): void {
