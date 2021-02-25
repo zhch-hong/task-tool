@@ -1,10 +1,4 @@
-import {
-  Action,
-  getModule,
-  Module,
-  Mutation,
-  VuexModule,
-} from 'vuex-module-decorators';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import store from '@/store';
 import { LostIdModule } from './lost-id';
 import { WorkspacedModule } from './workspaced';
@@ -28,6 +22,10 @@ class ActiveFile extends VuexModule {
       .catch((error: Error) => {
         throw error;
       });
+  }
+
+  get currentPath(): string {
+    return this.path;
   }
 }
 

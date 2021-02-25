@@ -33,9 +33,9 @@
   </div>
 </template>
 <script lang="ts">
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import { statSync } from 'fs';
 import { contextmenu, getTreeDataDefault } from '@/utils';
-import { Component, Vue } from 'vue-property-decorator';
 import { ActiveFileModule } from '@/store/modules/active-file';
 import { FileTreeModule } from '@/store/modules/file-tree';
 import { Tree } from 'element-ui';
@@ -58,7 +58,17 @@ export default class FileTree extends Vue {
     path: 'path',
   };
   defaultExpandedKeys = cloneDeep(FileTreeModule.expandedKeys);
-  currentNodeKey = ActiveFileModule.path;
+
+  get currentNodeKey(): string {
+    return ActiveFileModule.currentPath;
+  }
+
+  @Watch('currentNodeKey', { immediate: true })
+  currentNodeKeyWatch(value: string): void {
+    if (this.$refs.tree && value) {
+      (this.$refs.tree as Tree).setCurrentKey(value);
+    }
+  }
 
   mounted(): void {
     this.refresh();
