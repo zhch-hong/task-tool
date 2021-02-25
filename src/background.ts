@@ -54,8 +54,6 @@ function createWindow() {
     createProtocol('app');
     // Load the index.html when not in development
     win.loadURL('app://./index.html');
-
-    // autoUpdater.checkForUpdates();
   }
 
   win.on('closed', () => {
@@ -102,6 +100,8 @@ app.on('activate', () => {
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
   initFile();
+
+  autoUpdater.checkForUpdates();
 
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
