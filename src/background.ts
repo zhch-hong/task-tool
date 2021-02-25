@@ -8,7 +8,7 @@ import store from '@/electron-store';
 import { autoUpdater } from '@/ipcMain/upgrade';
 import '@/ipcMain/log';
 
-import { initFile } from '@/ProcessMain/init-config';
+import { initFile } from '@/processMain/init-config';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -20,8 +20,8 @@ let win: BrowserWindow | null;
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
 
 function createWindow() {
+  // 设置窗口大小
   const size = store.get('windowSize') as number[] | string;
-
   let width = 1632,
     height = 918;
   if (Array.isArray(size)) {
@@ -43,6 +43,7 @@ function createWindow() {
     },
   });
 
+  // 窗口最大化
   if (size === 'maximized') win.maximize();
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
