@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "main": "background.js",
+  "author": {
+    "name": "zch",
+    "email": "zhch_hong@163.com",
+    "url": "https://github.com/zhch-hong"
+  },
+  "description": "任务配置工具",
   "scripts": {
     "serve": "vue-cli-service electron:serve",
     "build": "vue-cli-service electron:build",
