@@ -1,6 +1,6 @@
 <template>
   <div id="edit-task">
-    <div style="margin-bottom: 10px">
+    <div style="padding: 5px 10px; box-shadow: 0 0 4px 0 #e2e2e2">
       <el-button :loading="loading" @click="handleSave" title="Ctrl+S" type="primary">保存任务</el-button>
       <el-button @click="$router.push('/edit-file')">返回</el-button>
     </div>
