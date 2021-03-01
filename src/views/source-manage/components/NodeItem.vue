@@ -1,40 +1,12 @@
 <template>
-  <div>
-    <div ref="treeLabel" @contextmenu.prevent="contextmenu">
-      <slot></slot>
-    </div>
-    <ul ref="contextMenu" class="content-menu">
-      <!-- 根节点 -->
-      <template v-if="treeData.type === 'root'">
-        <li @click.stop="onclickNode('append')">添加来源</li>
-        <li @click.stop="onclickNode('remove')">删除所有来源</li>
-      </template>
-      <!-- 条件来源 -->
-      <template v-else-if="treeData.type === 'source'">
-        <li @click.stop="onclickNode('update')">编辑来源</li>
-        <li @click.stop="onclickNode('remove')">删除来源</li>
-        <li @click.stop="onclickNode('append')">添加条件</li>
-      </template>
-      <!-- 条件名称 -->
-      <template v-else-if="treeData.type === 'condition'">
-        <li @click.stop="onclickNode('update')">编辑条件</li>
-        <li @click.stop="onclickNode('remove')">删除条件</li>
-        <li @click.stop="onclickNode('append')">添加条件值</li>
-      </template>
-      <!-- 条件值 -->
-      <template v-else-if="treeData.type === 'value'">
-        <li @click.stop="onclickNode('update')">编辑条件值</li>
-        <li @click.stop="onclickNode('remove')">删除条件值</li>
-      </template>
-    </ul>
+  <div @contextmenu.prevent="contextmenu">
+    <slot></slot>
   </div>
 </template>
 <script lang="ts">
 import Vue, { PropType } from 'vue';
-import { TreeData, TreeNode } from 'element-ui/types/tree';
-
-import tippy, { followCursor, Instance } from 'tippy.js';
-import 'tippy.js/dist/tippy.css'; // optional for styling
+import electron from 'electron';
+import { TreeData } from 'element-ui/types/tree';
 
 interface TreeMeta extends TreeData {
   uuid?: string;
@@ -45,76 +17,55 @@ export default Vue.extend({
   name: 'NodeItem',
 
   props: {
-    treeNode: {
-      type: Object as PropType<TreeNode<string, TreeMeta>>,
-      required: true,
-    },
     treeData: {
       type: Object as PropType<TreeMeta>,
       required: true,
     },
   },
 
-  data() {
-    return {
-      tippyInstance: null as Instance | null,
-    };
-  },
-
-  mounted() {
-    this.initPopper();
-  },
-
   methods: {
     contextmenu() {
-      if (this.tippyInstance !== null) {
-        this.tippyInstance.show();
+      const { Menu } = electron.remote;
+      const menu = new Menu();
+
+      if (this.treeData.type === 'root') {
+        const c = this.generateMenuItem('添加来源', 'append');
+        const d = this.generateMenuItem('删除所有来源', 'remove');
+        menu.append(c);
+        menu.append(d);
+      } else if (this.treeData.type === 'source') {
+        const u = this.generateMenuItem('编辑来源', 'update');
+        const d = this.generateMenuItem('删除来源', 'delete');
+        const c = this.generateMenuItem('添加条件', 'append');
+        menu.append(u);
+        menu.append(d);
+        menu.append(c);
+      } else if (this.treeData.type === 'condition') {
+        const u = this.generateMenuItem('编辑条件', 'update');
+        const d = this.generateMenuItem('删除条件', 'delete');
+        const c = this.generateMenuItem('添加条件值', 'append');
+        menu.append(u);
+        menu.append(d);
+        menu.append(c);
+      } else if (this.treeData.type === 'value') {
+        const u = this.generateMenuItem('编辑条件值', 'update');
+        const d = this.generateMenuItem('删除条件值', 'delete');
+        menu.append(u);
+        menu.append(d);
       }
+
+      menu.popup();
     },
 
-    onclickNode(value: string) {
-      if (this.tippyInstance !== null) {
-        this.tippyInstance.hide();
-        this.$emit(value);
-      }
-    },
-
-    initPopper(): void {
-      const element = this.$refs.treeLabel as Element;
-      this.tippyInstance = tippy(element, {
-        content: this.$refs.contextMenu as Element,
-        plugins: [followCursor],
-        arrow: false,
-        followCursor: 'initial',
-        interactive: true,
-        trigger: 'manual',
-        theme: 'tomato',
-        placement: 'bottom-end',
+    generateMenuItem(label: string, type: string) {
+      const { MenuItem } = electron.remote;
+      return new MenuItem({
+        label,
+        click: () => {
+          this.$emit(type);
+        },
       });
     },
   },
 });
 </script>
-<style lang="scss" scoped>
-.content-menu {
-  box-sizing: border-box;
-  min-width: 150px;
-  min-height: 180px;
-  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.5);
-  z-index: 1;
-  background-color: #f2f2f2;
-  padding: 0;
-  margin: 0;
-  list-style-type: none;
-  li {
-    padding: 2px 8px;
-    margin: 2px 0;
-    font-size: 14px;
-    cursor: default;
-    line-height: 1.8;
-    &:hover {
-      background-color: white;
-    }
-  }
-}
-</style>
