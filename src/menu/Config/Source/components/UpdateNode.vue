@@ -3,6 +3,7 @@
     :visible.sync="visiblesync"
     :close-on-click-modal="false"
     :title="title"
+    append-to-body
     @closed="closed"
     width="25vw"
   >

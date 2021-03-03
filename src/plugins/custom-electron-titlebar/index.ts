@@ -15,6 +15,7 @@ import {
   findNext,
   findPrev,
   fileManage,
+  sourceManage,
 } from '@/menu';
 
 const { Menu, getCurrentWindow } = remote;
@@ -136,6 +137,10 @@ const menu = Menu.buildFromTemplate([
       {
         label: '文件管理',
         click: fileManage,
+      },
+      {
+        label: '来源管理',
+        click: sourceManage,
       },
     ],
   },
