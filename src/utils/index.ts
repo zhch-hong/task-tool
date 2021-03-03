@@ -58,7 +58,7 @@ function stringify(params: any) {
 
 export { getSheet } from './likeSheet';
 export { readFileText, writeFileText, readFileBinary, writeFileBinary } from '@/utils/fileSystem';
-export { getTreeData, getTreeDataDefault } from './filtFileTree';
+export { getTreeData, DATA_MEMORY } from './resource-tree';
 export { propertySlice } from './propertySlice';
 export { sheet2json, workbook2map } from './sheetToJson';
 export { setColumnKey } from './setColumnKey';

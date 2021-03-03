@@ -55,7 +55,9 @@ import {
   getLostSourceId,
   getLostTaskId,
 } from '@/store/modules/lost-id';
-import store from '@/store';
+import { TableScrollModule } from '@/store/modules/table-scroll';
+import { CopyTaskModule } from '@/store/modules/copy-task';
+import { ActiveTaskModule } from '@/store/modules/active-task';
 import { ActiveFileModule } from '@/store/modules/active-file';
 import { ChangedMapModule } from '@/store/modules/changed-map';
 import { ViewResizeModule } from '@/store/modules/veiw-resize';
@@ -202,7 +204,7 @@ export default Vue.extend({
 
     updateRow(index: number): void {
       const row = this.tableData[index];
-      store.commit('updateTaskId', row.id);
+      ActiveTaskModule.SET_TASKID(row.id);
       this.$router.push('/edit-task');
     },
 
@@ -265,7 +267,7 @@ export default Vue.extend({
                 copyList.push(object);
 
                 if (index === idList.length - 1) {
-                  store.commit('copyTaskList', copyList);
+                  CopyTaskModule.SET_TASKLIST(copyList);
                   resolve();
                 }
               });
@@ -289,7 +291,7 @@ export default Vue.extend({
     },
 
     async pasteTask(): Promise<void> {
-      let copyTaskList = store.state.copyTaskList;
+      let copyTaskList = CopyTaskModule.taskList;
 
       copyTaskList = cloneDeep(copyTaskList);
       if (!copyTaskList) {
@@ -373,7 +375,7 @@ export default Vue.extend({
      */
     afterPasteTask(): Promise<void> {
       return new Promise<void>((resolve, reject) => {
-        const copyTaskList = store.state.copyTaskList;
+        const copyTaskList = CopyTaskModule.taskList;
         if (copyTaskList && copyTaskList.length !== 0) {
           const length = copyTaskList.length;
           const scrollIndex = this.tableData.length - length;
@@ -556,13 +558,13 @@ export default Vue.extend({
 
     storageTableScroll(): void {
       const scroll = (this.$refs.vxeTable as Table).getScroll();
-      store.commit('taskTableScroll', scroll);
+      TableScrollModule.SET_SCROLL(scroll);
     },
 
     setTableScroll(): Promise<void> {
-      const scroll = store.state.taskTableScroll;
+      const scroll = TableScrollModule.scroll;
       if (scroll) {
-        return (this.$refs.vxeTable as Table).scrollTo(scroll.scrollLeft, scroll.scrollTop);
+        return (this.$refs.vxeTable as Table).scrollTo(scroll.scrollLeft as number, scroll.scrollTop as number);
       }
       return Promise.reject();
     },

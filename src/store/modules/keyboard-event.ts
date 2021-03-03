@@ -1,7 +1,7 @@
+import store from '..';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import store from '@/store';
 
-@Module({ dynamic: true, store, name: 'keyboardEvent' })
+@Module({ name: 'keyboardEvent', store, dynamic: true })
 class KeyboardEvent extends VuexModule {
   private keyMaps: Map<string, Array<() => void>> = new Map();
 
@@ -25,7 +25,7 @@ class KeyboardEvent extends VuexModule {
     }
   }
 
-  @Action
+  @Action({ rawError: true })
   public registerKeyboard(payload: { key: string; handles: Array<() => void> }): void {
     this.REGISTER_KEYBOARD(payload);
   }

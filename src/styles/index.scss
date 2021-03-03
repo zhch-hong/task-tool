@@ -47,11 +47,43 @@ div.titlebar {
 }
 
 /* Dialog */
-.el-dialog__title {
-  color: #57585c;
-  letter-spacing: 1px;
-  font-size: 18px;
-  font-weight: 600;
+.el-dialog__header {
+  position: relative;
+  padding: 4px 8px;
+  background-color: #0070cc;
+  color: white;
+
+  .el-dialog__title {
+    color: inherit;
+    font-size: 14px;
+    cursor: default;
+    user-select: none;
+  }
+  .el-dialog__headerbtn {
+    height: 100%;
+    width: 40px;
+    right: 0;
+    top: 0;
+    cursor: pointer;
+    &:hover {
+      background: red;
+    }
+    .el-dialog__close {
+      color: white;
+    }
+  }
+}
+.el-dialog__body {
+  padding: 20px 10px;
+}
+.el-dialog__footer {
+  padding: 10px;
+  box-shadow: 0 0 2px 0 #cccccc;
+}
+.el-dialog__custom-class {
+  box-shadow: 0 0 15px 0 rgba(128, 128, 128, 0.8);
+  border: 1px solid #bfbfbf;
+  border-radius: 0px;
 }
 
 /* Tree */

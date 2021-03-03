@@ -1,11 +1,9 @@
-import store from '@/store';
 import { MessageBox } from 'element-ui';
 
-import { deleteExisting, stringify } from '@/utils';
+import { deleteExisting } from '@/utils';
 import { WorkbookMap } from '@/shims-type';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import {
-  LostIdModule,
   getLostTaskId,
   getLostProcessId,
   getLostSourceId,
@@ -14,6 +12,7 @@ import {
 } from '@/store/modules/lost-id';
 import { ActiveFileModule } from '@/store/modules/active-file';
 import { ChangedMapModule } from '@/store/modules/changed-map';
+import { ActiveTaskModule } from '@/store/modules/active-task';
 
 // 从小到大缺失的id，供添加任务时使用
 let lostTaskid = '';
@@ -88,7 +87,7 @@ export async function writeExcel(data: Record<string, any>) {
   lostProcessid = getLostProcessId();
   lostSourceid = getLostSourceId();
 
-  updateTaskid = store.state.updateTaskId;
+  updateTaskid = ActiveTaskModule.taskId;
   if (updateTaskid === '') {
     activeModel = 'create';
   } else {

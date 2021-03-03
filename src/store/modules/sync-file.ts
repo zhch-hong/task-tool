@@ -1,7 +1,7 @@
+import store from '..';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import store from '@/store';
 
-@Module({ dynamic: true, store, name: 'syncFile' })
+@Module({ name: 'syncFile', store, dynamic: true })
 class SyncFile extends VuexModule {
   private _fileName: null | string = null;
   private _pathList: string[] = [];

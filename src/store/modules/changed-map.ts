@@ -1,10 +1,10 @@
+import store from '..';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import { WorkbookMap } from '@/shims-type';
 import { WorkspacedModule } from './workspaced';
 import { writeChanged } from '@/utils';
-import store from '@/store';
 
-@Module({ dynamic: true, store, name: 'changedMap' })
+@Module({ name: 'ChangedMap', store, dynamic: true })
 class ChangedMap extends VuexModule {
   public readonly changedMap: Map<string, WorkbookMap> = new Map();
 

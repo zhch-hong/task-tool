@@ -1,9 +1,9 @@
+import store from '..';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import store from '@/store';
 import { readExcelToMap } from '@/utils';
 import { WorkbookMap } from '@/shims-type';
 
-@Module({ dynamic: true, store, name: 'workspaced' })
+@Module({ name: 'workspaced', store, dynamic: true })
 class Workspaced extends VuexModule {
   private dirMap: Map<string, WorkbookMap> = new Map();
 

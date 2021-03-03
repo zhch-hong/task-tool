@@ -35,9 +35,9 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { statSync } from 'fs';
-import { contextmenu, getTreeDataDefault } from '@/utils';
+import { contextmenu, DATA_MEMORY } from '@/utils';
 import { ActiveFileModule } from '@/store/modules/active-file';
-import { FileTreeModule } from '@/store/modules/file-tree';
+import { ExpandedKeysModule } from '@/store/modules/expanded-keys';
 import { Tree } from 'element-ui';
 import { TreeData } from 'element-ui/types/tree';
 import { cloneDeep } from 'lodash';
@@ -57,7 +57,7 @@ export default class FileTree extends Vue {
     label: 'label',
     path: 'path',
   };
-  defaultExpandedKeys = cloneDeep(FileTreeModule.expandedKeys);
+  defaultExpandedKeys = cloneDeep(ExpandedKeysModule.expandedKeys);
 
   get currentNodeKey(): string {
     return ActiveFileModule.currentPath;
@@ -75,7 +75,7 @@ export default class FileTree extends Vue {
   }
 
   async refresh(): Promise<void> {
-    this.treeData = getTreeDataDefault();
+    this.treeData = DATA_MEMORY;
     await this.$nextTick();
     (this.$refs.tree as Tree).setCurrentKey(ActiveFileModule.path);
   }
@@ -102,11 +102,11 @@ export default class FileTree extends Vue {
   }
 
   nodeExpand(data: TreeMeta): void {
-    FileTreeModule.appendKey(data.path);
+    ExpandedKeysModule.appendKey(data.path);
   }
 
   nodeCollapse(data: TreeMeta): void {
-    FileTreeModule.removeKey(data.path);
+    ExpandedKeysModule.removeKey(data.path);
   }
 
   statLabel(data: TreeMeta): boolean {

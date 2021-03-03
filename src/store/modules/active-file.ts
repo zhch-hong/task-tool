@@ -1,9 +1,9 @@
+import store from '..';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import store from '@/store';
 import { LostIdModule } from './lost-id';
 import { WorkspacedModule } from './workspaced';
 
-@Module({ dynamic: true, store, name: 'activeFile' })
+@Module({ name: 'activeFile', store, dynamic: true })
 class ActiveFile extends VuexModule {
   public path = '';
 

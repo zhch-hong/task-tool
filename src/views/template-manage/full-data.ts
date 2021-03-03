@@ -1,7 +1,7 @@
 import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
 import { TreeData } from 'element-ui/types/tree';
-import { getTreeDataDefault, readFileText } from '@/utils';
+import { DATA_MEMORY, readFileText } from '@/utils';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import store from '@/electron-store';
 
@@ -15,7 +15,7 @@ interface TreeMeta extends TreeData {
   children?: TreeMeta[];
 }
 
-function flatTreedata(params: TreeMeta[], pathList: string[]) {
+function flatTreedata(params: any[], pathList: string[]) {
   params.forEach((item) => {
     if (item.path?.endsWith('.xlsx')) {
       pathList.push(item.path);
@@ -178,7 +178,7 @@ function treedataMap(pathList: string[]): Promise<Record<string, any>> {
 }
 
 export async function fullData() {
-  const treedata: any = getTreeDataDefault();
+  const treedata = DATA_MEMORY;
 
   const pathList: string[] = [];
   flatTreedata(treedata, pathList);

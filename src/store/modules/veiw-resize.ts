@@ -1,13 +1,7 @@
-import {
-  Action,
-  getModule,
-  Module,
-  Mutation,
-  VuexModule,
-} from 'vuex-module-decorators';
-import store from '@/store';
+import store from '..';
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 
-@Module({ dynamic: true, store, name: 'viewResize' })
+@Module({ name: 'viewResize', store, dynamic: true })
 class ViewResize extends VuexModule {
   public windowHeight = 800;
 

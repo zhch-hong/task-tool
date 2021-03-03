@@ -14,6 +14,7 @@ import {
   find,
   findNext,
   findPrev,
+  fileManage,
 } from '@/menu';
 
 const { Menu, getCurrentWindow } = remote;
@@ -130,14 +131,22 @@ const menu = Menu.buildFromTemplate([
     ],
   },
   {
+    label: '配置',
+    submenu: [
+      {
+        label: '文件管理',
+        click: fileManage,
+      },
+    ],
+  },
+  {
     label: '帮助',
     submenu: HelpMeu,
   },
 ]);
 
 const titlebar = new Titlebar({
-  backgroundColor: Color.fromHex('#EAEAEB'),
-  itemBackgroundColor: Color.fromHex('#d7d7da'),
+  backgroundColor: Color.fromHex('#0062b3'),
   icon: './icon_36.png',
   menu: menu,
 });

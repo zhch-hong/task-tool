@@ -1,7 +1,7 @@
+import store from '..';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
 import { SheetName, WorkbookMap } from '@/shims-type';
 import Vue from 'vue';
-import store from '@/store';
 
 function getLostid(map: WorkbookMap, name: SheetName, key: string) {
   const workbook = map;
@@ -45,7 +45,7 @@ function getLostid(map: WorkbookMap, name: SheetName, key: string) {
   };
 }
 
-@Module({ dynamic: true, store, name: 'lostId' })
+@Module({ name: 'lostId', store, dynamic: true })
 class LostId extends VuexModule {
   private lostTaskid: string[] = [];
   private maxTaskid = -1;

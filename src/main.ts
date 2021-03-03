@@ -6,8 +6,8 @@ Vue.config.errorHandler = (err) => {
 };
 
 import App from './App.vue';
-import router from './router';
 import store from './store';
+import router from './router';
 
 import './plugins/element-ui';
 import './plugins/vxe-table';

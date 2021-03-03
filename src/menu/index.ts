@@ -11,3 +11,4 @@ export { doubleTask } from './Edit/DoubleTask';
 export { find } from './Edit/Find';
 export { findNext } from './Edit/FindNext';
 export { findPrev } from './Edit/FindPrev';
+export { fileManage } from './Config/File';

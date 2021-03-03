@@ -38,11 +38,11 @@ import { cloneDeep } from 'lodash';
 import { bind, unbind } from 'mousetrap';
 import { remote } from 'electron';
 
-import store from '@/store';
 import { writeExcel } from './utils/writeExcel';
 import { WorkspacedModule } from '@/store/modules/workspaced';
 import { readLastFile } from '@/utils';
 import { ActiveFileModule } from '@/store/modules/active-file';
+import { ActiveTaskModule } from '@/store/modules/active-task';
 
 import BaseData from './components/BaseData.vue';
 import ProgressData from './components/ProgressData.vue';
@@ -106,18 +106,18 @@ export default Vue.extend({
         buttons: ['取消', '保存', '放弃改动'],
       });
       if (response === 2) {
-        store.commit('updateTaskId', '');
+        ActiveTaskModule.SET_TASKID('');
         next();
       } else if (response === 1) {
         this.handleSave().then(() => {
-          store.commit('updateTaskId', '');
+          ActiveTaskModule.SET_TASKID('');
           next();
         });
       } else {
         next(false);
       }
     } else {
-      store.commit('updateTaskId', '');
+      ActiveTaskModule.SET_TASKID('');
       next();
     }
   },
@@ -137,7 +137,7 @@ export default Vue.extend({
     },
 
     async getUpdateTaskData(): Promise<void> {
-      const id = store.state.updateTaskId;
+      const id = ActiveTaskModule.taskId;
       if (id !== '') {
         const path = ActiveFileModule.path;
 

@@ -1,7 +1,6 @@
+import store from '..';
 import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators';
-import store from '@/store';
 import ElectronStore from '@/electron-store';
-import { readFileText, writeFileText } from '@/utils';
 
 function readDefaultExpanedKeys(): string[] {
   const expandedKeys = ElectronStore.get('expandedKeys') as string[];
@@ -16,8 +15,8 @@ function writeDefaultExpanedKeys(params: string[]) {
   ElectronStore.set('expandedKeys', params);
 }
 
-@Module({ dynamic: true, store, name: 'fileTree' })
-class FileTree extends VuexModule {
+@Module({ name: 'expandedKeys', store, dynamic: true })
+class ExpandedKeys extends VuexModule {
   private expandedList = readDefaultExpanedKeys();
 
   @Mutation
@@ -51,4 +50,4 @@ class FileTree extends VuexModule {
   }
 }
 
-export const FileTreeModule = getModule(FileTree);
+export const ExpandedKeysModule = getModule(ExpandedKeys);
