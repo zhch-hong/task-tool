@@ -14,7 +14,10 @@ const ComponentClass = Vue.extend({
         props: {
           title: '同步文件',
           visible: obser.visible,
-          closeOnClickModal: false,
+          modal: false,
+          'close-on-click-modal': false,
+          'close-on-press-escape': false,
+          'custom-class': 'el-dialog__custom-class',
         },
 
         on: {
