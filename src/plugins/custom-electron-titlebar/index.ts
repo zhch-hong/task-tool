@@ -19,6 +19,9 @@ import {
   receive,
   enumerate,
   asset,
+  taskBase,
+  taskProcess,
+  taskSource,
 } from '@/menu';
 
 const { Menu, getCurrentWindow } = remote;
@@ -166,6 +169,32 @@ const menu = Menu.buildFromTemplate([
             label: '财富类型',
             click: () => {
               asset();
+              titlebar.updateMenu(menu);
+            },
+          },
+        ],
+      },
+      {
+        label: '模板管理',
+        submenu: [
+          {
+            label: '基础信息',
+            click: () => {
+              taskBase();
+              titlebar.updateMenu(menu);
+            },
+          },
+          {
+            label: '任务进度',
+            click: () => {
+              taskProcess();
+              titlebar.updateMenu(menu);
+            },
+          },
+          {
+            label: '任务来源',
+            click: () => {
+              taskSource();
               titlebar.updateMenu(menu);
             },
           },

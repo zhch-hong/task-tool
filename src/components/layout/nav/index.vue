@@ -20,10 +20,6 @@
         <i class="menu-icon el-icon-refresh"></i>
         <!-- <span slot="title">批量修改Excel</span> -->
       </el-menu-item>
-      <el-menu-item index="/template-manage" class="el-menu-item">
-        <i class="menu-icon el-icon-document"></i>
-        <!-- <span slot="title">模板管理</span> -->
-      </el-menu-item>
     </el-menu>
   </nav>
 </template>

@@ -1,23 +1,11 @@
-import { resolve } from 'path';
 import { v4 as uuid } from 'uuid';
-import { TreeData } from 'element-ui/types/tree';
-import { DATA_MEMORY, readFileText } from '@/utils';
+import { DATA_MEMORY } from '@/utils';
 import { WorkspacedModule } from '@/store/modules/workspaced';
-import store from '@/electron-store';
-
-interface TreeMeta extends TreeData {
-  uuid: string;
-  type: 'type' | 'name' | 'path' | 'task';
-  value: 'base' | 'process' | 'source';
-  name: string;
-  path?: string;
-  data?: Record<string, any>;
-  children?: TreeMeta[];
-}
+import { ConfigFilesModule } from '@/store/modules/config-files';
 
 function flatTreedata(params: any[], pathList: string[]) {
   params.forEach((item) => {
-    if (item.path?.endsWith('.xlsx')) {
+    if (item.path?.endsWith('.xlsx') || item.path?.endsWith('.xls')) {
       pathList.push(item.path);
     }
     if (item.children && item.children.length !== 0) {
@@ -187,8 +175,7 @@ export async function fullData() {
 
   const uuidList: string[] = [];
 
-  const path = resolve(resolve(store.get('configDir') as string, 'app_config'), `template-manage.json`);
-  const object: Record<string, Record<string, any>[]> = readFileText(path) || {};
+  const object = ConfigFilesModule.templateData;
   for (const key in object) {
     if (Object.prototype.hasOwnProperty.call(object, key)) {
       const element = object[key];

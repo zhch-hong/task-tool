@@ -14,3 +14,4 @@ export { findPrev } from './Edit/FindPrev';
 export { fileManage } from './Config/File';
 export { sourceManage } from './Config/Source';
 export { receive, enumerate, asset } from './Config/Input';
+export { taskBase, taskProcess, taskSource } from './Config/Template';

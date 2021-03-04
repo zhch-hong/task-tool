@@ -4,7 +4,6 @@ import Layout from '@/components/layout/index.vue';
 
 import EditFile from '@/views/edit-file/edit-file.vue';
 import EditTask from '@/views/edit-task/edit-task.vue';
-import TemplateManage from '@/views/template-manage/template-manage.vue';
 import SyncFile from '@/views/sync-file/sync-file.vue';
 
 const routes: RouteConfig[] = [
@@ -21,11 +20,6 @@ const routes: RouteConfig[] = [
     path: '/edit-task',
     component: Layout,
     children: [{ path: '', component: EditTask }],
-  },
-  {
-    path: '/template-manage',
-    component: Layout,
-    children: [{ path: '', component: TemplateManage }],
   },
   {
     path: '/sync-file',
