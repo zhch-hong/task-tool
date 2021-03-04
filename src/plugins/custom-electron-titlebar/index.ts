@@ -16,6 +16,9 @@ import {
   findPrev,
   fileManage,
   sourceManage,
+  receive,
+  enumerate,
+  asset,
 } from '@/menu';
 
 const { Menu, getCurrentWindow } = remote;
@@ -141,6 +144,32 @@ const menu = Menu.buildFromTemplate([
       {
         label: '来源管理',
         click: sourceManage,
+      },
+      {
+        label: '输入项管理',
+        submenu: [
+          {
+            label: '获得类型',
+            click: () => {
+              receive();
+              titlebar.updateMenu(menu);
+            },
+          },
+          {
+            label: '枚举类型',
+            click: () => {
+              enumerate();
+              titlebar.updateMenu(menu);
+            },
+          },
+          {
+            label: '财富类型',
+            click: () => {
+              asset();
+              titlebar.updateMenu(menu);
+            },
+          },
+        ],
       },
     ],
   },
