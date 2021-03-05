@@ -25,7 +25,6 @@
   </fieldset>
 </template>
 <script lang="ts">
-import { stringify } from '@/utils';
 import { cloneDeep } from 'lodash';
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 
@@ -68,17 +67,24 @@ export default class ProgressData extends Vue {
 
   @Watch('processData')
   dataWatch(value: Record<string, string>): void {
-    Object.assign(this.processForm, value);
+    if (value) {
+      Object.assign(this.processForm, value);
 
-    const _process = value.process.split(',');
-    this.lastLoop = _process[_process.length - 1] === '-1';
-    if (this.lastLoop) this.process = _process.slice(0, _process.length - 1);
-    else this.process = _process;
+      const _process = value.process.split(',');
+      this.lastLoop = _process[_process.length - 1] === '-1';
+      if (this.lastLoop) this.process = _process.slice(0, _process.length - 1);
+      else this.process = _process;
+    } else {
+      this.processForm = cloneDeep(process);
+      this.lastLoop = false;
+      this.process = null;
+    }
   }
 
   @Watch('awardData', { deep: true })
   awardWatch(value: Record<string, string>[][]): void {
-    this.awards = value;
+    if (value) this.awards = value;
+    else this.awards = [];
   }
 
   submit(): void {

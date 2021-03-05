@@ -12,10 +12,6 @@
         <i class="menu-icon el-icon-folder" title="编辑文件"></i>
         <!-- <span slot="title">编辑文件</span> -->
       </el-menu-item>
-      <el-menu-item index="/edit-task" class="el-menu-item">
-        <i class="menu-icon el-icon-edit-outline" title="编辑任务"></i>
-        <!-- <span slot="title">编辑任务</span> -->
-      </el-menu-item>
       <el-menu-item index="/sync-file" class="el-menu-item">
         <i class="menu-icon el-icon-refresh" title="批量修改Excel"></i>
         <!-- <span slot="title">批量修改Excel</span> -->

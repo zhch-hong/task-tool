@@ -16,10 +16,8 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class TaskReset extends Vue {
-  @Prop({ type: [Boolean, String], required: true }) value!: string | boolean;
-  @Prop({ type: [Number, String], required: true }) resetDelay!:
-    | number
-    | string;
+  @Prop({ type: [Boolean, String], default: 'false' }) value!: string | boolean;
+  @Prop({ type: [Number, String], default: 0 }) resetDelay!: number | string;
 
   get disabled(): boolean {
     return this.value.toString().toLowerCase() === 'false';

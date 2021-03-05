@@ -1,9 +1,6 @@
 <template>
   <el-timeline>
-    <el-timeline-item
-      v-for="(activity, index) in activities"
-      :key="activity.uuid"
-    >
+    <el-timeline-item v-for="(activity, index) in activities" :key="activity.uuid">
       <LineItem
         :progress-item="activity"
         :reward-type="rewardType"
@@ -12,9 +9,7 @@
         @process-change="updateProcess(index, $event)"
       />
     </el-timeline-item>
-    <el-button v-if="activities.length === 0" @click="insertProgress(0)"
-      >添加进度</el-button
-    >
+    <el-button v-if="activities.length === 0" @click="insertProgress(0)">添加进度</el-button>
   </el-timeline>
 </template>
 <script lang="ts">
@@ -37,7 +32,10 @@ export default class ProgressLine extends Vue {
 
   @Watch('process', { deep: true, immediate: true })
   processWatch(process: string[] | null): void {
-    if (!process) return;
+    if (!process) {
+      this.activities = [];
+      return;
+    }
 
     const array: Record<string, any>[] = [];
     process.forEach((p, i) => {

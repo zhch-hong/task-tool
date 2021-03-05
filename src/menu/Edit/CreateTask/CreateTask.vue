@@ -1,9 +1,5 @@
 <template>
   <div id="edit-task">
-    <div style="padding: 5px 10px; box-shadow: 0 0 4px 0 #e2e2e2">
-      <el-button :loading="loading" @click="handleSave" title="Ctrl+S" type="primary">保存任务</el-button>
-      <el-button @click="$router.push('/edit-file')">返回</el-button>
-    </div>
     <div style="flex: 1; overflow: auto">
       <BaseData
         ref="baseDataRef"
@@ -33,14 +29,12 @@
 </template>
 <script lang="ts">
 import Vue from 'vue';
-import { NavigationGuardNext, Route } from 'vue-router';
 import { cloneDeep } from 'lodash';
 import { bind, unbind } from 'mousetrap';
 import { remote } from 'electron';
 
 import { writeExcel } from './utils/writeExcel';
 import { WorkspacedModule } from '@/store/modules/workspaced';
-import { readLastFile } from '@/utils';
 import { ActiveFileModule } from '@/store/modules/active-file';
 import { ActiveTaskModule } from '@/store/modules/active-task';
 
@@ -49,8 +43,6 @@ import ProgressData from './components/ProgressData.vue';
 import SourceData from './components/SourceData.vue';
 
 export default Vue.extend({
-  name: 'edit-task',
-
   components: {
     BaseData,
     ProgressData,
@@ -59,7 +51,6 @@ export default Vue.extend({
 
   data() {
     return {
-      loading: false,
       baseData: {} as Record<string, string> | null,
       processData: null as Record<string, string> | null,
       awardData: [] as Record<string, string>[][],
@@ -78,55 +69,54 @@ export default Vue.extend({
       },
     };
   },
-  async created(): Promise<void> {
-    await this.getUpdateTaskData();
-    this.bindKeyboard();
-    this.getNocontaminated();
-  },
-
-  async beforeRouteLeave(to: Route, from: Route, next: NavigationGuardNext): Promise<void> {
-    (this.$refs.baseDataRef as any).submit();
-    (this.$refs.progressDataRef as any).submit();
-    (this.$refs.sourceDataRef as any).submit();
-    await this.$nextTick();
-
-    const oldData = JSON.stringify(this.nocontaminated);
-    const newData = JSON.stringify(this.taskData);
-
-    if (!(oldData.startsWith(newData) && oldData.endsWith(newData))) {
-      const { dialog, getCurrentWindow } = remote;
-      const win = getCurrentWindow();
-      win.focus();
-      const response = dialog.showMessageBoxSync(win, {
-        title: '数据变动',
-        message: '检测到数据已经改动，并尚未保存，离开将丢弃数据',
-        type: 'warning',
-        cancelId: -1,
-        defaultId: 1,
-        buttons: ['取消', '保存', '放弃改动'],
-      });
-      if (response === 2) {
-        ActiveTaskModule.SET_TASKID('');
-        next();
-      } else if (response === 1) {
-        this.handleSave().then(() => {
-          ActiveTaskModule.SET_TASKID('');
-          next();
-        });
-      } else {
-        next(false);
-      }
-    } else {
-      ActiveTaskModule.SET_TASKID('');
-      next();
-    }
-  },
-
-  beforeDestroy(): void {
-    this.unBindKeyboard();
-  },
 
   methods: {
+    /**
+     * 关闭对话框前需要检测是否已经修改了数据
+     * 提示是否需要先保存再关闭
+     */
+    async beforeClose(): Promise<void> {
+      (this.$refs.baseDataRef as any).submit();
+      (this.$refs.progressDataRef as any).submit();
+      (this.$refs.sourceDataRef as any).submit();
+      await this.$nextTick();
+
+      const oldData = JSON.stringify(this.nocontaminated);
+      const newData = JSON.stringify(this.taskData);
+
+      if (!(oldData.startsWith(newData) && oldData.endsWith(newData))) {
+        const { dialog, getCurrentWindow } = remote;
+        const win = getCurrentWindow();
+        win.focus();
+        const response = dialog.showMessageBoxSync(win, {
+          title: '数据变动',
+          message: '检测到数据已经改动，并尚未保存，离开将丢弃数据',
+          type: 'warning',
+          cancelId: -1,
+          defaultId: 1,
+          buttons: ['取消', '保存', '放弃改动'],
+        });
+        if (response === 2) {
+          ActiveTaskModule.SET_TASKID('');
+        } else if (response === 1) {
+          this.handleSave().then(() => {
+            ActiveTaskModule.SET_TASKID('');
+          });
+        } else {
+          return Promise.reject();
+        }
+      } else {
+        ActiveTaskModule.SET_TASKID('');
+      }
+
+      return Promise.resolve();
+    },
+
+    /**
+     * 获取没有修改过的数据，用于离开页面时数据保存提示
+     * 如果是添加任务，获取的数据各项项字段都为空值
+     * 如果是修改任务，获取的数据就是当前任务的数据
+     */
     getNocontaminated(): void {
       (this.$refs.baseDataRef as any).submit();
       (this.$refs.progressDataRef as any).submit();
@@ -142,41 +132,56 @@ export default Vue.extend({
         const path = ActiveFileModule.path;
 
         if (!path) {
-          readLastFile()
-            .then(() => {
-              this.getUpdateTaskData();
-            })
-            .catch();
-          return;
+          return Promise.reject();
         }
 
         const workbookMap = await WorkspacedModule.bookMapByPath(path);
-
         const taskList = workbookMap.get('task') as Record<string, string>[];
         const taskJson = taskList.find((item) => item.id.toString() === id.toString()) as Record<string, string>;
+
+        // 基础数据
         this.baseData = taskJson;
 
+        // 使用的模板
         this.setPropTemplate(taskJson);
 
         const { process_id } = taskJson;
         const processList = workbookMap.get('process_data') as Record<string, string>[];
         const processJson = processList.find((item) => item.process_id === process_id) as Record<string, string>;
+
+        // 进度数据
         this.processData = processJson;
 
         const { source_id, awards } = processJson;
-
         const awardList = workbookMap.get('award_data') as Record<string, string>[];
+
+        // 奖励数据
         this.awardData = awards.split(',').map((award_id) => {
           return awardList.filter((award) => award.award_id == award_id);
         });
 
         const sourceList = workbookMap.get('source') as Record<string, string>[];
+
+        // 来源数据
         this.sourceData = sourceList.filter((source) => source.source_id === source_id);
 
         const conditionList = workbookMap.get('condition') as Record<string, string>[];
+
+        // 条件数据
         this.conditionData = this.sourceData.map((source: Record<string, string>) => {
           return conditionList.filter((condition) => condition.condition_id === source.condition_id);
         });
+
+        return Promise.resolve();
+      } else {
+        this.baseData = null;
+        this.processData = null;
+        this.sourceData = [];
+        this.awardData = [];
+        this.sourceData = [];
+        this.conditionData = [];
+
+        return Promise.resolve();
       }
     },
 
@@ -188,7 +193,6 @@ export default Vue.extend({
     },
 
     async handleSave(): Promise<void> {
-      this.loading = true;
       await this.$nextTick();
       (this.$refs.baseDataRef as any).submit();
       (this.$refs.progressDataRef as any).submit();
@@ -196,10 +200,8 @@ export default Vue.extend({
       await this.$nextTick();
 
       writeExcel(this.taskData);
-      setTimeout(async () => {
-        this.loading = false;
-        this.nocontaminated = this.taskData;
-      }, 500);
+
+      return Promise.resolve();
     },
 
     baseDataSubmit(object: Record<string, any>): void {
@@ -245,7 +247,7 @@ export default Vue.extend({
 </script>
 <style lang="scss">
 #edit-task {
-  height: 100%;
+  height: 65vh;
   overflow: auto;
   display: flex;
   flex-direction: column;

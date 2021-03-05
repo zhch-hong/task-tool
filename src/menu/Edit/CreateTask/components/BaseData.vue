@@ -94,7 +94,8 @@ export default class BaseData extends Vue {
 
   @Watch('baseData')
   dataWatch(value: Record<string, string>): void {
-    this.form = propertySlice(form, value);
+    if (value) this.form = propertySlice(form, value);
+    else this.form = {};
   }
 
   submit(): void {

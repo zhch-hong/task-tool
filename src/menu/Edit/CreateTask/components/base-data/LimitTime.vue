@@ -1,25 +1,10 @@
 <template>
   <div>
-    <el-input-number
-      v-model="hour"
-      :min="0"
-      label="时"
-      @change="emitParent"
-    ></el-input-number>
+    <el-input-number v-model="hour" :min="0" label="时" @change="emitParent"></el-input-number>
     <label>时</label>
-    <el-input-number
-      v-model="minute"
-      :min="0"
-      label="分"
-      @change="emitParent"
-    ></el-input-number>
+    <el-input-number v-model="minute" :min="0" label="分" @change="emitParent"></el-input-number>
     <label>分</label>
-    <el-input-number
-      v-model="second"
-      :min="0"
-      label="秒"
-      @change="emitParent"
-    ></el-input-number>
+    <el-input-number v-model="second" :min="0" label="秒" @change="emitParent"></el-input-number>
     <label>秒</label>
   </div>
 </template>
@@ -28,7 +13,7 @@ import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 
 @Component
 export default class LimitTime extends Vue {
-  @Prop({ type: [Number, String], required: true }) value!: string | number;
+  @Prop({ type: [Number, String], default: 0 }) value!: string | number;
 
   hour = 0;
   minute = 0;

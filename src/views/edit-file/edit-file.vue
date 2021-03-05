@@ -44,7 +44,7 @@
 import Vue from 'vue';
 import { cloneDeep } from 'lodash';
 import { InterceptorKeydownParams, RowInfo, Table } from 'vxe-table';
-import { bind, unbind } from 'mousetrap';
+import { bind, unbind, trigger } from 'mousetrap';
 import { v4 as uuid } from 'uuid';
 import { readLastFile } from '@/utils';
 import { WorkspacedModule } from '@/store/modules/workspaced';
@@ -121,7 +121,6 @@ export default Vue.extend({
   methods: {
     registerKeyboard(): void {
       KeyboardEventModule.registerKeyboard({ key: 'f5', handles: [this.refreshTable] });
-      KeyboardEventModule.registerKeyboard({ key: 'ctrl+n', handles: [this.createTask] });
       KeyboardEventModule.registerKeyboard({ key: 'ctrl+r', handles: [this.deleteTask] });
       KeyboardEventModule.registerKeyboard({ key: 'ctrl+c', handles: [this.copySelection] });
       KeyboardEventModule.registerKeyboard({ key: 'ctrl+v', handles: [this.pasteTask] });
@@ -129,7 +128,6 @@ export default Vue.extend({
     },
     unregisterKeyboard(): void {
       KeyboardEventModule.unregisterKeyboard('f5');
-      KeyboardEventModule.unregisterKeyboard('ctrl+n');
       KeyboardEventModule.unregisterKeyboard('ctrl+r');
       KeyboardEventModule.unregisterKeyboard('ctrl+c');
       KeyboardEventModule.unregisterKeyboard('ctrl+v');
@@ -143,10 +141,6 @@ export default Vue.extend({
         .catch(() => {
           //
         });
-    },
-
-    createTask(): void {
-      this.$router.push('/edit-task');
     },
 
     refreshTable(): void {
@@ -205,7 +199,13 @@ export default Vue.extend({
     updateRow(index: number): void {
       const row = this.tableData[index];
       ActiveTaskModule.SET_TASKID(row.id);
-      this.$router.push('/edit-task');
+
+      this.$nextTick(() => {
+        // 编程式触发快捷键
+        trigger('ctrl+n', 'keydown');
+        // setTimeout(() => {
+        // }, 1000);
+      });
     },
 
     doubleTask(): void {
@@ -506,14 +506,6 @@ export default Vue.extend({
         'keydown'
       );
       bind(
-        'ctrl+n',
-        () => {
-          this.createTask();
-          return false;
-        },
-        'keydown'
-      );
-      bind(
         'ctrl+r',
         () => {
           this.deleteTask();
@@ -549,7 +541,6 @@ export default Vue.extend({
 
     unBindKeyboard(): void {
       unbind('f5', 'keydown');
-      unbind('ctrl+n', 'keydown');
       unbind('delete', 'keydown');
       unbind('ctrl+c', 'keydown');
       unbind('ctrl+v', 'keydown');

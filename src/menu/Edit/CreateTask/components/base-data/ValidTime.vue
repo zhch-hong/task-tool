@@ -14,15 +14,12 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class ValidTime extends Vue {
-  @Prop({ type: [Number, String], required: true }) start!: number | string;
-  @Prop({ type: [Number, String], required: true }) end!: number | string;
+  @Prop({ type: [Number, String], default: 0 }) start!: number | string;
+  @Prop({ type: [Number, String], default: 0 }) end!: number | string;
 
   get value(): null | number[] {
     if (this.start === 0 && this.end === 0) return null;
-    return [
-      parseInt(this.start.toString()) * 1000,
-      parseInt(this.end.toString()) * 1000,
-    ];
+    return [parseInt(this.start.toString()) * 1000, parseInt(this.end.toString()) * 1000];
   }
   set value(array: number[] | null) {
     if (array) {
