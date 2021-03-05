@@ -11,11 +11,11 @@
 import Vue from 'vue';
 import _ from 'lodash';
 import { v4 as uuid } from 'uuid';
+import { writeFileText } from '@/utils';
 import { ConfigFilesModule, INPUT_PATH } from '@/store/modules/config-files';
 
 import draggable from 'vuedraggable';
 import InlineInput from '@/components/InlineInput.vue';
-import { writeFileText } from '@/utils';
 
 // 任务获得类型的数据，注意：这个地方是引用传递
 const REFREENCE = ConfigFilesModule.inputData.find((o) => o.value === 'type') as Record<string, any>;
@@ -30,7 +30,6 @@ export default Vue.extend({
     const data: Record<string, string>[] = REFREENCE ? _.cloneDeep(REFREENCE.select) : [];
 
     data.forEach((item) => (item['uuid'] = uuid()));
-    console.log(data);
 
     return {
       data: data,

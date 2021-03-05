@@ -7,10 +7,10 @@
       <el-table-column v-if="rewardType === 'random'" label="权重" prop="get_weight"></el-table-column>
       <el-table-column label="广播" prop="broadcast_content"></el-table-column>
       <el-table-column label="邮件" prop="is_send_email"></el-table-column>
-      <el-table-column>
+      <el-table-column width="160">
         <template #default="{ $index }">
-          <el-button size="mini" @click="clickUpdate($index)">修改</el-button>
-          <el-button size="mini" @click="deleteRow($index)">删除</el-button>
+          <el-button size="mini" type="primary" @click="clickUpdate($index)">修改</el-button>
+          <el-button size="mini" type="danger" @click="deleteRow($index)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
