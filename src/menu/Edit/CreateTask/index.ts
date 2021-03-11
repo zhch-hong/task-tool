@@ -21,6 +21,7 @@ const ComponentClass = Vue.extend({
           'show-close': false,
           'close-on-click-modal': false,
           'close-on-press-escape': false,
+          'destroy-on-close': true,
           'custom-class': 'el-dialog__custom-class',
           width: '60%',
         },
