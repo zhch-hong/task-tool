@@ -82,7 +82,7 @@ function validateTaskid(id?: string): Promise<void> {
   });
 }
 
-export async function writeExcel(data: Record<string, any>) {
+export async function writeExcel(data: Record<string, any>): Promise<void> {
   lostTaskid = getLostTaskId();
   lostProcessid = getLostProcessId();
   lostSourceid = getLostSourceId();
@@ -112,6 +112,7 @@ export async function writeExcel(data: Record<string, any>) {
         path: ActiveFileModule.path,
         data: workbookMap,
       });
+      ActiveFileModule.UpdateCount();
     })
     .catch();
 }

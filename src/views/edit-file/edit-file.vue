@@ -89,6 +89,23 @@ export default Vue.extend({
       return ViewResizeModule.windowHeight - 30;
       // return ViewResizeModule.windowHeight - 62;
     },
+
+    updateCount(): number {
+      return ActiveFileModule.updateCount;
+    },
+  },
+
+  watch: {
+    updateCount: {
+      handler(value: number) {
+        // 值为0说明是新打开的文件，不是文件内容被更新
+        if (value === 0) {
+          return;
+        }
+
+        this.refreshTable();
+      },
+    },
   },
 
   created() {

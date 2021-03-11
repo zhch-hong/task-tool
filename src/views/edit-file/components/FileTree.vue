@@ -60,7 +60,7 @@ export default class FileTree extends Vue {
   defaultExpandedKeys = cloneDeep(ExpandedKeysModule.expandedKeys);
 
   get currentNodeKey(): string {
-    return ActiveFileModule.currentPath;
+    return ActiveFileModule.path;
   }
 
   @Watch('currentNodeKey', { immediate: true })

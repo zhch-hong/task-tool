@@ -5,11 +5,18 @@ import { WorkspacedModule } from './workspaced';
 
 @Module({ name: 'activeFile', store, dynamic: true })
 class ActiveFile extends VuexModule {
-  public path = '';
+  private _path = '';
+
+  /**
+   * 当文件中的任务被修改时，会触发_updateCount改变，通过监听这个变量，来更新视图
+   */
+  private _updateCount = 0;
 
   @Mutation
   private SET_PATH(path: string): void {
-    this.path = path;
+    this._path = path;
+    // 当打开新的文件时，将文件更新标识重置
+    this._updateCount = 0;
   }
 
   @Action
@@ -24,8 +31,22 @@ class ActiveFile extends VuexModule {
       });
   }
 
-  get currentPath(): string {
-    return this.path;
+  @Mutation
+  private UPDATE_COUNT(): void {
+    this._updateCount++;
+  }
+
+  @Action
+  public UpdateCount(): void {
+    this.UPDATE_COUNT();
+  }
+
+  get path(): string {
+    return this._path;
+  }
+
+  get updateCount(): number {
+    return this._updateCount;
   }
 }
 
