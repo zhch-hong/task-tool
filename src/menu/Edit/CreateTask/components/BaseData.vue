@@ -48,7 +48,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
-import { cloneDeep } from 'lodash';
+import _, { cloneDeep } from 'lodash';
 
 import { propertySlice } from '@/utils';
 
@@ -103,7 +103,8 @@ export default class BaseData extends Vue {
   }
 
   templateData(data: Record<string, string>): void {
-    Object.assign(this.form, data);
+    const duplicate = _.cloneDeep(this.form);
+    this.form = _.assign(duplicate, data);
   }
 
   updateTemplate(method: (data: Record<string, any>) => void): void {

@@ -40,7 +40,7 @@
     left: 0;
     top: 50%;
     background-color: #409eff;
-    transition: height 150ms, top 150ms;
+    transition: height 50ms, top 50ms;
   }
 }
 .el-menu-item.is-active {

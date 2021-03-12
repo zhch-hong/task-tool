@@ -103,6 +103,7 @@ export default class ProgressData extends Vue {
       processArray.pop();
       this.process = processArray;
     } else {
+      this.lastLoop = false;
       this.process = processArray;
     }
     delete data.process.process;
