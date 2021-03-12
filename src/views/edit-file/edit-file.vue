@@ -5,6 +5,10 @@
       <div class="position">
         <vxe-table
           ref="vxeTable"
+          row-id="uuid"
+          show-overflow="title"
+          header-align="center"
+          border="full"
           :data="tableData"
           :height="tableHeight"
           :highlight-current-row="true"
@@ -18,10 +22,8 @@
           }"
           @checkbox-change="checkboxChange"
           @keydown="tableKeydown"
-          row-id="uuid"
-          show-overflow="title"
         >
-          <vxe-table-column type="seq" width="60"></vxe-table-column>
+          <vxe-table-column type="seq" width="60" align="center"></vxe-table-column>
           <vxe-table-column type="checkbox" width="60" align="center"></vxe-table-column>
           <vxe-table-column field="id" title="ID" width="100" align="center"></vxe-table-column>
           <vxe-table-column field="name" title="名称"></vxe-table-column>

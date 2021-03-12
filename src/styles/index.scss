@@ -90,6 +90,9 @@ div.titlebar {
 .el-tree-node__content {
   color: black;
 }
+.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
+  background-color: #f2f2f3;
+}
 
 /* Tabs */
 .el-tabs--border-card > .el-tabs__content {

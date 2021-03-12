@@ -16,6 +16,7 @@
       keep-source
       show-overflow="title"
       show-header-overflow="title"
+      header-align="center"
       :height="tableHeight"
       :data="tableData"
       :edit-config="{ trigger: 'click', mode: 'cell', showStatus: true, icon: 'none' }"
