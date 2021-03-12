@@ -1,5 +1,11 @@
 <template>
-  <el-dialog :visible.sync="visiblesync" :close-on-click-modal="false" @closed="closed">
+  <el-dialog
+    :visible.sync="visiblesync"
+    :close-on-click-modal="false"
+    :append-to-body="true"
+    title="奖励配置"
+    @closed="closed"
+  >
     <el-form ref="rulesForm" :model="form" :rules="rules" label-width="100px">
       <el-form-item label="奖励名称" prop="award_name">
         <el-input v-model="form.award_name"></el-input>
